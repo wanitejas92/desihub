@@ -63,6 +63,20 @@ export function formatEventDate(
   }).format(toDate(input));
 }
 
+/** Card meta-row date, e.g. "Sat, 17 Oct" — short weekday, no year. */
+export function formatEventDateCompact(
+  input: string | Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+  locale = 'en-NL',
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(toDate(input));
+}
+
 /** Compact date for a range's end, e.g. "18 Oct" — no year, no weekday. */
 export function formatEventDateShort(
   input: string | Date,

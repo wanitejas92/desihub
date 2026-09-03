@@ -14,10 +14,10 @@
   --color-fg: #0F0F0F;
   --color-fg-muted: #6B6762;
   --color-fg-subtle: #938E88;
-  --color-accent: #E8802A;
-  --color-accent-hover: #C96A1E;
+  --color-accent: #D6284F;
+  --color-accent-hover: #AD1F3E;
   --color-accent-fg: #FFFFFF;
-  --color-accent-subtle: #FCEBDA;
+  --color-accent-subtle: #FBE6EB;
   --color-success: #2F8F5B;
   --color-success-bg: #E4F2EA;
   --color-warn: #C98A12;
@@ -63,8 +63,8 @@
     --color-fg: #FAF7F2;
     --color-fg-muted: #BCB6AE;
     --color-fg-subtle: #938E88;
-    --color-accent: #F0994F;
-    --color-accent-hover: #E8802A;
+    --color-accent: #F0899F;
+    --color-accent-hover: #D6284F;
     --color-accent-fg: #0F0F0F;
     --color-accent-subtle: #2E2C2A;
     --color-success: #5FBF8A;
@@ -88,8 +88,8 @@
   --color-fg: #FAF7F2;
   --color-fg-muted: #BCB6AE;
   --color-fg-subtle: #938E88;
-  --color-accent: #F0994F;
-  --color-accent-hover: #E8802A;
+  --color-accent: #F0899F;
+  --color-accent-hover: #D6284F;
   --color-accent-fg: #0F0F0F;
   --color-accent-subtle: #2E2C2A;
   --color-success: #5FBF8A;

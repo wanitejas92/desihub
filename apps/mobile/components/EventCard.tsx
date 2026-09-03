@@ -1,6 +1,11 @@
 import { View, Text, Pressable } from 'react-native';
 import { Link } from 'expo-router';
-import { formatPriceRange, formatEventTime, type EventWithRelations } from '@desihub/shared';
+import {
+  formatPriceRange,
+  formatEventTime,
+  formatEventDateCompact,
+  type EventWithRelations,
+} from '@desihub/shared';
 import { EventImage } from './EventImage';
 import { DateChip } from './DateChip';
 import { CategoryPill } from './CategoryPill';
@@ -39,8 +44,15 @@ export function EventCard({
             category={event.category}
             organiserName={event.organiser.name}
           />
-          <View className="absolute left-2 top-2">
+          <View className="absolute left-2 top-2 gap-1.5">
             <DateChip startsAt={event.starts_at} />
+            {trending && (
+              <View className="self-start rounded-pill bg-accent px-2 py-0.5">
+                <Text className="font-bold uppercase text-accent-fg" style={{ fontSize: 10 }}>
+                  🔥 Trending
+                </Text>
+              </View>
+            )}
           </View>
           <View className="absolute right-2 top-2">
             <CategoryPill category={event.category} />
@@ -55,23 +67,21 @@ export function EventCard({
           )}
         </View>
 
-        <View className="gap-0.5 p-3">
-          {trending && (
-            <View className="mb-1 self-start rounded-pill bg-accent-subtle px-2 py-0.5">
-              <Text className="font-bold uppercase text-accent" style={{ fontSize: 10 }}>
-                🔥 Trending
-              </Text>
-            </View>
-          )}
+        <View className="gap-1 p-3">
+          <Text className="text-fg-muted" style={{ fontSize: 12 }}>
+            📅 {formatEventDateCompact(event.starts_at)} · {formatEventTime(event.starts_at)}
+          </Text>
           <Text className="font-semibold text-fg" style={{ fontSize: 16 }} numberOfLines={2}>
             {event.title}
           </Text>
-          <Text className="text-fg-muted" style={{ fontSize: 13 }}>
-            {event.venue?.city ?? 'Netherlands'} · {formatEventTime(event.starts_at)}
-          </Text>
-          <Text className="mt-0.5 font-semibold text-fg" style={{ fontSize: 14 }}>
-            {price}
-          </Text>
+          <View className="mt-0.5 flex-row items-end justify-between gap-2">
+            <Text className="text-fg-muted" style={{ fontSize: 13 }}>
+              📍 {event.venue?.city ?? 'Netherlands'}
+            </Text>
+            <Text className="font-semibold text-fg" style={{ fontSize: 14 }}>
+              {price}
+            </Text>
+          </View>
         </View>
       </Pressable>
     </Link>

@@ -6,8 +6,10 @@
  *  - apps/mobile via NativeWind + the raw JS values below
  *
  * Design intent: editorial and calm. Colour comes from event photography,
- * not from chrome. One saturated accent (marigold), committed. Dark mode
- * is a first-class theme, not an inversion.
+ * not from chrome. One saturated accent — crimson, revised from the original
+ * marigold to read closer to the confident red CTAs of DesiPass, the
+ * category's reference ticketing app (see docs/DECISIONS.md). Dark mode is a
+ * first-class theme, not an inversion.
  */
 
 /** Raw brand palette. Hex values are the canonical definition of each colour. */
@@ -28,7 +30,15 @@ export const palette = {
   paper200: '#F3EEE5',
   paper300: '#EAE3D6',
 
-  // Accent — deep marigold. Committed.
+  // Accent — crimson, DesiPass-inspired (see DECISIONS.md).
+  crimson: '#D6284F',
+  crimson600: '#AD1F3E',
+  crimson400: '#F0899F',
+  crimson200: '#F6C3D0',
+  crimson100: '#FBE6EB',
+
+  // Retained for festival-mood gradients and category-colour coding — those
+  // are decorative, content-driven palettes independent of the brand accent.
   marigold: '#E8802A',
   marigold600: '#C96A1E',
   marigold400: '#F0994F',
@@ -64,10 +74,10 @@ export const colorRoles = {
     fg: palette.ink,
     fgMuted: palette.ink500,
     fgSubtle: palette.ink400,
-    accent: palette.marigold,
-    accentHover: palette.marigold600,
+    accent: palette.crimson,
+    accentHover: palette.crimson600,
     accentFg: palette.white,
-    accentSubtle: palette.marigold100,
+    accentSubtle: palette.crimson100,
     success: palette.success,
     successBg: palette.successBg,
     warn: palette.warn,
@@ -86,8 +96,8 @@ export const colorRoles = {
     fg: palette.paper,
     fgMuted: palette.ink300,
     fgSubtle: palette.ink400,
-    accent: palette.marigold400,
-    accentHover: palette.marigold,
+    accent: palette.crimson400,
+    accentHover: palette.crimson,
     accentFg: palette.ink,
     accentSubtle: palette.ink700,
     success: '#5FBF8A',

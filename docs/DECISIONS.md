@@ -6,14 +6,72 @@ section.
 
 ---
 
+## Phase 1 — DesiPass visual pass: accent colour + card anatomy
+
+Follow-up to the discovery pass below. The user pushed back — the first pass
+matched DesiPass's *functionality* but not its *look*: "look at their UI,
+their buttons, their image style." With their screenshots as the reference
+(desipass.com is still unreachable from this container), this pass makes the
+visual match real rather than only structural.
+
+### What changed
+
+- **Accent colour: marigold → crimson.** `packages/ui-tokens/src/tokens.ts`
+  is the single source of truth (`palette.crimson` / `crimson600` /
+  `crimson400` / `crimson100`, wired into `colorRoles.light/dark.accent*`),
+  so every button, link, focus ring and badge across web + mobile repainted
+  from one edit — `tokens.css` regenerated via `pnpm gen:css`, mirrored in
+  `apps/mobile/global.css` and the handful of RN files that hardcode the hex
+  (`ActivityIndicator` colour, tab-bar active tint). `#E8802A` marigold is
+  **kept** as the `palette.marigold*` ramp for the season-mood gradients and
+  category-colour coding (`season-strip.tsx`, `SeasonBanner.tsx`,
+  `fallback-card.ts`, `category-colors.ts`) — those are content-driven
+  palettes independent of the brand accent, not the thing the user was
+  pointing at.
+- **Card anatomy restructured to match DesiPass's**: a 🔥 Trending badge
+  overlaid on the image (not in the card body), a calendar-icon date row
+  ("📅 Sat, 17 Oct · 15:00" — new `formatEventDateCompact` in
+  `@desihub/shared`) and a pin-icon city + price row, replacing the plainer
+  "city · time" line. Applied to `EventCard`/`EventGrid` on web and their RN
+  equivalents.
+- Fixed a real collision this surfaced: the Trending badge and the (often
+  long, e.g. "Bollywood / Desi party") category pill sat on the same top row
+  on narrow cards and overlapped. Fix was reordering the top-left stack
+  (date chip first, Trending badge below it) rather than truncating category
+  labels — tried truncation first, reverted it because it made several
+  category names unreadable for no real gain once the stacking order fixed
+  the actual cause.
+
+### Decision
+
+- **Not changed**: no organiser-uploaded poster/flyer imagery — DesiHub's
+  branded fallback-card system and "never scrape/fabricate organiser
+  artwork" rule (Phase 0) stand; a real image still renders via `image_url`
+  when an organiser supplies one. What moved is chrome (colour, badge
+  placement, card meta layout), not a commitment to imitate their photo
+  content style.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / `test` (53 unit tests) and the full Playwright
+  suite (18 tests, mobile + desktop) all pass. `ui-tokens`' CSS-drift test
+  confirms `tokens.css` matches the regenerated source. Screenshots at
+  1440px and 390px (home, card grid, event detail) confirm the crimson
+  buttons, image-overlaid Trending badge, and fixed card layout render
+  correctly with no overlap.
+
+---
+
 ## Phase 1 — DesiPass-inspired discovery pass (web + mobile)
 
 Requested after seeing screenshots of desipass.com (a Germany-based Desi event
 ticketing marketplace). `desipass.com` itself was unreachable from this
 container (network egress blocked the domain), so this pass is built from the
 user's own screenshots (home, event detail, organiser page) rather than a
-live fetch — kept to **functional/UX patterns**, not their visual identity;
-DesiHub keeps its own marigold/Fraunces/Geist system throughout.
+live fetch — kept to **functional/UX patterns**, not their visual identity
+*at the time* (superseded by the visual pass above, prompted by the user
+pointing out the gap). DesiHub keeps its own Fraunces/Geist typography
+throughout.
 
 ### What was built
 

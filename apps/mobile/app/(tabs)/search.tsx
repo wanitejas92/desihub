@@ -105,7 +105,7 @@ export default function SearchScreen() {
 
       {state.loading ? (
         <View className="items-center py-16">
-          <ActivityIndicator color="#E8802A" />
+          <ActivityIndicator color="#D6284F" />
         </View>
       ) : (
         <FlatList

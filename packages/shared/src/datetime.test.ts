@@ -5,6 +5,7 @@ import {
   isThisWeekend,
   weekDateRange,
   weekendDateRange,
+  formatEventDateCompact,
   formatEventDateShort,
   isSameLocalDay,
   countdownLabel,
@@ -81,6 +82,9 @@ describe('weekendDateRange / weekDateRange', () => {
 describe('formatEventDateShort / isSameLocalDay', () => {
   it('formats a compact day + month', () => {
     expect(formatEventDateShort('2026-10-17T18:30:00Z')).toBe('17 Oct');
+  });
+  it('formatEventDateCompact includes a short weekday', () => {
+    expect(formatEventDateCompact('2026-10-17T18:30:00Z')).toBe('Sat, 17 Oct');
   });
   it('detects same vs different local days', () => {
     // Amsterdam is CEST (+2) in October: 20:00Z and 21:00Z are both still the 17th locally.
