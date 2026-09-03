@@ -28,7 +28,11 @@
     "onlyBuiltDependencies": [
       "sharp",
       "esbuild"
-    ]
+    ],
+    "overrides": {
+      "@types/react": "19.0.7",
+      "@types/react-dom": "19.0.3"
+    }
   },
   "lint-staged": {
     "*.{ts,tsx}": [

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens as CSS variables (light + dark). Kept in step with
+   packages/ui-tokens/src/tokens.ts colorRoles. NativeWind resolves these on
+   device; darkMode is toggled by a `.dark` class on the root. */
+@layer base {
+  :root {
+    --color-bg: #faf7f2;
+    --color-bg-subtle: #f3eee5;
+    --color-bg-sunken: #eae3d6;
+    --color-surface: #ffffff;
+    --color-surface-hover: #f3eee5;
+    --color-border: #dad3c9;
+    --color-border-strong: #bcb6ae;
+    --color-fg: #0f0f0f;
+    --color-fg-muted: #6b6762;
+    --color-fg-subtle: #938e88;
+    --color-accent: #e8802a;
+    --color-accent-hover: #c96a1e;
+    --color-accent-fg: #ffffff;
+    --color-accent-subtle: #fcebda;
+    --color-success: #2f8f5b;
+    --color-success-bg: #e4f2ea;
+    --color-warn: #c98a12;
+    --color-warn-bg: #fbf0d8;
+    --color-error: #c43d3d;
+    --color-error-bg: #f8e3e3;
+  }
+
+  .dark {
+    --color-bg: #0f0f0f;
+    --color-bg-subtle: #1c1b1a;
+    --color-bg-sunken: #000000;
+    --color-surface: #1c1b1a;
+    --color-surface-hover: #2e2c2a;
+    --color-border: #2e2c2a;
+    --color-border-strong: #4a4744;
+    --color-fg: #faf7f2;
+    --color-fg-muted: #bcb6ae;
+    --color-fg-subtle: #938e88;
+    --color-accent: #f0994f;
+    --color-accent-hover: #e8802a;
+    --color-accent-fg: #0f0f0f;
+    --color-accent-subtle: #2e2c2a;
+    --color-success: #5fbf8a;
+    --color-success-bg: #17352a;
+    --color-warn: #e3b65a;
+    --color-warn-bg: #3a2e14;
+    --color-error: #e87a7a;
+    --color-error-bg: #3a1c1c;
+  }
+}

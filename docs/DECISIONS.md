@@ -6,6 +6,60 @@ section.
 
 ---
 
+## Phase 1 — Listings layer (mobile)
+
+### What was built
+
+- **Expo SDK 52 app** (Expo Router, React Native 0.76, NativeWind v4) sharing the
+  design tokens and the exact same 30-event catalogue via `@desihub/shared`.
+- Tabs: **Discover / Search / Saved / Profile**, plus a native event-detail
+  screen (`app/e/[slug].tsx`).
+  - *Discover*: Season banner (live festival / off-season countdown), This
+    weekend / Featured / Near you rails, category chips.
+  - *Search*: live query + category/city/free filters, 2-column results, empty
+    state; deep-linkable via `?category=`.
+  - *Saved*: AsyncStorage-backed, grouped upcoming/past, designed empty state.
+  - *Profile*: saved count, appearance (light/dark/system) persisted, accounts
+    teaser for Phase 2.
+- **Push permission is requested only on the first save**, never on launch
+  (`lib/saved.ts` → `lib/notifications.ts`), per the brief.
+- Native `EventImage` renders an `expo-image` (blurhash) or the branded
+  `FallbackCard` (gradient by category) — a broken/empty image never renders.
+- Dark mode is first-class via NativeWind `colorScheme`, themed by the same
+  token roles as web (CSS variables in `global.css`, light + `.dark`).
+
+### Decisions
+
+- **Mobile shares the pure data layer** from `@desihub/shared` — same repository
+  interface, mock catalogue and filter semantics as web. No duplicated events.
+- **Phase 1 mobile is mock-only**; the Supabase/React-Native adapter (AsyncStorage
+  auth) lands with accounts in Phase 2. Screens only see `EventRepository`.
+- **NativeWind (Tailwind v3)** on mobile vs **Tailwind v4** on web: the shared
+  token preset is written to satisfy both. The mobile `tailwind.config.ts` is a
+  TS file so jiti can resolve the shared TS preset; it's excluded from `tsc`
+  (Tailwind v3's stricter config types don't match the shared preset's tuples —
+  a config-file-only concern, not app code).
+- **Single `@types/react` (19.0.7) pinned workspace-wide** via pnpm `overrides`.
+  Web is React 19 and mobile is React 18.3; without the pin, two `@types/react`
+  copies leaked through `@types/react-dom` and broke web's JSX types
+  ("Suspense cannot be used as a JSX component"). One version typechecks both.
+
+### Verification & honest limits
+
+- `tsc --noEmit` and `eslint` (0 warnings) pass for the mobile app; the shared
+  logic it relies on is unit-tested in `@desihub/shared`.
+- **This container has no Android/iOS simulator and can't run Metro**, so the
+  mobile app was **not** launched or screenshotted here — unlike web, which was
+  built, served and visually verified. Mobile is validated by typecheck + lint +
+  shared-logic tests. To run it: `pnpm --filter @desihub/mobile start`.
+
+### Open / deferred
+
+- No device-level visual pass or E2E (Detox/Maestro) yet — needs a simulator.
+- Supabase adapter for RN, real auth, and the wallet/tickets screens are Phase 2/3.
+
+---
+
 ## Phase 1 — Listings layer (web)
 
 ### What was built

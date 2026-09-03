@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "DesiHub",
+    "slug": "desihub",
+    "scheme": "desihub",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "backgroundColor": "#FAF7F2",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "nl.desihub.app"
+    },
+    "android": {
+      "package": "nl.desihub.app"
+    },
+    "plugins": ["expo-router", "expo-notifications"],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
