@@ -1,21 +1,23 @@
 import Link from 'next/link';
-import { EmailCapture } from '@/components/email-capture';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { SeasonStrip } from '@/components/season-strip';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
 import { PopularCities } from '@/components/popular-cities';
+import { TopVenues } from '@/components/top-venues';
+import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
 import { EmptyState } from '@/components/empty-state';
 import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
+import { topVenues } from '@/lib/top-venues';
 
 // Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
 
 export default async function HomePage() {
   const repo = await getRepository();
-  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, upcoming, cities] =
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, upcoming, cities, venuePool] =
     await Promise.all([
       repo.listEvents({ limit: 12 }),
       repo.thisWeek(12),
@@ -24,6 +26,7 @@ export default async function HomePage() {
       repo.featured(8),
       repo.nearYou(undefined, 8),
       repo.popularCities(6),
+      repo.listEvents({ limit: 60 }),
     ]);
 
   return (
@@ -75,12 +78,8 @@ export default async function HomePage() {
 
       <PopularCities cities={cities} />
       <CategoryTiles />
-
-      <section className="max-w-content mx-auto px-4 py-10 sm:px-6">
-        <div className="border-border bg-surface rounded-lg border p-6 sm:p-10">
-          <EmailCapture />
-        </div>
-      </section>
+      <TopVenues venues={topVenues(venuePool.items)} />
+      <OrganiserCtaBanner />
     </>
   );
 }

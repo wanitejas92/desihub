@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -6,6 +7,7 @@ import {
   formatEventDateShort,
   formatEventTime,
   formatPriceRange,
+  formatMoney,
   isSameLocalDay,
   EVENT_CATEGORY_LABELS,
 } from '@desihub/shared';
@@ -16,10 +18,12 @@ import { CategoryPill } from '@/components/category-pill';
 import { DateChip } from '@/components/date-chip';
 import { AddToCalendar } from '@/components/add-to-calendar';
 import { ShareButton } from '@/components/share-button';
+import { FavouriteButton } from '@/components/favourite-button';
 import { OrganiserCard } from '@/components/organiser-card';
 import { EventRail } from '@/components/event-rail';
 import { Button } from '@/components/ui/button';
 import { IconChevronRight, IconMapPin } from '@/components/ui/icons';
+import { CATEGORY_ICON } from '@/lib/category-icons';
 import { eventJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -137,9 +141,20 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             )}
           </div>
 
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <TagChip icon={CATEGORY_ICON[event.category]}>
+              {EVENT_CATEGORY_LABELS[event.category]}
+            </TagChip>
+            {event.age_policy && <TagChip>{event.age_policy}</TagChip>}
+            {event.languages.map((l) => (
+              <TagChip key={l}>{l}</TagChip>
+            ))}
+          </div>
+
           <div className="mt-5 flex flex-wrap gap-2">
             <AddToCalendar event={calInput} />
             <ShareButton title={event.title} path={`/e/${event.slug}`} />
+            <FavouriteButton eventId={event.id} variant="inline" />
           </div>
 
           {event.description && (
@@ -150,23 +165,41 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               </p>
             </div>
           )}
-
-          {event.languages.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {event.languages.map((l) => (
-                <span key={l} className="rounded-pill bg-bg-subtle text-fg-muted px-3 py-1 text-sm">
-                  {l}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Sticky ticket + venue rail */}
         <aside className="space-y-4">
           <div className="border-border bg-surface shadow-elevation rounded-lg border p-5 lg:sticky lg:top-20">
-            <p className="text-fg-muted text-sm">Price</p>
-            <p className="font-display text-fg text-2xl font-bold">{price}</p>
+            <p className="font-display text-fg text-lg font-semibold">Choose your tickets</p>
+
+            {event.ticketTypes.length > 0 ? (
+              <ul className="divide-border mt-3 divide-y">
+                {event.ticketTypes.map((tier) => {
+                  const left = Math.max(tier.quantity - tier.sold, 0);
+                  return (
+                    <li key={tier.id} className="flex items-center justify-between gap-3 py-2.5">
+                      <div>
+                        <p className="text-fg text-sm font-medium">{tier.name}</p>
+                        <p className="text-fg-subtle text-xs">
+                          {left > 0 ? `${left} spots left` : 'Sold out'}
+                        </p>
+                      </div>
+                      <p className="text-fg shrink-0 text-sm font-semibold">
+                        {tier.price_cents === 0
+                          ? 'Free'
+                          : formatMoney(tier.price_cents, event.currency)}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <>
+                <p className="text-fg-muted mt-1 text-sm">Price</p>
+                <p className="font-display text-fg text-2xl font-bold">{price}</p>
+              </>
+            )}
+
             <TicketCta event={event} />
             <p className="text-fg-subtle mt-3 text-center text-xs">
               You&apos;ll complete your purchase on the organiser&apos;s ticket page.
@@ -227,6 +260,21 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </div>
       </div>
     </article>
+  );
+}
+
+function TagChip({
+  icon: Icon,
+  children,
+}: {
+  icon?: ComponentType<SVGProps<SVGSVGElement>>;
+  children: ReactNode;
+}) {
+  return (
+    <span className="border-border bg-surface text-fg-muted rounded-pill inline-flex items-center gap-1.5 border px-3 py-1 text-sm font-medium">
+      {Icon && <Icon width={14} height={14} />}
+      {children}
+    </span>
   );
 }
 

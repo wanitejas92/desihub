@@ -1,9 +1,9 @@
 <svg width="64" height="80" viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="g" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="60" y2="76">
-      <stop offset="0%" stop-color="#F0812A" />
-      <stop offset="50%" stop-color="#D6338C" />
-      <stop offset="100%" stop-color="#7B3FA0" />
+      <stop offset="0%" stop-color="#FF8A00" />
+      <stop offset="50%" stop-color="#F0146F" />
+      <stop offset="100%" stop-color="#8B1FE0" />
     </linearGradient>
     <clipPath id="c">
       <path d="M6,4 H24 A36,36 0 0 1 24,76 H6 Z" />

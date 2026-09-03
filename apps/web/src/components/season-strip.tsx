@@ -1,5 +1,14 @@
 import { currentSeason, nextSeason, type Season } from '@desihub/shared';
 import { Button } from './ui/button';
+import { HeroSearchBar } from './hero-search-bar';
+import { IconCalendar, IconCheckCircle, IconUsers, IconTicket } from './ui/icons';
+
+const TRUST_BADGES = [
+  { Icon: IconCalendar, label: 'Every Desi event', sub: 'All in one place' },
+  { Icon: IconCheckCircle, label: 'Verified organisers', sub: 'Real listings, always' },
+  { Icon: IconUsers, label: 'Built for the community', sub: 'By the community' },
+  { Icon: IconTicket, label: 'Free to list', sub: 'No cost to organisers' },
+] as const;
 
 /**
  * Soft pastel wash per mood — not a saturated full-bleed block. Navy text
@@ -71,6 +80,25 @@ export function SeasonStrip({ now = new Date() }: { now?: Date }) {
             All events
           </Button>
         </div>
+
+        <HeroSearchBar />
+
+        <ul role="list" className="mt-8 flex flex-wrap gap-x-8 gap-y-4">
+          {TRUST_BADGES.map(({ Icon, label, sub }) => (
+            <li key={label} className="flex items-center gap-2.5">
+              <span
+                aria-hidden
+                className="text-fg bg-surface/70 flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+              >
+                <Icon width={17} height={17} />
+              </span>
+              <span className="leading-tight">
+                <span className="text-fg block text-sm font-semibold">{label}</span>
+                <span className="text-fg-muted block text-xs">{sub}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

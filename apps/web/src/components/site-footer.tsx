@@ -1,11 +1,19 @@
 import Link from 'next/link';
 import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, CITIES } from '@desihub/shared';
 import { Logo } from './logo';
+import { EmailCapture } from './email-capture';
 
 export function SiteFooter() {
   return (
     <footer className="border-border bg-bg-subtle mt-20 border-t">
-      <div className="max-w-content mx-auto grid gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-5">
+        <div className="lg:col-span-2">
+          <h2 className="text-sm font-semibold">Stay updated</h2>
+          <div className="mt-3 max-w-sm">
+            <EmailCapture />
+          </div>
+        </div>
+
         <div>
           <Logo />
           <p className="text-fg-muted mt-3 max-w-xs text-sm">

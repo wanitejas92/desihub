@@ -4,6 +4,7 @@ import type { EventWithRelations } from '@/lib/data';
 import { EventImage } from './event-image';
 import { CategoryPill } from './category-pill';
 import { DateChip } from './date-chip';
+import { FavouriteButton } from './favourite-button';
 import { IconFlame, IconCalendar, IconMapPin, IconCheckCircle } from './ui/icons';
 import { cn } from '@/lib/cn';
 
@@ -54,7 +55,8 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
             </span>
           )}
         </div>
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
+          <FavouriteButton eventId={event.id} />
           <CategoryPill category={event.category} />
         </div>
         {(soldOut || cancelled) && (

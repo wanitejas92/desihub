@@ -6,6 +6,94 @@ section.
 
 ---
 
+## Phase 1 — Homepage + event detail rebuilt against a reference platform
+
+The user supplied three detailed reference screenshots (a homepage and two
+event-detail pages from another ticketing platform) with the instruction
+"make it like this with details, same." The reference reads dark at a
+glance — a night-concert hero photo, poster-style event cards with dark
+scrims — which looked like a direct reversal of this session's explicit,
+repeated "no dark backgrounds" brief. Asked directly, the user clarified
+the reference's page *chrome* is light throughout — white nav, white
+section backgrounds, white cards — and only individual photographs (hero
+banner, event posters) carry a dark gradient for text legibility, which is
+a completely different thing from a dark theme. That resolved the
+apparent conflict: keep the light system, adopt the reference's layout and
+information density.
+
+Scope was narrowed deliberately before building: homepage and event detail
+page only (no new Venues/Artists/Blog/Contact pages, no accounts-gated
+Favourites, no ticket-cart checkout) — the reference shows several things
+that need real subsystems we don't have yet (a payment cart, a login
+system, an artist content type) or assets we don't have (real event
+photography — every mock event's `image_url` is `null`; venues have no
+photos and no `capacity` values despite the schema field existing).
+Nothing here is fabricated to look more "finished" than it is: no invented
+stock photography, no artist lineups, no promotional "highlights" copy, no
+capacity numbers — every new number/label on these two pages traces back
+to real data or is honest, checkable product copy.
+
+### What was built
+
+- **Logo**: brightened/re-saturated the gradient (`#F0812A/#D6338C/#7B3FA0`
+  → `#FF8A00/#F0146F/#8B1FE0`) in both `logo.tsx` and `app/icon.svg` (the
+  favicon uses the same mark) — the one item the brief said to keep as-is,
+  just stronger.
+- **Hero gets a real search bar and trust badges** (`hero-search-bar.tsx`,
+  wired into `season-strip.tsx`): a compact search+city+when bar that
+  submits straight into `/browse?...` — a real shortcut, not a decoration
+  — plus four honest trust-badge claims (no "Secure Ticketing," since we
+  don't process payment; "Verified organisers" instead).
+- **Favourites — a real, unauthenticated, per-browser feature**
+  (`lib/use-favourites.ts` + `favourite-button.tsx`): a `useSyncExternalStore`-backed
+  localStorage toggle, not a decorative heart that does nothing. No
+  accounts system exists yet, so this is scoped to what's honestly
+  deliverable now. Two variants: a small overlay circle for card/hero
+  images, and an inline `Button`-based one (matching Share/Add-to-calendar)
+  for the event page's action row — deliberately two variants rather than
+  one button fighting className overrides for size, the same class-collision
+  trap documented earlier this build.
+- **New "Top venues" section** (`lib/top-venues.ts` + `top-venues.tsx`):
+  ranks real venues by upcoming-event count from an already-fetched pool,
+  the same pattern Popular Cities already used for cities. No capacity
+  numbers (we don't have real ones) — "N events" instead, which is real.
+- **New mid-page CTA banner** (`organiser-cta-banner.tsx`): the brand
+  gradient at full strength as one deliberate banner — matches the brief's
+  sanctioned "primary CTA" use case, not a new pattern.
+- **Footer gains a working newsletter column**: `EmailCapture` moved from
+  a standalone homepage-only section into the footer (`site-footer.tsx`),
+  so it's reachable site-wide instead of only after scrolling the whole
+  homepage. No fabricated "Support" column (Help/Terms/Privacy links) —
+  those pages don't exist, and a footer full of dead links would be worse
+  than a shorter, honest one.
+- **Event detail page**: a consolidated tag-chip row (category icon + age
+  policy + languages, replacing the old languages-only row); a Save button
+  next to Share; the price sidebar became a real **"Choose your tickets"**
+  card listing each `ticketTypes` row (name, real spots-left, real price)
+  instead of one collapsed price range — genuine data that already existed
+  on `EventWithRelations` but wasn't surfaced. No Artist/Line-up section,
+  no "Highlights" bullets, no photo gallery, no "Watch promo" video —
+  all would need data or copy this app doesn't have and the brief didn't
+  ask us to build.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests pass; production build succeeds
+  (48 routes). Full-page screenshots of the homepage (desktop + mobile)
+  and event detail page confirm the new hero search bar, trust badges,
+  Top Venues, CTA banner, footer newsletter, tag chips, Save button, and
+  ticket-tier card all render correctly against real data.
+- Functional checks via Playwright: the hero search bar's submit actually
+  navigates to `/browse` with the chosen filters in the URL; the Save
+  toggle actually flips state and survives a page reload (confirms the
+  localStorage round-trip, not just the click handler firing).
+- Full 18-test Playwright E2E suite (mobile + desktop) passes unchanged —
+  none of the existing critical-path assertions needed updating, since
+  layout/structure of the tested flows (browse filters, ticket CTA states,
+  submit form, organiser follow) held through the rebuild.
+
+---
+
 ## Phase 1 — Header nav gets real categories and a visible active state; type scale trimmed
 
 Feedback on the header category row and an event-detail screenshot from a

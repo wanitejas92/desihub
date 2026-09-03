@@ -28,9 +28,9 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
           x2="60"
           y2="76"
         >
-          <stop offset="0%" stopColor="#F0812A" />
-          <stop offset="50%" stopColor="#D6338C" />
-          <stop offset="100%" stopColor="#7B3FA0" />
+          <stop offset="0%" stopColor="#FF8A00" />
+          <stop offset="50%" stopColor="#F0146F" />
+          <stop offset="100%" stopColor="#8B1FE0" />
         </linearGradient>
         <clipPath id="desihub-logo-clip">
           <path d="M6,4 H24 A36,36 0 0 1 24,76 H6 Z" />
@@ -74,7 +74,7 @@ export function Logo({ className }: { className?: string }) {
         <span className="text-fg">Desi</span>
         <span
           style={{
-            backgroundImage: 'linear-gradient(90deg, #F0812A, #D6338C, #7B3FA0)',
+            backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0146F, #8B1FE0)',
             WebkitBackgroundClip: 'text',
             backgroundClip: 'text',
             color: 'transparent',
