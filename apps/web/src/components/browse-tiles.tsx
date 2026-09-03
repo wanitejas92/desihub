@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, CITIES } from '@desihub/shared';
+import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 
 const CATEGORY_EMOJI: Record<string, string> = {
   concert: '🎤',
@@ -31,26 +31,6 @@ export function CategoryTiles() {
                 {CATEGORY_EMOJI[c]}
               </span>
               <span className="text-fg text-sm font-semibold">{EVENT_CATEGORY_LABELS[c]}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-export function CityTiles() {
-  return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
-      <h2 className="font-display mb-4 text-xl font-semibold sm:text-2xl">Browse by city</h2>
-      <ul role="list" className="flex flex-wrap gap-2">
-        {CITIES.map((c) => (
-          <li key={c}>
-            <Link
-              href={`/browse?city=${encodeURIComponent(c)}`}
-              className="rounded-pill border-border bg-surface text-fg hover:border-accent hover:bg-surface-hover inline-block border px-4 py-2 text-sm font-medium transition-colors"
-            >
-              {c}
             </Link>
           </li>
         ))}

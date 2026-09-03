@@ -1,4 +1,5 @@
 import type { SubmitEventInput, SubscribeInput } from '../schemas';
+import type { City } from '../constants';
 import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
 
 export interface SubmitResult {
@@ -8,6 +9,11 @@ export interface SubmitResult {
 
 export interface SubscribeResult {
   ok: true;
+}
+
+export interface CityCount {
+  city: City;
+  count: number;
 }
 
 /**
@@ -22,6 +28,8 @@ export interface EventRepository {
   thisWeek(limit?: number): Promise<EventWithRelations[]>;
   thisWeekend(limit?: number): Promise<EventWithRelations[]>;
   nearYou(city: string | undefined, limit?: number): Promise<EventWithRelations[]>;
+  /** Cities ranked by their real upcoming-event count — never a fabricated number. */
+  popularCities(limit?: number): Promise<CityCount[]>;
   similar(event: EventWithRelations, limit?: number): Promise<EventWithRelations[]>;
   getOrganiserBySlug(slug: string): Promise<OrganiserWithEvents | null>;
   listOrganiserSlugs(): Promise<string[]>;

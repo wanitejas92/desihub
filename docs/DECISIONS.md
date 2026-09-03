@@ -6,6 +6,57 @@ section.
 
 ---
 
+## Phase 1 — Popular Cities (real counts, admin-ready image slot)
+
+Small standalone feature, agreed after discussing the bottom of DesiPass's
+homepage: a "Popular Cities" tile grid. Deliberately scoped as a same-day
+build, independent of the header/organiser-page visual pass above.
+
+### What was built
+
+- `EventRepository.popularCities(limit)` — new interface method, returning
+  cities ranked by their real upcoming-event count. Backed by a shared, pure,
+  unit-tested `cityCounts()` in `@desihub/shared`'s `filter.ts` so the mock
+  and Supabase adapters compute the same ranking the same way — no separate
+  logic to drift.
+- `PopularCities` (web): a tile grid, real "N events" per city, linking into
+  `/browse?city=`. Replaces the old plain-pill `CityTiles` on the homepage
+  (removed — fully superseded, no other callers).
+- Tiles render a designed gradient (`gradientByIndex`, extracted alongside
+  the organiser-banner gradient into `lib/gradient.ts`) **or** a real photo
+  from `lib/city-images.ts` (`CITY_IMAGES: Partial<Record<City, string>>`,
+  empty today) when one is set. Same upload-or-fallback shape as event and
+  organiser images — a future admin flow just needs to populate that map
+  (or its DB-backed equivalent), no component changes.
+
+### Decisions
+
+- **No photos sourced from Google Images.** Asked directly; declined — search
+  results aren't licensed for reuse, and it would have broken the project's
+  own "never scrape content we don't have rights to" rule from Phase 0.
+  Wikimedia Commons (properly licensed) was agreed as the real path, but
+  every Wikimedia domain is also blocked by this container's network egress
+  proxy, same as desipass.com — so photos are a follow-up once the user
+  supplies URLs (or the admin portal exists), not part of this build.
+- **Gradient-by-index, not by name-hash, for this grid specifically.** The
+  organiser banner's name-hash gradient is fine for a single page seen in
+  isolation; in a 6-tile grid it collided 5 of 6 cities onto nearly the same
+  colour (caught via screenshot, not guessed at). Position-based selection
+  guarantees visually distinct neighbours for any list ≤ the palette size.
+- **No admin portal was built.** Confirmed with the user this is a "plan
+  now, build later" item — the image slot is admin-portal-shaped, but the
+  portal itself (auth, upload UI) is Phase 2/3 scope, same bucket as
+  organiser accounts.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / `test` (48 unit tests, up from 44 — new
+  `cityCounts` coverage in `filter.test.ts`) and the full Playwright suite
+  (18 tests) all pass. Screenshot at 1440px confirms real per-city counts
+  and, after the index-based fix, visually distinct tiles.
+
+---
+
 ## Phase 1 — DesiPass visual pass, part 2: header + organiser page layout
 
 Second follow-up — "I want exact same UI like DesiPass... even layout and

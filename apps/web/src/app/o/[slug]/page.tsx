@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isPast } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
+import { deterministicGradient } from '@/lib/gradient';
 import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
 import { FollowButton } from '@/components/follow-button';
@@ -30,22 +31,6 @@ export async function generateMetadata({
   };
 }
 
-/** Deterministic banner gradient per organiser — no photo asset, so a designed gradient instead. */
-const BANNER_GRADIENTS: [string, string][] = [
-  ['#3B2A5A', '#6D4AA8'],
-  ['#7A1F4B', '#C13C7A'],
-  ['#8A3B12', '#E8802A'],
-  ['#124B63', '#2FA3C9'],
-  ['#123B2E', '#2E8F6B'],
-  ['#6B2412', '#D65A2E'],
-];
-
-function bannerGradient(id: string): [string, string] {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  return BANNER_GRADIENTS[hash % BANNER_GRADIENTS.length]!;
-}
-
 export default async function OrganiserPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const repo = await getRepository();
@@ -54,7 +39,7 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
 
   const upcoming = org.events.filter((e) => !isPast(e.ends_at ?? e.starts_at));
   const past = org.events.filter((e) => isPast(e.ends_at ?? e.starts_at));
-  const [from, to] = bannerGradient(org.id);
+  const [from, to] = deterministicGradient(org.id);
 
   return (
     <div>

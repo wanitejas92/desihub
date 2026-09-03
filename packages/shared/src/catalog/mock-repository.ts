@@ -1,9 +1,9 @@
 import { draftSlug, type SubmitEventInput, type SubscribeInput } from '../schemas';
 import { isThisWeek, isThisWeekend } from '../datetime';
-import type { EventRepository, SubmitResult, SubscribeResult } from './repository';
+import type { EventRepository, SubmitResult, SubscribeResult, CityCount } from './repository';
 import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';
-import { applyFilters, paginate } from './filter';
+import { applyFilters, paginate, cityCounts } from './filter';
 
 /**
  * In-memory repository. Reads from the mock catalogue; writes (submit/subscribe)
@@ -47,6 +47,10 @@ export class MockEventRepository implements EventRepository {
     const local = upcoming.filter((e) => e.venue?.city === city);
     // Fall back to the wider list if the city is quiet, so the rail is never empty.
     return (local.length > 0 ? local : upcoming).slice(0, limit);
+  }
+
+  async popularCities(limit = 6): Promise<CityCount[]> {
+    return cityCounts(applyFilters(this.events, {}), limit);
   }
 
   async similar(event: EventWithRelations, limit = 4): Promise<EventWithRelations[]> {

@@ -1,4 +1,6 @@
 import type { EventWithRelations, EventFilters } from './types';
+import type { City } from '../constants';
+import type { CityCount } from './repository';
 
 /**
  * Pure, testable filtering + sorting for the mock repository and any
@@ -48,4 +50,21 @@ export function applyFilters(
 
 export function paginate<T>(items: T[], offset = 0, limit?: number): T[] {
   return limit == null ? items.slice(offset) : items.slice(offset, offset + limit);
+}
+
+/**
+ * Cities ranked by how many of the given (already-upcoming-filtered) events
+ * fall in them. Shared by both repository adapters so "popular" means the
+ * same real count either way — never a fabricated number.
+ */
+export function cityCounts(events: EventWithRelations[], limit = 6): CityCount[] {
+  const counts = new Map<City, number>();
+  for (const e of events) {
+    const city = e.venue?.city as City | undefined;
+    if (!city) continue;
+    counts.set(city, (counts.get(city) ?? 0) + 1);
+  }
+  return Array.from(counts, ([city, count]) => ({ city, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
 }

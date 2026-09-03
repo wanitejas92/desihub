@@ -3,6 +3,7 @@ import {
   isThisWeek,
   isThisWeekend,
   slugify,
+  cityCounts,
   type SubmitEventInput,
   type SubscribeInput,
 } from '@desihub/shared';
@@ -15,6 +16,7 @@ import type {
   EventFilters,
   OrganiserWithEvents,
   Paginated,
+  CityCount,
 } from '@desihub/shared';
 
 const EVENT_SELECT = `
@@ -106,6 +108,10 @@ export class SupabaseEventRepository implements EventRepository {
     if (!city) return up.slice(0, limit);
     const local = up.filter((e) => e.venue?.city === city);
     return (local.length > 0 ? local : up).slice(0, limit);
+  }
+
+  async popularCities(limit = 6): Promise<CityCount[]> {
+    return cityCounts(await this.upcoming(), limit);
   }
 
   async similar(event: EventWithRelations, limit = 4): Promise<EventWithRelations[]> {

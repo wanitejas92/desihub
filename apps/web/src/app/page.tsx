@@ -4,7 +4,8 @@ import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { SeasonStrip } from '@/components/season-strip';
 import { QuickFilters } from '@/components/quick-filters';
-import { CategoryTiles, CityTiles } from '@/components/browse-tiles';
+import { CategoryTiles } from '@/components/browse-tiles';
+import { PopularCities } from '@/components/popular-cities';
 import { EmptyState } from '@/components/empty-state';
 import { getRepository } from '@/lib/data';
 
@@ -13,10 +14,11 @@ export const revalidate = 3600;
 
 export default async function HomePage() {
   const repo = await getRepository();
-  const [weekend, featured, upcoming] = await Promise.all([
+  const [weekend, featured, upcoming, cities] = await Promise.all([
     repo.thisWeekend(8),
     repo.featured(8),
     repo.nearYou(undefined, 8),
+    repo.popularCities(6),
   ]);
 
   return (
@@ -64,8 +66,8 @@ export default async function HomePage() {
         emptyDescription="Be the first to add one for your city."
       />
 
+      <PopularCities cities={cities} />
       <CategoryTiles />
-      <CityTiles />
 
       <section className="max-w-content mx-auto px-4 py-10 sm:px-6">
         <div className="border-border bg-surface rounded-lg border p-6 sm:p-10">
