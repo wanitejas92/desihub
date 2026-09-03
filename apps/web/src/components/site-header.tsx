@@ -3,6 +3,7 @@ import { ThemeToggle } from './theme-toggle';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderCategoryTabs } from './header-category-tabs';
 import { AnnouncementRibbon } from './announcement-ribbon';
+import { Logo } from './logo';
 
 export function SiteHeader() {
   return (
@@ -12,9 +13,8 @@ export function SiteHeader() {
 
       <div className="bg-bg/85 sticky top-0 z-40 backdrop-blur">
         <div className="max-w-content mx-auto flex h-16 items-center gap-3 px-4 sm:px-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="DesiHub home">
-            <span className="bg-accent inline-block h-7 w-7 rounded-md" aria-hidden />
-            <span className="font-display text-lg font-semibold tracking-tight">DesiHub</span>
+          <Link href="/" className="shrink-0" aria-label="DesiHub home">
+            <Logo />
           </Link>
 
           <HeaderCitySelect />

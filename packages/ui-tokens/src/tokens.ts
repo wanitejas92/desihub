@@ -6,10 +6,10 @@
  *  - apps/mobile via NativeWind + the raw JS values below
  *
  * Design intent: editorial and calm. Colour comes from event photography,
- * not from chrome. One saturated accent — crimson, revised from the original
- * marigold to read closer to the confident red CTAs of DesiPass, the
- * category's reference ticketing app (see docs/DECISIONS.md). Dark mode is a
- * first-class theme, not an inversion.
+ * not from chrome. One saturated accent — magenta/pink, the flat mid-tone of
+ * the brand gradient (see `brandGradient` below), revised twice: marigold →
+ * DesiPass-crimson → this, to match the user's own logo mark (see
+ * docs/DECISIONS.md). Dark mode is a first-class theme, not an inversion.
  */
 
 /** Raw brand palette. Hex values are the canonical definition of each colour. */
@@ -30,12 +30,12 @@ export const palette = {
   paper200: '#F3EEE5',
   paper300: '#EAE3D6',
 
-  // Accent — crimson, DesiPass-inspired (see DECISIONS.md).
-  crimson: '#D6284F',
-  crimson600: '#AD1F3E',
-  crimson400: '#F0899F',
-  crimson200: '#F6C3D0',
-  crimson100: '#FBE6EB',
+  // Accent — magenta, the mid-tone of the brand gradient (see below).
+  magenta: '#C1348A',
+  magenta600: '#9C2A6F',
+  magenta400: '#E27FB8',
+  magenta200: '#F3BEDD',
+  magenta100: '#FAE3F0',
 
   // Retained for festival-mood gradients and category-colour coding — those
   // are decorative, content-driven palettes independent of the brand accent.
@@ -58,6 +58,14 @@ export const palette = {
 } as const;
 
 /**
+ * The brand mark's gradient (logo, wordmark, and other one-off "hero"
+ * moments) — orange → magenta → purple. Reserved for the brand identity
+ * itself, not applied to buttons/pills/borders, which stay the flat
+ * `accent` role above for legibility and consistent contrast.
+ */
+export const brandGradient = ['#F0812A', '#D6338C', '#7B3FA0'] as const;
+
+/**
  * Semantic colour roles, split by theme. Components should reference roles
  * (e.g. `bg`, `fg`, `accent`) rather than raw palette values, so the two
  * themes stay honest and swappable.
@@ -74,10 +82,10 @@ export const colorRoles = {
     fg: palette.ink,
     fgMuted: palette.ink500,
     fgSubtle: palette.ink400,
-    accent: palette.crimson,
-    accentHover: palette.crimson600,
+    accent: palette.magenta,
+    accentHover: palette.magenta600,
     accentFg: palette.white,
-    accentSubtle: palette.crimson100,
+    accentSubtle: palette.magenta100,
     success: palette.success,
     successBg: palette.successBg,
     warn: palette.warn,
@@ -96,8 +104,8 @@ export const colorRoles = {
     fg: palette.paper,
     fgMuted: palette.ink300,
     fgSubtle: palette.ink400,
-    accent: palette.crimson400,
-    accentHover: palette.crimson,
+    accent: palette.magenta400,
+    accentHover: palette.magenta,
     accentFg: palette.ink,
     accentSubtle: palette.ink700,
     success: '#5FBF8A',

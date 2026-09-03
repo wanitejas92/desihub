@@ -35,7 +35,7 @@ export default function EventDetailScreen() {
   if (state.loading) {
     return (
       <View className="flex-1 items-center justify-center bg-bg">
-        <ActivityIndicator color="#D6284F" />
+        <ActivityIndicator color="#C1348A" />
       </View>
     );
   }

@@ -6,6 +6,92 @@ section.
 
 ---
 
+## Phase 1 — Real brand mark: gradient monogram + magenta accent
+
+The user has their own AI-generated DesiHub logo concept (rights confirmed
+by the user) — a "D" monogram with an NL skyline silhouette, orange→
+magenta→purple gradient, paired with a "Desi" (dark) / "Hub" (gradient)
+wordmark. Asked to build the app to match. This is the third accent-colour
+revision this build (marigold → DesiPass-crimson → this) — each documented
+here rather than silently overwritten.
+
+### What was built
+
+- **`LogoMark`/`Logo`** (`apps/web/src/components/logo.tsx`): an original
+  SVG "D" monogram — not traced from the reference image (a flat raster
+  mockup isn't something to embed as a production asset: no transparency,
+  wrong background, unreadable "Desi" on dark theme, and soft at small
+  sizes). The D is a true semicircle bulge (path `M6,4 H24 A36,36 0 0 1
+  24,76 H6 Z`) gradient-filled, with a clipped skyline silhouette (windmill,
+  gabled canal house, cable-stay bridge) sitting in the band where the
+  curve still leaves enough width (y 40–62 — the available width follows
+  the semicircle and narrows fast near the bottom, which is exactly what
+  broke the first attempt, see below). The wordmark repeats the gradient as
+  live CSS text (`background-clip: text`) — real, accessible, theme-safe
+  text, not a picture of text. Used in the header and footer.
+- **`app/icon.svg`**: the same mark as Next.js's auto-detected favicon.
+- **Accent token renamed and revalued**: `palette.crimson* ` → `palette.magenta*`
+  in `packages/ui-tokens/src/tokens.ts` (`#C1348A` light / `#E27FB8` dark),
+  the flat mid-tone of the new gradient — regenerated `tokens.css`, and
+  updated every place that mirrors it outside the token system: mobile's
+  `global.css`, and the hardcoded hex in mobile's `ActivityIndicator` colour
+  and tab-bar active tint (no central token for React Native's non-CSS
+  props). Added `brandGradient` (`#F0812A → #D6338C → #7B3FA0`) as an
+  explicit token export, used by the logo and (already-gradient)
+  announcement ribbon — not applied to buttons/pills/borders, which stay
+  the flat accent for legible, consistent contrast.
+
+### Bug caught before shipping
+
+- First render of the monogram put the skyline elements' baseline at y=74,
+  near the very bottom of the D's bulge. The bulge is a true semicircle
+  (centre (24,40), r 36) — its right edge is at x=60 only at the vertical
+  midpoint (y=40) and narrows back to x=24 at both endpoints (y=4 and
+  y=76). Elements placed near the bottom got silently clipped by that
+  curve, and the third element (meant to be a building) rendered as a
+  stray triangle-on-a-line — looked like a bug in the shape, was actually
+  its base getting cut off. Fixed by moving the whole skyline band up to
+  y 40–62, where the curve still leaves ~28–36 units of width. Caught by
+  rendering the SVG standalone at large size before wiring it into the
+  header — screenshot first, not guessed at.
+- Separately, the gradient didn't render at all on the first pass (whole D
+  came out flat orange) — `<linearGradient>`'s `x1/y1/x2/y2` default to
+  `objectBoundingBox` units (0–1 range) unless `gradientUnits=
+  "userSpaceOnUse"` is set; the coordinates were written assuming the
+  path's own coordinate space. Both bugs found by actually rendering the
+  asset, not by reading the SVG source.
+
+### Decisions
+
+- **Never embed the reference image itself.** Confirmed rights with the
+  user, but even so: it's a raster mockup with a baked-in background and
+  dark text that breaks on our dark theme. A logo has to be a vector, drawn
+  in our own coordinate system, to work as production UI — so this is an
+  original interpretation of the same idea, not the literal file.
+- **Gradient reserved for brand moments, not the whole UI.** Buttons,
+  pills, borders, and focus rings stay the flat magenta accent — matches
+  how the reference itself uses gradient only on the logo/wordmark, and
+  keeps contrast and hover/active states simple and consistent everywhere
+  else, the same reasoning applied when crimson replaced marigold.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / `test` (48 unit tests) and the full Playwright
+  suite (18 tests) all pass. `ui-tokens`'s CSS-drift test confirms
+  `tokens.css` matches the regenerated source. Screenshots of the standalone
+  SVG (large, to inspect the artwork) and the live header, in both light
+  and dark themes, confirm the gradient renders and the skyline reads
+  clearly.
+
+### Open / deferred
+
+- Mobile's header/tab-bar logo dot was **not** rebuilt as the same SVG
+  monogram — only its flat colour was updated to match. A full RN version
+  of the mark is a reasonable follow-up, not done here to keep this pass to
+  the web app where it was actually screenshotted and verified.
+
+---
+
 ## Phase 1 — Popular Cities (real counts, admin-ready image slot)
 
 Small standalone feature, agreed after discussing the bottom of DesiPass's

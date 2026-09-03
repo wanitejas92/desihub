@@ -1,15 +1,13 @@
 import Link from 'next/link';
 import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, CITIES } from '@desihub/shared';
+import { Logo } from './logo';
 
 export function SiteFooter() {
   return (
     <footer className="border-border bg-bg-subtle mt-20 border-t">
       <div className="max-w-content mx-auto grid gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="bg-accent inline-block h-6 w-6 rounded-md" aria-hidden />
-            <span className="font-display text-lg font-semibold">DesiHub</span>
-          </div>
+          <Logo />
           <p className="text-fg-muted mt-3 max-w-xs text-sm">
             Every South Asian event in the Netherlands — and the ticket.
           </p>
