@@ -48,7 +48,7 @@ export default function DiscoverScreen() {
 
       {state.loading && (
         <View className="items-center py-16">
-          <ActivityIndicator color="#C1348A" />
+          <ActivityIndicator color="#FF8A00" />
         </View>
       )}
 

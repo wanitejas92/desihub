@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { Button } from './ui/button';
+import { IconShare, IconCheckCircle } from './ui/icons';
 
 export function ShareButton({ title, path }: { title: string; path: string }) {
   const [copied, setCopied] = useState(false);
@@ -25,13 +27,9 @@ export function ShareButton({ title, path }: { title: string; path: string }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={share}
-      className="rounded-pill border-border text-fg hover:bg-surface-hover inline-flex h-11 items-center gap-2 border px-4 text-sm font-semibold transition-colors"
-    >
-      <span aria-hidden>↗</span>
+    <Button type="button" onClick={share} variant="secondary" pill>
+      {copied ? <IconCheckCircle width={16} height={16} /> : <IconShare width={16} height={16} />}
       {copied ? 'Link copied!' : 'Share'}
-    </button>
+    </Button>
   );
 }

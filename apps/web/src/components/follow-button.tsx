@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button } from './ui/button';
+import { IconCheckCircle } from './ui/icons';
 
 /**
  * Phase 1 follow: persisted per-device in localStorage so it works with no
@@ -39,17 +41,21 @@ export function FollowButton({
   }
 
   return (
-    <button
+    <Button
       type="button"
       onClick={toggle}
       aria-pressed={following}
-      className={
-        following
-          ? 'rounded-pill border-accent bg-accent-subtle text-fg inline-flex h-11 items-center gap-2 border px-5 text-sm font-semibold'
-          : 'rounded-pill bg-accent text-accent-fg hover:bg-accent-hover inline-flex h-11 items-center gap-2 px-5 text-sm font-semibold transition-colors'
-      }
+      variant={following ? 'soft' : 'primary'}
+      pill
     >
-      {following ? '✓ Following' : `Follow ${organiserName.split(' ')[0]}`}
-    </button>
+      {following ? (
+        <>
+          <IconCheckCircle width={16} height={16} />
+          Following
+        </>
+      ) : (
+        `Follow ${organiserName.split(' ')[0]}`
+      )}
+    </Button>
   );
 }

@@ -3,6 +3,7 @@
 import { useActionState, useState } from 'react';
 import { CITIES, EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import { subscribeAction, type ActionState } from '@/lib/actions';
+import { Button } from './ui/button';
 
 const initial: ActionState = { status: 'idle' };
 
@@ -42,15 +43,11 @@ export function EmailCapture() {
             onChange={(e) => setEmail(e.target.value)}
             onBlur={() => setShowMore(email.includes('@'))}
             aria-invalid={Boolean(state.fieldErrors?.email)}
-            className="border-border bg-surface text-fg focus:border-accent h-11 flex-1 rounded-md border px-4 text-base outline-none"
+            className="input flex-1"
           />
-          <button
-            type="submit"
-            disabled={pending}
-            className="bg-accent text-accent-fg hover:bg-accent-hover h-11 rounded-md px-6 text-sm font-semibold transition-colors disabled:opacity-60"
-          >
+          <Button type="submit" disabled={pending}>
             {pending ? 'Joining…' : 'Notify me'}
-          </button>
+          </Button>
         </div>
         {state.fieldErrors?.email && (
           <p className="text-error mt-1 text-sm">{state.fieldErrors.email}</p>

@@ -3,6 +3,8 @@
 import { useActionState, useState } from 'react';
 import { CITIES, EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import { submitEventAction, type ActionState } from '@/lib/actions';
+import { Button } from './ui/button';
+import { IconSparkle, IconChevronDown, IconChevronRight } from './ui/icons';
 
 const initial: ActionState = { status: 'idle' };
 
@@ -17,9 +19,7 @@ export function SubmitForm() {
   if (state.status === 'success') {
     return (
       <div className="border-border bg-success-bg rounded-lg border p-8 text-center">
-        <span aria-hidden className="text-3xl">
-          🎉
-        </span>
+        <IconSparkle className="text-success mx-auto" width={28} height={28} />
         <h2 className="font-display text-fg mt-3 text-2xl font-semibold">{state.message}</h2>
         <p className="text-fg-muted mt-2">
           We review every submission before it goes live — usually within a day.
@@ -72,9 +72,14 @@ export function SubmitForm() {
         type="button"
         onClick={() => setShowMore((v) => !v)}
         aria-expanded={showMore}
-        className="text-accent text-sm font-semibold hover:underline"
+        className="text-accent inline-flex items-center gap-1 text-sm font-semibold hover:underline"
       >
-        {showMore ? '− Hide extra details' : '+ Add more details (optional)'}
+        {showMore ? (
+          <IconChevronDown width={14} height={14} />
+        ) : (
+          <IconChevronRight width={14} height={14} />
+        )}
+        {showMore ? 'Hide extra details' : 'Add more details (optional)'}
       </button>
 
       {showMore && (
@@ -134,13 +139,9 @@ export function SubmitForm() {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="bg-accent text-accent-fg hover:bg-accent-hover h-12 w-full rounded-md px-6 font-semibold transition-colors disabled:opacity-60"
-      >
+      <Button type="submit" disabled={pending} className="w-full">
         {pending ? 'Submitting…' : 'Submit event'}
-      </button>
+      </Button>
       <p className="text-fg-subtle text-center text-xs">
         Please only upload artwork you own — we never copy posters from social media.
       </p>

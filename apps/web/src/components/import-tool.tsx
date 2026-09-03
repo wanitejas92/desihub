@@ -9,6 +9,7 @@ import {
   type ImportExtraction,
 } from '@desihub/shared';
 import { extractEventFromText } from '@/lib/import/extract';
+import { Button } from './ui/button';
 
 const SAMPLE = `Navratri Garba Night 2026
 Saturday, 11 October 2026 at 18:30
@@ -52,21 +53,12 @@ export function ImportTool() {
           className="input mt-2 font-mono text-sm"
         />
         <div className="mt-3 flex gap-2">
-          <button
-            type="button"
-            onClick={run}
-            disabled={!text.trim()}
-            className="bg-accent text-accent-fg hover:bg-accent-hover h-11 rounded-md px-5 text-sm font-semibold disabled:opacity-60"
-          >
+          <Button type="button" onClick={run} disabled={!text.trim()} size="sm">
             Extract fields
-          </button>
-          <button
-            type="button"
-            onClick={() => setText(SAMPLE)}
-            className="border-border text-fg hover:bg-surface-hover h-11 rounded-md border px-5 text-sm font-semibold"
-          >
+          </Button>
+          <Button type="button" onClick={() => setText(SAMPLE)} variant="secondary" size="sm">
             Use sample
-          </button>
+          </Button>
         </div>
         <p className="bg-warn-bg text-warn mt-3 rounded-md px-3 py-2 text-xs">
           Text only. We never copy images or posters from third-party sites.

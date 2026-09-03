@@ -4,9 +4,9 @@ import { fontFamily, fontSize, lineHeight, radius, spacing, colorRoles } from '.
 /**
  * Shared Tailwind preset consumed by both apps/web (Tailwind v4) and
  * apps/mobile (NativeWind). Colour utilities resolve to CSS variables so a
- * single set of class names renders correctly in light and dark themes on
- * both platforms; the variables themselves are defined in tokens.css (web)
- * and via the NativeWind vars() root style (mobile).
+ * single set of class names renders identically on both platforms; the
+ * variables themselves are defined in tokens.css (web) and via the
+ * NativeWind vars() root style (mobile). Light-only — no dark theme.
  */
 
 const colorVar = (role: string) => `var(--color-${kebab(role)})`;
@@ -38,10 +38,12 @@ export const tokenPreset = {
         sm: radius.sm,
         md: radius.md,
         lg: radius.lg,
+        xl: radius.xl,
         pill: radius.pill,
       },
       boxShadow: {
         elevation: 'var(--shadow-elevation)',
+        'elevation-lg': 'var(--shadow-elevation-lg)',
       },
       minHeight: {
         touch: '44px',

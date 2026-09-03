@@ -7,6 +7,7 @@ import { QuickFilters } from '@/components/quick-filters';
 import { CategoryTiles } from '@/components/browse-tiles';
 import { PopularCities } from '@/components/popular-cities';
 import { EmptyState } from '@/components/empty-state';
+import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
 
 // Revalidate hourly — the season strip and "this weekend" are time-sensitive.
@@ -37,13 +38,17 @@ export default async function HomePage() {
 
       <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
         <div className="mb-4 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-xl font-semibold sm:text-2xl">🔥 Trending now</h2>
+          <h2 className="font-display text-fg flex items-center gap-1.5 text-xl font-semibold sm:text-2xl">
+            <IconFlame className="text-accent" width={20} height={20} />
+            Trending now
+          </h2>
           {featured.length > 0 && (
             <Link
               href="/browse"
-              className="text-accent shrink-0 text-sm font-semibold hover:underline"
+              className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
             >
-              See all →
+              See all
+              <IconChevronRight width={14} height={14} />
             </Link>
           )}
         </div>

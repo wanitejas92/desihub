@@ -5,115 +5,90 @@
  *  - apps/web via the Tailwind v4 preset + tokens.css variables
  *  - apps/mobile via NativeWind + the raw JS values below
  *
- * Design intent: editorial and calm. Colour comes from event photography,
- * not from chrome. One saturated accent — magenta/pink, the flat mid-tone of
- * the brand gradient (see `brandGradient` below), revised twice: marigold →
- * DesiPass-crimson → this, to match the user's own logo mark (see
- * docs/DECISIONS.md). Dark mode is a first-class theme, not an inversion.
+ * Design intent: premium European-startup product with modern Indian
+ * energy — think Fever/Airbnb/Spotify polish, DesiHub identity. Light-only
+ * by deliberate brief: no dark theme. Warm off-white and deep navy carry
+ * the interface; the orange→pink→purple brand gradient is a controlled
+ * signature accent (logo, primary CTAs, badges), never the page itself.
  */
 
 /** Raw brand palette. Hex values are the canonical definition of each colour. */
 export const palette = {
-  // Ink / neutral ramp (warm-tinted greys, not pure grey).
-  ink: '#0F0F0F',
-  ink800: '#1C1B1A',
-  ink700: '#2E2C2A',
-  ink600: '#4A4744',
-  ink500: '#6B6762',
-  ink400: '#938E88',
-  ink300: '#BCB6AE',
-  ink200: '#DAD3C9',
-  ink100: '#EDE7DD',
+  // Neutral ramp — warm off-white through deep navy, per brief.
+  bg: '#FAFAF7',
+  bgSubtle: '#F5F5F2',
+  surface: '#FFFFFF',
+  border: '#E9E9EE',
+  navy: '#171A35',
+  navyMuted: '#6B6F80',
+  navySubtle: '#9699A6',
 
-  // Warm paper ramp.
-  paper: '#FAF7F2',
-  paper200: '#F3EEE5',
-  paper300: '#EAE3D6',
+  // Brand accents.
+  orange: '#FF8A00',
+  orange600: '#DB7500',
+  pink: '#F0446F',
+  pink600: '#D22E58',
+  purple: '#7B35D6',
+  purple600: '#6423B8',
 
-  // Accent — magenta, the mid-tone of the brand gradient (see below).
-  magenta: '#C1348A',
-  magenta600: '#9C2A6F',
-  magenta400: '#E27FB8',
-  magenta200: '#F3BEDD',
-  magenta100: '#FAE3F0',
-
-  // Retained for festival-mood gradients and category-colour coding — those
-  // are decorative, content-driven palettes independent of the brand accent.
-  marigold: '#E8802A',
-  marigold600: '#C96A1E',
-  marigold400: '#F0994F',
-  marigold200: '#F8D6B4',
-  marigold100: '#FCEBDA',
+  // Soft tint backgrounds for badges/chips/soft buttons.
+  orangeSoft: '#FFF2E3',
+  pinkSoft: '#FFF0F3',
+  purpleSoft: '#F3EEFF',
 
   // Semantic.
-  success: '#2F8F5B',
-  successBg: '#E4F2EA',
-  warn: '#C98A12',
-  warnBg: '#FBF0D8',
-  error: '#C43D3D',
-  errorBg: '#F8E3E3',
+  success: '#22A06B',
+  successBg: '#E7F5EE',
+  warn: '#E6A21A',
+  warnBg: '#FCF2DD',
+  error: '#D64545',
+  errorBg: '#FBE9E9',
 
   white: '#FFFFFF',
   black: '#000000',
 } as const;
 
 /**
- * The brand mark's gradient (logo, wordmark, and other one-off "hero"
- * moments) — orange → magenta → purple. Reserved for the brand identity
- * itself, not applied to buttons/pills/borders, which stay the flat
- * `accent` role above for legibility and consistent contrast.
+ * The brand mark's gradient (logo, wordmark, primary buttons, selected
+ * states) — orange → pink → purple. Used selectively and never as a page
+ * background, per brief.
  */
-export const brandGradient = ['#F0812A', '#D6338C', '#7B3FA0'] as const;
+export const brandGradient = [palette.orange, palette.pink, palette.purple] as const;
 
 /**
- * Semantic colour roles, split by theme. Components should reference roles
- * (e.g. `bg`, `fg`, `accent`) rather than raw palette values, so the two
- * themes stay honest and swappable.
+ * Semantic colour roles. Light-only by brief — no dark theme. Kept as a
+ * `{ light: {...} }` shape (rather than flattening) so the rest of the
+ * token pipeline (Tailwind preset, tokens.css generator, mobile NativeWind
+ * vars) needs no restructuring if a dark theme is ever reconsidered later.
  */
 export const colorRoles = {
   light: {
-    bg: palette.paper,
-    bgSubtle: palette.paper200,
-    bgSunken: palette.paper300,
-    surface: palette.white,
-    surfaceHover: palette.paper200,
-    border: palette.ink200,
-    borderStrong: palette.ink300,
-    fg: palette.ink,
-    fgMuted: palette.ink500,
-    fgSubtle: palette.ink400,
-    accent: palette.magenta,
-    accentHover: palette.magenta600,
+    bg: palette.bg,
+    bgSubtle: palette.bgSubtle,
+    bgSunken: palette.bgSubtle,
+    surface: palette.surface,
+    surfaceHover: palette.bgSubtle,
+    border: palette.border,
+    borderStrong: '#D6D6DE',
+    fg: palette.navy,
+    fgMuted: palette.navyMuted,
+    fgSubtle: palette.navySubtle,
+    accent: palette.orange,
+    accentHover: palette.orange600,
     accentFg: palette.white,
-    accentSubtle: palette.magenta100,
+    accentSubtle: palette.orangeSoft,
+    accentPink: palette.pink,
+    accentPinkHover: palette.pink600,
+    accentPinkSubtle: palette.pinkSoft,
+    accentPurple: palette.purple,
+    accentPurpleHover: palette.purple600,
+    accentPurpleSubtle: palette.purpleSoft,
     success: palette.success,
     successBg: palette.successBg,
     warn: palette.warn,
     warnBg: palette.warnBg,
     error: palette.error,
     errorBg: palette.errorBg,
-  },
-  dark: {
-    bg: palette.ink,
-    bgSubtle: palette.ink800,
-    bgSunken: palette.black,
-    surface: palette.ink800,
-    surfaceHover: palette.ink700,
-    border: palette.ink700,
-    borderStrong: palette.ink600,
-    fg: palette.paper,
-    fgMuted: palette.ink300,
-    fgSubtle: palette.ink400,
-    accent: palette.magenta400,
-    accentHover: palette.magenta,
-    accentFg: palette.ink,
-    accentSubtle: palette.ink700,
-    success: '#5FBF8A',
-    successBg: '#17352492',
-    warn: '#E3B65A',
-    warnBg: '#3A2E1492',
-    error: '#E87A7A',
-    errorBg: '#3A1C1C92',
   },
 } as const;
 
@@ -138,12 +113,11 @@ export const lineHeight = {
   '3xl': '3.75rem',
 } as const;
 
+/** One geometric sans family for everything — no decorative/serif display face. */
 export const fontFamily = {
-  /** Expressive display face for headings. */
-  display: ['Fraunces', 'Georgia', 'serif'],
-  /** Clean grotesk for UI. */
-  sans: ['Geist', 'Inter', 'system-ui', 'sans-serif'],
-  mono: ['Geist Mono', 'ui-monospace', 'monospace'],
+  display: ['Inter', 'system-ui', 'sans-serif'],
+  sans: ['Inter', 'system-ui', 'sans-serif'],
+  mono: ['ui-monospace', 'monospace'],
 } as const;
 
 export const fontWeight = {
@@ -153,7 +127,7 @@ export const fontWeight = {
   bold: '700',
 } as const;
 
-/** 4px base spacing scale. */
+/** 8px base spacing scale. */
 export const spacing = {
   0: '0',
   1: '0.25rem',
@@ -170,26 +144,28 @@ export const spacing = {
   24: '6rem',
 } as const;
 
-/** Radius: 12px cards, 999px pills. */
+/** Radius system: 8–10px small controls, 12px buttons/inputs, 16px cards, 18–20px modals, 999px pills/chips. */
 export const radius = {
   none: '0',
-  sm: '8px',
+  sm: '10px',
   md: '12px',
-  lg: '20px',
+  lg: '16px',
+  xl: '20px',
   pill: '999px',
 } as const;
 
-/** One soft elevation only. */
+/** Soft shadows only — never a harsh/black shadow. */
 export const shadow = {
   none: 'none',
-  elevation: '0 6px 24px -8px rgba(15, 15, 15, 0.18)',
+  elevation: '0 4px 16px rgba(23, 26, 53, 0.06)',
+  elevationLg: '0 12px 32px rgba(23, 26, 53, 0.10)',
 } as const;
 
-/** Motion: 150–250ms ease-out. */
+/** Motion: 150–200ms ease-out, restrained (no bounce/glow). */
 export const motion = {
   fast: '150ms',
-  base: '200ms',
-  slow: '250ms',
+  base: '180ms',
+  slow: '200ms',
   ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
 } as const;
 

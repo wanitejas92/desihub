@@ -19,30 +19,23 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+// Light-only, deliberately — the product brief rules out a dark theme.
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAF7F2' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F0F0F' },
-  ],
+  themeColor: '#FAFAF7',
   width: 'device-width',
   initialScale: 1,
 };
 
-// Sets the theme before paint to avoid a flash. Reads a stored choice, else
-// falls back to the system preference.
-const themeScript = `(function(){try{var t=localStorage.getItem('desihub-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Geist:wght@400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
         />
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-screen">
         <a

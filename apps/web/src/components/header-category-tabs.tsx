@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { EventCategory } from '@desihub/shared';
+import { IconChevronRight } from './ui/icons';
 
 /** Short labels for the header's tab row — the full label runs long ("Bollywood / Desi party"). */
 const NAV_CATEGORIES: { category: EventCategory; label: string }[] = [
@@ -29,9 +30,10 @@ export function HeaderCategoryTabs() {
       ))}
       <Link
         href="/browse"
-        className="text-accent shrink-0 px-3 py-2 text-sm font-semibold whitespace-nowrap hover:underline"
+        className="text-accent inline-flex shrink-0 items-center gap-0.5 px-3 py-2 text-sm font-semibold whitespace-nowrap hover:underline"
       >
-        More →
+        More
+        <IconChevronRight width={14} height={14} />
       </Link>
     </nav>
   );

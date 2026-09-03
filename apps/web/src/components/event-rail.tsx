@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { EventWithRelations } from '@/lib/data';
 import { EventCard } from './event-card';
 import { EmptyState } from './empty-state';
+import { IconChevronRight } from './ui/icons';
 
 interface EventRailProps {
   title: string;
@@ -28,9 +29,10 @@ export function EventRail({
         {seeAllHref && events.length > 0 && (
           <Link
             href={seeAllHref}
-            className="text-accent shrink-0 text-sm font-semibold hover:underline"
+            className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
           >
-            See all →
+            See all
+            <IconChevronRight width={14} height={14} />
           </Link>
         )}
       </div>

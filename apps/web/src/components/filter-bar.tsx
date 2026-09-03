@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 import { CITIES, EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, EVENT_LANGUAGES } from '@desihub/shared';
+import { IconSearch, IconChevronDown } from './ui/icons';
 
 /**
  * URL-driven browse filters. Every change writes to the querystring so filtered
@@ -30,14 +31,17 @@ export function FilterBar() {
 
   return (
     <div className="space-y-3" role="search" aria-label="Filter events">
-      <input
-        type="search"
-        placeholder="Search events, organisers, tags…"
-        defaultValue={current('q')}
-        onChange={(e) => setParam('q', e.target.value || null)}
-        className="border-border bg-surface text-fg focus:border-accent h-11 w-full rounded-md border px-4 text-base outline-none"
-        aria-label="Search"
-      />
+      <div className="relative">
+        <IconSearch className="text-fg-subtle pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
+        <input
+          type="search"
+          placeholder="Search events, organisers, tags…"
+          defaultValue={current('q')}
+          onChange={(e) => setParam('q', e.target.value || null)}
+          className="input h-12 pl-11"
+          aria-label="Search"
+        />
+      </div>
       <div className="flex flex-wrap gap-2">
         <Select
           label="City"
@@ -100,12 +104,12 @@ function Select({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="border-border bg-surface inline-flex h-11 items-center rounded-md border text-sm">
+    <label className="border-border bg-surface focus-within:border-accent relative inline-flex h-11 items-center rounded-md border text-sm">
       <span className="sr-only">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value || null)}
-        className="text-fg focus:border-accent h-full rounded-md bg-transparent px-3 outline-none"
+        className="text-fg h-full appearance-none rounded-md bg-transparent py-0 pr-9 pl-3 outline-none"
         aria-label={label}
       >
         <option value="">{label}: any</option>
@@ -115,6 +119,11 @@ function Select({
           </option>
         ))}
       </select>
+      <IconChevronDown
+        className="text-fg-subtle pointer-events-none absolute right-3"
+        width={14}
+        height={14}
+      />
     </label>
   );
 }

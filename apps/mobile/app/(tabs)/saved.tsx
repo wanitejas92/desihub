@@ -28,7 +28,7 @@ export default function SavedScreen() {
 
       {!ready || state.loading ? (
         <View className="items-center py-16">
-          <ActivityIndicator color="#C1348A" />
+          <ActivityIndicator color="#FF8A00" />
         </View>
       ) : saved.length === 0 ? (
         <View className="px-4 pt-8">

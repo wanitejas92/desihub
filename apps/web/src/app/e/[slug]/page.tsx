@@ -18,6 +18,8 @@ import { AddToCalendar } from '@/components/add-to-calendar';
 import { ShareButton } from '@/components/share-button';
 import { OrganiserCard } from '@/components/organiser-card';
 import { EventRail } from '@/components/event-rail';
+import { Button } from '@/components/ui/button';
+import { IconChevronRight, IconMapPin } from '@/components/ui/icons';
 import { eventJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -81,11 +83,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
       />
 
-      <nav className="text-fg-muted mb-4 text-sm" aria-label="Breadcrumb">
+      <nav className="text-fg-muted mb-4 flex items-center text-sm" aria-label="Breadcrumb">
         <Link href="/browse" className="hover:text-fg">
           Events
         </Link>
-        <span className="mx-2">/</span>
+        <IconChevronRight width={14} height={14} className="mx-1.5" />
         <Link href={`/browse?category=${event.category}`} className="hover:text-fg">
           {EVENT_CATEGORY_LABELS[event.category]}
         </Link>
@@ -93,7 +95,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
         <div>
-          <div className="bg-bg-sunken relative aspect-[16/10] overflow-hidden rounded-lg">
+          <div className="bg-bg-subtle relative aspect-[16/10] overflow-hidden rounded-lg">
             <EventImage
               imageUrl={event.image_url}
               title={event.title}
@@ -113,7 +115,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             </div>
           </div>
 
-          <h1 className="font-display mt-6 text-3xl leading-tight font-semibold sm:text-4xl">
+          <h1 className="font-display mt-6 text-3xl leading-tight font-bold sm:text-4xl">
             {event.title}
           </h1>
 
@@ -162,9 +164,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
         {/* Sticky ticket + venue rail */}
         <aside className="space-y-4">
-          <div className="border-border bg-surface rounded-lg border p-5 lg:sticky lg:top-20">
+          <div className="border-border bg-surface shadow-elevation rounded-lg border p-5 lg:sticky lg:top-20">
             <p className="text-fg-muted text-sm">Price</p>
-            <p className="font-display text-fg text-2xl font-semibold">{price}</p>
+            <p className="font-display text-fg text-2xl font-bold">{price}</p>
             <TicketCta event={event} />
             <p className="text-fg-subtle mt-3 text-center text-xs">
               You&apos;ll complete your purchase on the organiser&apos;s ticket page.
@@ -172,7 +174,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           </div>
 
           {event.venue && (
-            <div className="border-border bg-surface rounded-md border p-4">
+            <div className="border-border bg-surface shadow-elevation rounded-lg border p-4">
               <p className="text-fg-subtle text-xs font-semibold tracking-wide uppercase">Venue</p>
               <p className="text-fg mt-2 font-semibold">{event.venue.name}</p>
               {event.venue.address && (
@@ -183,9 +185,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                 href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-accent mt-3 inline-flex text-sm font-semibold hover:underline"
+                className="text-accent mt-3 inline-flex items-center gap-1 text-sm font-semibold hover:underline"
               >
-                Get directions →
+                <IconMapPin width={14} height={14} />
+                Get directions
               </a>
             </div>
           )}
@@ -235,49 +238,46 @@ function TicketCta({
   compact?: boolean;
 }) {
   if (!event) return null;
-  const base = compact
-    ? 'rounded-md px-5 py-2.5 font-semibold whitespace-nowrap'
-    : 'mt-4 w-full rounded-md px-4 py-3 font-semibold';
+  const base = compact ? 'rounded-md px-5 h-11 font-semibold whitespace-nowrap' : 'mt-4 w-full';
+  const block = compact
+    ? 'inline-flex items-center rounded-md px-5 h-11 font-semibold whitespace-nowrap text-sm'
+    : 'mt-4 w-full flex items-center justify-center rounded-md h-12 font-semibold';
 
   if (event.status === 'sold_out') {
     return (
-      <button disabled className={cn('bg-bg-sunken text-fg-muted cursor-not-allowed', base)}>
+      <button disabled className={cn('bg-bg-subtle text-fg-muted cursor-not-allowed', block)}>
         Sold out
       </button>
     );
   }
   if (event.status === 'cancelled') {
     return (
-      <button disabled className={cn('bg-error-bg text-error cursor-not-allowed', base)}>
+      <button disabled className={cn('bg-error-bg text-error cursor-not-allowed', block)}>
         Cancelled
       </button>
     );
   }
   if (event.is_free) {
     return (
-      <div className={cn('bg-success-bg text-success text-center', base)}>
+      <div className={cn('bg-success-bg text-success text-center', block)}>
         {compact ? 'Free entry' : 'Free entry — no ticket needed'}
       </div>
     );
   }
   if (event.external_ticket_url) {
     return (
-      <a
+      <Button
         href={event.external_ticket_url}
-        target="_blank"
-        rel="noopener noreferrer"
+        external
         tabIndex={compact ? -1 : undefined}
-        className={cn(
-          'bg-accent text-accent-fg hover:bg-accent-hover inline-block text-center transition-colors',
-          base,
-        )}
+        className={base}
       >
         Get tickets
-      </a>
+      </Button>
     );
   }
   return (
-    <div className={cn('bg-bg-subtle text-fg-muted text-center text-sm', base)}>
+    <div className={cn('bg-bg-subtle text-fg-muted text-center text-sm', block)}>
       {compact ? 'Coming soon' : 'Tickets coming soon'}
     </div>
   );

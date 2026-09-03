@@ -4,14 +4,13 @@ import { colorRoles, fontSize, lineHeight, radius, shadow, motion } from './toke
  * Builds the canonical `tokens.css` from the TypeScript tokens so the web
  * app's CSS variables can never drift from the source of truth. A vitest
  * test asserts the committed file matches this output.
+ *
+ * Light-only by brief — no dark theme, so no media query / data-theme
+ * branching here.
  */
 export function buildTokensCss(): string {
   const lightVars = Object.entries(colorRoles.light)
     .map(([role, value]) => `  --color-${kebab(role)}: ${value};`)
-    .join('\n');
-
-  const darkVars = Object.entries(colorRoles.dark)
-    .map(([role, value]) => `    --color-${kebab(role)}: ${value};`)
     .join('\n');
 
   const fontSizeVars = Object.entries(fontSize)
@@ -37,23 +36,12 @@ ${fontSizeVars}
 ${lineHeightVars}
 ${radiusVars}
   --shadow-elevation: ${shadow.elevation};
+  --shadow-elevation-lg: ${shadow.elevationLg};
   --motion-fast: ${motion.fast};
   --motion-base: ${motion.base};
   --motion-slow: ${motion.slow};
   --motion-ease: ${motion.ease};
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-${darkVars}
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme='dark'] {
-${darkVars.replace(/^ {4}/gm, '  ')}
-  color-scheme: dark;
 }
 
 @media (prefers-reduced-motion: reduce) {

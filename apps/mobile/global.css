@@ -2,53 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Design tokens as CSS variables (light + dark). Kept in step with
-   packages/ui-tokens/src/tokens.ts colorRoles. NativeWind resolves these on
-   device; darkMode is toggled by a `.dark` class on the root. */
+/* Design tokens as CSS variables. Kept in step with
+   packages/ui-tokens/src/tokens.ts colorRoles. Light-only by brief — no
+   dark theme, so no `.dark` block here. */
 @layer base {
   :root {
-    --color-bg: #faf7f2;
-    --color-bg-subtle: #f3eee5;
-    --color-bg-sunken: #eae3d6;
+    --color-bg: #fafaf7;
+    --color-bg-subtle: #f5f5f2;
+    --color-bg-sunken: #f5f5f2;
     --color-surface: #ffffff;
-    --color-surface-hover: #f3eee5;
-    --color-border: #dad3c9;
-    --color-border-strong: #bcb6ae;
-    --color-fg: #0f0f0f;
-    --color-fg-muted: #6b6762;
-    --color-fg-subtle: #938e88;
-    --color-accent: #c1348a;
-    --color-accent-hover: #9c2a6f;
+    --color-surface-hover: #f5f5f2;
+    --color-border: #e9e9ee;
+    --color-border-strong: #d6d6de;
+    --color-fg: #171a35;
+    --color-fg-muted: #6b6f80;
+    --color-fg-subtle: #9699a6;
+    --color-accent: #ff8a00;
+    --color-accent-hover: #db7500;
     --color-accent-fg: #ffffff;
-    --color-accent-subtle: #fae3f0;
-    --color-success: #2f8f5b;
-    --color-success-bg: #e4f2ea;
-    --color-warn: #c98a12;
-    --color-warn-bg: #fbf0d8;
-    --color-error: #c43d3d;
-    --color-error-bg: #f8e3e3;
-  }
-
-  .dark {
-    --color-bg: #0f0f0f;
-    --color-bg-subtle: #1c1b1a;
-    --color-bg-sunken: #000000;
-    --color-surface: #1c1b1a;
-    --color-surface-hover: #2e2c2a;
-    --color-border: #2e2c2a;
-    --color-border-strong: #4a4744;
-    --color-fg: #faf7f2;
-    --color-fg-muted: #bcb6ae;
-    --color-fg-subtle: #938e88;
-    --color-accent: #e27fb8;
-    --color-accent-hover: #c1348a;
-    --color-accent-fg: #0f0f0f;
-    --color-accent-subtle: #2e2c2a;
-    --color-success: #5fbf8a;
-    --color-success-bg: #17352a;
-    --color-warn: #e3b65a;
-    --color-warn-bg: #3a2e14;
-    --color-error: #e87a7a;
-    --color-error-bg: #3a1c1c;
+    --color-accent-subtle: #fff2e3;
+    --color-accent-pink: #f0446f;
+    --color-accent-pink-hover: #d22e58;
+    --color-accent-pink-subtle: #fff0f3;
+    --color-accent-purple: #7b35d6;
+    --color-accent-purple-hover: #6423b8;
+    --color-accent-purple-subtle: #f3eeff;
+    --color-success: #22a06b;
+    --color-success-bg: #e7f5ee;
+    --color-warn: #e6a21a;
+    --color-warn-bg: #fcf2dd;
+    --color-error: #d64545;
+    --color-error-bg: #fbe9e9;
   }
 }

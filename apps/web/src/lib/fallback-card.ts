@@ -87,10 +87,10 @@ export function fallbackCardSvg(input: FallbackCardInput): string {
   </defs>
   <rect width="${w}" height="${h}" fill="url(#g)"/>
   <rect width="${w}" height="${h}" fill="url(#dots)"/>
-  <g font-family="Georgia, 'Times New Roman', serif" fill="#ffffff">
-    <text font-size="52" font-weight="600">${titleTspans}</text>
+  <g font-family="Inter, Arial, system-ui, sans-serif" fill="#ffffff">
+    <text font-size="52" font-weight="700">${titleTspans}</text>
   </g>
-  <g font-family="Arial, system-ui, sans-serif" fill="#ffffff">
+  <g font-family="Inter, Arial, system-ui, sans-serif" fill="#ffffff">
     <text x="56" y="${h - 44}" font-size="26" opacity="0.92">${escapeXml(
       EVENT_CATEGORY_LABELS[input.category],
     )}${input.organiserName ? ' · ' + escapeXml(input.organiserName) : ''}</text>

@@ -3,8 +3,9 @@ import Image from 'next/image';
 import type { City, CityCount } from '@desihub/shared';
 import { gradientByIndex } from '@/lib/gradient';
 import { CITY_IMAGES } from '@/lib/city-images';
+import { IconChevronRight } from './ui/icons';
 
-/** DesiPass-style "Popular Cities" tiles — real event counts, photo-or-gradient tile. */
+/** "Popular Cities" tiles — real event counts, photo-or-gradient tile. */
 export function PopularCities({ cities }: { cities: CityCount[] }) {
   if (cities.length === 0) return null;
 
@@ -12,8 +13,12 @@ export function PopularCities({ cities }: { cities: CityCount[] }) {
     <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-baseline justify-between gap-4">
         <h2 className="font-display text-xl font-semibold sm:text-2xl">Popular cities</h2>
-        <Link href="/browse" className="text-accent shrink-0 text-sm font-semibold hover:underline">
-          See all →
+        <Link
+          href="/browse"
+          className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
+        >
+          See all
+          <IconChevronRight width={14} height={14} />
         </Link>
       </div>
 

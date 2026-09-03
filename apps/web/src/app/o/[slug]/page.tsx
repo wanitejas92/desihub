@@ -6,6 +6,7 @@ import { deterministicGradient } from '@/lib/gradient';
 import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
 import { FollowButton } from '@/components/follow-button';
+import { IconCheckCircle } from '@/components/ui/icons';
 
 export const revalidate = 3600;
 
@@ -62,8 +63,11 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
               <h1 className="font-display text-2xl font-semibold sm:text-3xl">
                 {org.name}
                 {org.verified && (
-                  <span className="text-accent ml-2 align-middle" title="Verified organiser">
-                    ✓
+                  <span
+                    className="text-accent ml-2 inline-flex align-middle"
+                    title="Verified organiser"
+                  >
+                    <IconCheckCircle width={20} height={20} />
                   </span>
                 )}
               </h1>

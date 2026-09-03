@@ -56,14 +56,14 @@ export function SeasonStrip({ now = new Date() }: { now?: Date }) {
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href={primaryCategory ? `/browse?category=${primaryCategory}` : '/browse'}
-            className="rounded-pill text-ink bg-white px-5 py-2.5 text-sm font-semibold transition-transform hover:-translate-y-0.5"
+            className="inline-flex h-12 items-center rounded-md bg-white px-5 text-sm font-semibold transition-all duration-150 hover:-translate-y-0.5 active:scale-[0.98]"
             style={{ color: style.ink }}
           >
             Explore {(upcoming?.season ?? season).name}
           </Link>
           <Link
             href="/browse"
-            className="rounded-pill border border-white/70 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+            className="inline-flex h-12 items-center rounded-md border border-white/70 px-5 text-sm font-semibold text-white transition-colors hover:bg-white/10 active:scale-[0.98]"
           >
             All events
           </Link>

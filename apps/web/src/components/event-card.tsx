@@ -4,6 +4,7 @@ import type { EventWithRelations } from '@/lib/data';
 import { EventImage } from './event-image';
 import { CategoryPill } from './category-pill';
 import { DateChip } from './date-chip';
+import { IconFlame, IconCalendar, IconMapPin, IconCheckCircle } from './ui/icons';
 import { cn } from '@/lib/cn';
 
 interface EventCardProps {
@@ -13,7 +14,7 @@ interface EventCardProps {
   trending?: boolean;
 }
 
-/** Signature card: full-bleed image, floating date chip, category pill. */
+/** Signature card: large image, floating date chip, category pill — light, spacious, premium. */
 export function EventCard({ event, priority, className, trending }: EventCardProps) {
   const price = formatPriceRange(
     event.min_price_cents,
@@ -28,11 +29,11 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
     <Link
       href={`/e/${event.slug}`}
       className={cn(
-        'group bg-surface flex flex-col overflow-hidden rounded-md transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-0.5 focus-visible:-translate-y-0.5',
+        'group bg-surface border-border shadow-elevation hover:shadow-elevation-lg flex flex-col overflow-hidden rounded-lg border transition-all duration-200 ease-out hover:-translate-y-0.5',
         className,
       )}
     >
-      <div className="bg-bg-sunken relative aspect-[4/5] overflow-hidden">
+      <div className="bg-bg-subtle relative aspect-[4/3] overflow-hidden">
         <EventImage
           imageUrl={event.image_url}
           title={event.title}
@@ -40,13 +41,16 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
           startsAt={event.starts_at}
           organiserName={event.organiser.name}
           priority={priority}
+          fallbackWidth={800}
+          fallbackHeight={600}
           className="transition-transform duration-300 ease-out group-hover:scale-[1.03]"
         />
         <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
           <DateChip startsAt={event.starts_at} />
           {trending && (
             <span className="rounded-pill bg-accent text-accent-fg shadow-elevation inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold tracking-wide uppercase">
-              🔥 Trending
+              <IconFlame width={12} height={12} />
+              Trending
             </span>
           )}
         </div>
@@ -60,9 +64,9 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 p-3">
+      <div className="flex flex-1 flex-col gap-1.5 p-4">
         <p className="text-fg-muted flex items-center gap-1.5 text-xs font-medium">
-          <span aria-hidden>📅</span>
+          <IconCalendar width={14} height={14} />
           {formatEventDateCompact(event.starts_at)} · {formatEventTime(event.starts_at)}
         </p>
         <h3 className="font-display text-fg group-hover:text-accent text-lg leading-tight font-semibold">
@@ -70,14 +74,18 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
         </h3>
         <div className="mt-auto flex items-end justify-between gap-2 pt-1">
           <p className="text-fg-muted flex items-center gap-1 text-sm">
-            <span aria-hidden>📍</span>
+            <IconMapPin width={14} height={14} />
             {event.venue?.city ?? 'Netherlands'}
           </p>
           <div className="text-right">
             <span className="text-fg text-sm font-semibold">{price}</span>
             {event.organiser.verified && (
-              <span className="text-fg-subtle block text-xs" title="Verified organiser">
-                ✓ Verified
+              <span
+                className="text-fg-subtle mt-0.5 flex items-center justify-end gap-1 text-xs"
+                title="Verified organiser"
+              >
+                <IconCheckCircle width={12} height={12} />
+                Verified
               </span>
             )}
           </div>

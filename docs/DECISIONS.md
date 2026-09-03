@@ -6,6 +6,110 @@ section.
 
 ---
 
+## Phase 1 — Full design-system rewrite: "premium European startup" brief
+
+The user supplied a complete, prescriptive design brief (exact hex palette,
+typography, radius/shadow/spacing system, a full button taxonomy, card/chip/
+badge/input specs) with one explicit, load-bearing instruction: **no dark
+theme**. This supersedes every prior colour pass this build (marigold →
+DesiPass-crimson → gradient-monogram-magenta → this) — this one is a real
+design system, not another accent swap, so it's documented as its own entry
+rather than folded into the previous one.
+
+### What was built
+
+- **Tokens rewritten wholesale** (`packages/ui-tokens/src/tokens.ts`): the
+  brief's exact palette (`#FAFAF7` bg, `#171A35` navy text, `#FF8A00` /
+  `#F0446F` / `#7B35D6` orange/pink/purple accents, soft tint backgrounds),
+  an 8px spacing scale, the brief's radius steps (10/12/16/20/pill), and
+  soft-only shadows (`0 4px 16px rgba(23,26,53,.06)`). `colorRoles` is now
+  `{ light: {...} }` only — no `dark` branch — and `accentPink`/
+  `accentPurple` roles were added alongside `accent` (orange) so the two
+  secondary brand colours are real, reusable tokens, not one-off hex.
+- **Dark theme removed, not hidden.** Deleted `ThemeToggle`, the
+  localStorage theme-persistence script and `data-theme` attribute in
+  `layout.tsx`, the `@media (prefers-color-scheme: dark)` /
+  `[data-theme='dark']` blocks in the `tokens.css` generator, mobile's
+  `.dark` CSS block, and every `useColorScheme`/dark-conditional branch in
+  the Expo app (root layout's theme bootstrap, the tab bar's light/dark
+  tint switch, Profile's whole "Appearance" picker). A stale toggle that
+  does nothing is worse than no toggle.
+- **Typography swapped**: Fraunces (serif display) → Inter everywhere,
+  changed once in `fontFamily.display`/`.sans` since every heading already
+  routes through the `font-display` token rather than a hardcoded family —
+  no per-component edits needed for the type change itself.
+- **A real `Button` component** (`apps/web/src/components/ui/button.tsx`):
+  primary (gradient bg, white text), secondary (white + border), outline
+  (transparent + orange), soft (tinted bg + tone-matched text, orange/pink/
+  purple), text — one polymorphic component (renders `<Link>` when `href`
+  is passed, `<button>` otherwise) so every CTA in the app got the same
+  variant/size rules in one place instead of N hand-rolled class strings.
+- **An original line-icon set** (`apps/web/src/components/ui/icons.tsx`,
+  ~24 icons incl. one per event category) replacing the emoji used
+  throughout Phase 1's earlier passes (🔥📅📍🔍🎟️✨🧩 etc.) — the brief is
+  explicit that the product should read premium and modern, not "childish,"
+  and emoji-as-icon cuts against that everywhere it showed up (nav, chips,
+  badges, category tiles, empty states).
+- **Card/chip/input specs applied**: event card image aspect 4:5 → 4:3
+  (brief: "16:10 or 4:3"), 16px radius + border + soft shadow; category
+  tiles get soft orange/pink/purple icon badges instead of a flat emoji;
+  search/select inputs get a focus glow (`box-shadow` ring in `.input:focus`)
+  per "subtle accent border or soft glow."
+- **Decorative gradients realigned to the brand trio.** The organiser-banner
+  and Popular-Cities gradient palette (`apps/web/src/lib/gradient.ts`) used
+  an arbitrary 6-colour set left over from the crimson pass (teal, green,
+  rust); replaced with two-stop slices of orange/pink/purple so those
+  "no-photo" banners read as DesiHub rather than an unrelated palette.
+
+### Bug caught before shipping
+
+- Changing the card image aspect ratio (4:5 → 4:3) broke the branded
+  fallback-card SVG: `EventCard` wasn't passing `fallbackWidth`/
+  `fallbackHeight` to `EventImage`, so it kept using the generator's 800×1000
+  default on a now-800×600 box. The generator's title/caption `y` positions
+  are computed relative to `height` (`h - 60 - …`), so the mismatch pushed
+  the title down past the new, shorter frame — titles rendered clipped or
+  overlapping the sold-out/cancelled bar. Fixed by passing the matching
+  `800×600` fallback dimensions from the card. Caught by actually rendering
+  the grid at full size and looking, not by reading the diff — the same
+  render-before-shipping discipline as the logo-mark bugs two passes ago.
+
+### Decisions
+
+- **Gradient stays a brand accent, not a UI-wide treatment**, per the
+  brief's own "never as the main page background… keep it subtle." Applied
+  to: the logo/wordmark, primary buttons, the announcement ribbon, and
+  decorative banners with no photo. Not applied to: borders, focus rings,
+  category chips (soft tints instead), or body text.
+- **Category-specific fallback-card gradients (12 hues, one per category)
+  were left alone**, not forced into the 3-colour brand palette. They're
+  content-driven category-coding (Phase 0 decision), the same reasoning
+  that already kept festival-mood colours and category-coding independent
+  of the brand accent through two earlier colour passes — the brief's
+  "don't overuse orange/pink/purple" is about the brand accent's use in
+  chrome, not a mandate to recolour every content-driven palette in the app.
+- **Mobile got token/colour parity, not full component parity.** Its
+  `global.css`, hardcoded `ActivityIndicator`/tab-bar hex, and the dark-mode
+  removal are all done — the app is correctly light-only and on-palette.
+  Its tab-bar and category icons are still emoji, not the new SVG set:
+  `react-native-svg` isn't an existing dependency, and adding an unverified
+  native dependency in a container with no simulator to actually test it on
+  is a worse trade than shipping mobile's icons as a scoped, documented
+  follow-up (same category as the deferred mobile logo-mark from the
+  previous pass).
+
+### Verification
+
+- `pnpm typecheck` / `lint` / `test` (48 unit tests, `ui-tokens`'s CSS test
+  now asserts *no* dark-mode branching instead of asserting one exists) and
+  the full Playwright suite (18 tests, mobile + desktop) all pass. Full
+  production build (48 routes). Screenshots across home, browse, event
+  detail, organiser, and submit — desktop and mobile viewports — confirm
+  the palette, gradient buttons, new card aspect ratio, icons, and focus
+  states all render as specified, with no dark-mode remnants anywhere.
+
+---
+
 ## Phase 1 — Real brand mark: gradient monogram + magenta accent
 
 The user has their own AI-generated DesiHub logo concept (rights confirmed

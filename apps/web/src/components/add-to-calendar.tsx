@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { buildIcs, googleCalendarUrl, type CalendarEventInput } from '@desihub/shared';
+import { Button } from './ui/button';
+import { IconCalendarPlus } from './ui/icons';
 
 /** Add-to-calendar: Google link + a client-generated .ics download (no backend). */
 export function AddToCalendar({ event }: { event: CalendarEventInput }) {
@@ -22,26 +24,28 @@ export function AddToCalendar({ event }: { event: CalendarEventInput }) {
 
   return (
     <div className="relative">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="rounded-pill border-border text-fg hover:bg-surface-hover inline-flex h-11 items-center gap-2 border px-4 text-sm font-semibold transition-colors"
+        variant="secondary"
+        pill
       >
-        <span aria-hidden>＋</span> Add to calendar
-      </button>
+        <IconCalendarPlus width={16} height={16} />
+        Add to calendar
+      </Button>
       {open && (
         <div
           role="menu"
-          className="border-border bg-surface shadow-elevation absolute z-10 mt-2 w-48 overflow-hidden rounded-md border"
+          className="border-border bg-surface shadow-elevation-lg absolute z-10 mt-2 w-48 overflow-hidden rounded-lg border"
         >
           <a
             role="menuitem"
             href={googleCalendarUrl(event)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-fg hover:bg-surface-hover block px-4 py-3 text-sm"
+            className="text-fg hover:bg-bg-subtle block px-4 py-3 text-sm"
             onClick={() => setOpen(false)}
           >
             Google Calendar
@@ -50,7 +54,7 @@ export function AddToCalendar({ event }: { event: CalendarEventInput }) {
             role="menuitem"
             type="button"
             onClick={downloadIcs}
-            className="text-fg hover:bg-surface-hover block w-full px-4 py-3 text-left text-sm"
+            className="text-fg hover:bg-bg-subtle block w-full px-4 py-3 text-left text-sm"
           >
             Apple / Outlook (.ics)
           </button>

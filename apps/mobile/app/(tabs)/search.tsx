@@ -64,7 +64,7 @@ export default function SearchScreen() {
           value={q}
           onChangeText={setQ}
           placeholder="Search events, organisers, tags…"
-          placeholderTextColor="#938E88"
+          placeholderTextColor="#9699A6"
           className="mt-3 rounded-md border border-border bg-surface px-4 py-3 text-fg"
           accessibilityLabel="Search events"
         />
@@ -105,7 +105,7 @@ export default function SearchScreen() {
 
       {state.loading ? (
         <View className="items-center py-16">
-          <ActivityIndicator color="#C1348A" />
+          <ActivityIndicator color="#FF8A00" />
         </View>
       ) : (
         <FlatList

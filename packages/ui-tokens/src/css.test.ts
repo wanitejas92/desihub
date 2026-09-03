@@ -21,7 +21,10 @@ describe('tokens.css', () => {
     }
   });
 
-  it('provides a data-theme=dark override for the manual toggle', () => {
-    expect(buildTokensCss()).toContain("[data-theme='dark']");
+  it('is light-only — no dark theme branching (brief: never a dark background)', () => {
+    const css = buildTokensCss();
+    expect(css).not.toContain('prefers-color-scheme: dark');
+    expect(css).not.toContain('data-theme');
+    expect(css).toContain('color-scheme: light');
   });
 });
