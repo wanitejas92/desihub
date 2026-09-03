@@ -1,9 +1,5 @@
-import {
-  draftSlug,
-  isThisWeekend,
-  type SubmitEventInput,
-  type SubscribeInput,
-} from '@desihub/shared';
+import { draftSlug, type SubmitEventInput, type SubscribeInput } from '../schemas';
+import { isThisWeekend } from '../datetime';
 import type { EventRepository, SubmitResult, SubscribeResult } from './repository';
 import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';

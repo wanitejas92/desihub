@@ -1,4 +1,4 @@
-import type { SubmitEventInput, SubscribeInput } from '@desihub/shared';
+import type { SubmitEventInput, SubscribeInput } from '../schemas';
 import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
 
 export interface SubmitResult {

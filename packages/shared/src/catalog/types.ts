@@ -1,4 +1,5 @@
-import type { Event, Organiser, Venue, TicketType, EventCategory, City } from '@desihub/shared';
+import type { Event, Organiser, Venue, TicketType } from '../schemas';
+import type { EventCategory, City } from '../constants';
 
 /** An event joined with the relations the listings layer needs to render. */
 export interface EventWithRelations extends Event {
@@ -15,16 +16,12 @@ export interface OrganiserWithEvents extends Organiser {
 export interface EventFilters {
   city?: City;
   category?: EventCategory;
-  /** ISO date (inclusive lower bound) in the venue timezone. */
   dateFrom?: string;
-  /** ISO date (inclusive upper bound). */
   dateTo?: string;
   language?: string;
-  /** 'free' | 'paid' */
   price?: 'free' | 'paid';
   familyFriendly?: boolean;
   search?: string;
-  /** Include past events (default false — upcoming only). */
   includePast?: boolean;
   limit?: number;
   offset?: number;

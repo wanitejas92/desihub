@@ -6,8 +6,15 @@ import {
   type SubscribeInput,
 } from '@desihub/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { EventRepository, SubmitResult, SubscribeResult } from './repository';
-import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
+import type {
+  EventRepository,
+  SubmitResult,
+  SubscribeResult,
+  EventWithRelations,
+  EventFilters,
+  OrganiserWithEvents,
+  Paginated,
+} from '@desihub/shared';
 
 const EVENT_SELECT = `
   *,

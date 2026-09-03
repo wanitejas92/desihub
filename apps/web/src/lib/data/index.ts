@@ -1,11 +1,10 @@
-import type { EventRepository } from './repository';
-import { MockEventRepository } from './mock-repository';
+import { MockEventRepository, type EventRepository } from '@desihub/shared';
 
 /**
  * Chooses the repository implementation. When Supabase env is configured we use
- * the real adapter; otherwise the in-memory mock keeps the site fully working
- * for local dev, previews and E2E. The rest of the app only ever sees the
- * EventRepository interface.
+ * the real adapter; otherwise the shared in-memory mock keeps the site fully
+ * working for local dev, previews and E2E. The rest of the app only ever sees
+ * the EventRepository interface.
  */
 export function hasSupabase(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
@@ -27,5 +26,10 @@ export async function getRepository(): Promise<EventRepository> {
   return cached;
 }
 
-export type { EventRepository } from './repository';
-export * from './types';
+export type {
+  EventRepository,
+  EventWithRelations,
+  EventFilters,
+  OrganiserWithEvents,
+  Paginated,
+} from '@desihub/shared';

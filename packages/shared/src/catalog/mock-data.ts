@@ -1,4 +1,4 @@
-import type { EventCategory, EventLanguage } from '@desihub/shared';
+import type { EventCategory, EventLanguage } from '../constants';
 import type { EventWithRelations } from './types';
 
 /**
