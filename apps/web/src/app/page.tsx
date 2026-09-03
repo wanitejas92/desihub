@@ -3,37 +3,39 @@ import { EmailCapture } from '@/components/email-capture';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { SeasonStrip } from '@/components/season-strip';
-import { QuickFilters } from '@/components/quick-filters';
+import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
 import { PopularCities } from '@/components/popular-cities';
 import { EmptyState } from '@/components/empty-state';
 import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
 
-// Revalidate hourly — the season strip and "this weekend" are time-sensitive.
+// Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
 
 export default async function HomePage() {
   const repo = await getRepository();
-  const [weekend, featured, upcoming, cities] = await Promise.all([
-    repo.thisWeekend(8),
-    repo.featured(8),
-    repo.nearYou(undefined, 8),
-    repo.popularCities(6),
-  ]);
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, upcoming, cities] =
+    await Promise.all([
+      repo.listEvents({ limit: 12 }),
+      repo.thisWeek(12),
+      repo.thisWeekend(12),
+      repo.listEvents({ price: 'free', limit: 12 }),
+      repo.featured(8),
+      repo.nearYou(undefined, 8),
+      repo.popularCities(6),
+    ]);
 
   return (
     <>
       <SeasonStrip />
-      <QuickFilters />
-
-      <EventRail
-        title="This weekend"
-        events={weekend}
-        seeAllHref="/browse?when=weekend"
-        priorityFirst
-        emptyTitle="Nothing this weekend — yet"
-        emptyDescription="New events are added all the time. Check what's coming up, or be the first to list one."
+      <QuickFilterRail
+        eventsByFilter={{
+          all: allUpcoming.items,
+          week: thisWeek,
+          weekend: thisWeekend,
+          free: freeEvents.items,
+        }}
       />
 
       <section className="max-w-content mx-auto px-4 py-6 sm:px-6">

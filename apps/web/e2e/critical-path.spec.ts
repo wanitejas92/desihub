@@ -16,11 +16,22 @@ test('home shows the season strip and event sections', async ({ page }) => {
   await expect(page.getByText('Trending', { exact: false }).nth(1)).toBeVisible();
 });
 
-test('quick-filter pills jump into a pre-filtered, shareable browse view', async ({ page }) => {
+test('quick-filter pills swap the rail below them in place, without navigating', async ({
+  page,
+}) => {
   await page.goto('/');
-  await page.getByRole('link', { name: 'This weekend' }).click();
-  await expect(page).toHaveURL(/\/browse\?when=weekend/);
-  await expect(page.getByRole('heading', { name: 'Browse events' })).toBeVisible();
+  const freePill = page.getByRole('button', { name: 'Free entry' });
+  await freePill.click();
+  // Still on the home page — no navigation happened.
+  await expect(page).toHaveURL('/');
+  // The pill stays visible and marked active, and the section below relabels.
+  await expect(freePill).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('heading', { name: 'Free entry' })).toBeVisible();
+  // The pill row's own "See all" link is still a real, shareable browse URL.
+  await expect(page.getByRole('link', { name: /see all/i }).first()).toHaveAttribute(
+    'href',
+    '/browse?price=free',
+  );
 });
 
 test('browse filters are URL-driven and shareable', async ({ page }) => {

@@ -6,6 +6,73 @@ section.
 
 ---
 
+## Phase 1 — Quick filters become in-place, with a trendier pill and a carousel rail
+
+Reference screenshots of another platform's filter row (rounded pills with
+icons, one held active with a gradient fill, plus a scroll-arrow-flanked
+event row) came with a plain-language ask: make the home pills trendier,
+make clicking one update the events *directly below it on the same page*
+rather than navigating away, keep the clicked pill visible/active instead
+of it vanishing, and add left/right scroll arrows to that row. The user
+explicitly handed over the how ("you can think about better and trendy
+idea") and named the one constraint that mattered: user experience first.
+
+### What was built
+
+- **`quick-filters.tsx` (page-navigating `<Link>` pills) replaced by
+  `quick-filter-rail.tsx`**, a client component that owns both the pill
+  row and the event rail beneath it as one interactive unit. Pills are now
+  real `<button>`s with `aria-pressed`, so the browser's own "this is a
+  toggle, and it's on" semantics carry the "stays active" requirement —
+  not just a visual style. The active pill fills with the brand gradient
+  (orange → pink → purple) instead of the reference's literal red, so it
+  reads as this product's accent, not a copy of the source site's.
+- **No navigation, no client-side re-filtering of a truncated pool
+  either.** The first version filtered one shared 24-event pool in the
+  browser by date/price — cheap, but wrong: "this weekend"'s real matches
+  can easily sort past a 24-item cutoff of the soonest-upcoming events,
+  producing a false "nothing this weekend" the mock data didn't actually
+  have. Caught by screenshotting the weekend pill and seeing an empty
+  state where the old dedicated `/browse?when=weekend` section used to
+  show real events. Fixed by fetching each filter's own correct set
+  server-side in `page.tsx` (`repo.thisWeek`, `repo.thisWeekend`,
+  `repo.listEvents({ price: 'free' })`, `repo.listEvents({ limit: 12 })`
+  for "all") and handing the client component a `Record<FilterId,
+  EventWithRelations[]>` to switch between — the same repository methods
+  the old separate sections used, just switched between instead of
+  stacked, so every filter is exactly as correct as its old dedicated
+  section was.
+- **Scroll arrows** are real buttons (not decorative), positioned only
+  when there's somewhere to scroll: a scroll-state effect tracks
+  `scrollLeft`/`scrollWidth` on the rail and only renders the left/right
+  circular button when that direction has room, so there's never a dead
+  arrow sitting there doing nothing.
+- **`IconChevronLeft` added** to the icon set (only `Right` existed) for
+  the left arrow.
+- This absorbed the home page's old standalone "This weekend" rail — the
+  quick-filter rail's "All events" default already covers the same
+  upcoming-events role that section played, so keeping both would have
+  meant two rails doing overlapping jobs.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests all pass; production build
+  succeeds (48 routes). Screenshots of desktop and mobile, before and
+  after clicking each pill, confirm: no URL change, the clicked pill
+  stays visible and gradient-filled, the heading and card set below swap
+  in place, and the scroll arrow only appears on the side that actually
+  has more content.
+- Updated the one E2E test that encoded the old navigating behavior
+  (`critical-path.spec.ts`: "quick-filter pills jump into a pre-filtered,
+  shareable browse view") to assert the new in-place contract instead —
+  same URL after the click, `aria-pressed="true"` on the clicked pill,
+  the section heading relabelling, and the rail's own "See all" link
+  still pointing at a real, shareable `/browse?...` URL as the escape
+  hatch to the full listing. Full 18-test Playwright suite (mobile +
+  desktop) passes.
+
+---
+
 ## Phase 1 — Restyle pass: lighter hero, white cards, controlled-accent gradients
 
 A second, explicitly-scoped brief followed the design-system rewrite:
