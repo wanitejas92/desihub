@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
-import { buildTokensCss } from './css.js';
-import { colorRoles } from './tokens.js';
+import { buildTokensCss } from './css';
+import { colorRoles } from './tokens';
 
 const here = dirname(fileURLToPath(import.meta.url));
 

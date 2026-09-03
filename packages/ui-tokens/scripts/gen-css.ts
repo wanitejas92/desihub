@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
-import { buildTokensCss } from '../src/css.js';
+import { buildTokensCss } from '../src/css';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const target = resolve(here, '../src/tokens.css');

@@ -1,4 +1,4 @@
-import type { EventCategory } from './constants.js';
+import type { EventCategory } from './constants';
 
 /**
  * The festival calendar that powers the home "Season" strip. The NL Desi event

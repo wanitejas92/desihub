@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { submitEventSchema, ticketTypeSchema, subscribeSchema, draftSlug } from './schemas.js';
+import { submitEventSchema, ticketTypeSchema, subscribeSchema, draftSlug } from './schemas';
 
 describe('submitEventSchema', () => {
   it('accepts the three required fields', () => {

@@ -6,7 +6,7 @@ import {
   formatMoney,
   formatPriceRange,
   isValidPriceCents,
-} from './money.js';
+} from './money';
 
 describe('ticketFeeCents', () => {
   it('is zero for free tickets', () => {

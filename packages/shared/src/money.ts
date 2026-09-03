@@ -1,4 +1,4 @@
-import { DEFAULT_CURRENCY, KLARNA_MIN_TOTAL_CENTS, type FeeMode } from './constants.js';
+import { DEFAULT_CURRENCY, KLARNA_MIN_TOTAL_CENTS, type FeeMode } from './constants';
 
 /**
  * All money in DesiHub is stored and computed as integer cents. Never use

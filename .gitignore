@@ -37,3 +37,6 @@ Thumbs.db
 
 # misc
 *.pem
+
+# next
+next-env.d.ts

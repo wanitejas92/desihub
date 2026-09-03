@@ -1,4 +1,4 @@
-import { DEFAULT_TIMEZONE } from './constants.js';
+import { DEFAULT_TIMEZONE } from './constants';
 
 /**
  * Timezone-correct date handling. Events happen in Europe/Amsterdam; we store

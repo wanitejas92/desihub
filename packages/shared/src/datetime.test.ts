@@ -7,7 +7,7 @@ import {
   buildIcs,
   googleCalendarUrl,
   formatEventTime,
-} from './datetime.js';
+} from './datetime';
 
 describe('dateChip', () => {
   it('renders day/month/weekday in Amsterdam time', () => {

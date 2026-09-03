@@ -1,5 +1,5 @@
 import type { Config } from 'tailwindcss';
-import { fontFamily, fontSize, lineHeight, radius, spacing, colorRoles } from './tokens.js';
+import { fontFamily, fontSize, lineHeight, radius, spacing, colorRoles } from './tokens';
 
 /**
  * Shared Tailwind preset consumed by both apps/web (Tailwind v4) and

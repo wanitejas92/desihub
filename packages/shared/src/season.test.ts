@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { currentSeason, nextSeason } from './season.js';
+import { currentSeason, nextSeason } from './season';
 
 describe('currentSeason', () => {
   it('is Diwali in early November 2026', () => {

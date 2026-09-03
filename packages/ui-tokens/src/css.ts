@@ -1,4 +1,4 @@
-import { colorRoles, fontSize, lineHeight, radius, shadow, motion } from './tokens.js';
+import { colorRoles, fontSize, lineHeight, radius, shadow, motion } from './tokens';
 
 /**
  * Builds the canonical `tokens.css` from the TypeScript tokens so the web

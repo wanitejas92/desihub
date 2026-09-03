@@ -9,8 +9,8 @@ import {
   MEAL_CHOICES,
   CITIES,
   EVENT_LANGUAGES,
-} from './constants.js';
-import { slugify } from './slug.js';
+} from './constants';
+import { slugify } from './slug';
 
 /**
  * Zod schemas mirror the Postgres tables and are the single runtime contract
