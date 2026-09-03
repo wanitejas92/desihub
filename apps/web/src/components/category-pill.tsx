@@ -11,7 +11,7 @@ export function CategoryPill({
   return (
     <span
       className={cn(
-        'rounded-pill bg-bg/85 text-fg inline-flex items-center px-2.5 py-1 text-xs font-semibold backdrop-blur',
+        'rounded-pill bg-surface/95 text-fg border-border shadow-elevation inline-flex items-center border px-2.5 py-1 text-xs font-semibold backdrop-blur',
         className,
       )}
     >

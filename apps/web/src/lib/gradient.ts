@@ -1,19 +1,32 @@
 /**
  * Deterministic decorative gradients — used wherever we need a designed
- * banner but have no photo asset (organiser pages, city tiles). Never
- * scraped, never invented data: just a stable colour pair per id/name so
- * the same entity always renders the same way. Each pair is a two-stop
- * slice of the brand trio (orange/pink/purple), so these read as DesiHub
- * rather than an arbitrary palette — per brief, "do not overuse" the three
- * accents means restrained use, not introducing off-brand hues instead.
+ * banner but have no photo asset (organiser cover band, city tiles). Never
+ * scraped, never invented data: just a stable colour pair per id/name so the
+ * same entity always renders the same way.
+ *
+ * Two intensities, per brief ("do not use large saturated gradient
+ * backgrounds throughout... do not make every card colorful"):
+ *  - `deterministicGradient` — medium-soft, for the organiser page's single
+ *    decorative cover band (one accent moment per page, not a repeated grid).
+ *  - `gradientByIndex` — pastel, for city tiles, which render as a grid of
+ *    cards and must stay predominantly light like every other card.
  */
 const BANNER_GRADIENTS: [string, string][] = [
-  ['#FF8A00', '#F0446F'], // orange → pink
-  ['#F0446F', '#7B35D6'], // pink → purple
-  ['#7B35D6', '#FF8A00'], // purple → orange
-  ['#FFA640', '#F0446F'], // light orange → pink
-  ['#F0446F', '#9B5EE0'], // pink → light purple
-  ['#7B35D6', '#F7A94D'], // purple → light orange
+  ['#FFB25C', '#F2799D'],
+  ['#F2799D', '#A876E0'],
+  ['#A876E0', '#FFB25C'],
+  ['#FFC98C', '#F2799D'],
+  ['#F2799D', '#C3A3EA'],
+  ['#A876E0', '#FFC98C'],
+];
+
+const CARD_WASH: [string, string][] = [
+  ['#FFF2E3', '#FFF0F3'],
+  ['#FFF0F3', '#F3EEFF'],
+  ['#F3EEFF', '#FFF2E3'],
+  ['#FFF7EC', '#FFF0F3'],
+  ['#FFF0F3', '#F8F1FD'],
+  ['#F3EEFF', '#FFF7EC'],
 ];
 
 export function deterministicGradient(seed: string): [string, string] {
@@ -23,10 +36,10 @@ export function deterministicGradient(seed: string): [string, string] {
 }
 
 /**
- * Gradient by position rather than name-hash — for a grid rendered together
- * (e.g. city tiles), this guarantees neighbours look different; a name-hash
- * can (and did) collide several entries onto the same colour.
+ * Pastel wash by position rather than name-hash — for a grid rendered
+ * together (e.g. city tiles), this guarantees neighbours look different; a
+ * name-hash can (and did) collide several entries onto the same colour.
  */
 export function gradientByIndex(index: number): [string, string] {
-  return BANNER_GRADIENTS[index % BANNER_GRADIENTS.length]!;
+  return CARD_WASH[index % CARD_WASH.length]!;
 }

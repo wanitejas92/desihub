@@ -7,7 +7,7 @@ export function DateChip({ startsAt, className }: { startsAt: string; className?
   return (
     <span
       className={cn(
-        'bg-bg shadow-elevation inline-flex flex-col items-center rounded-md px-2.5 py-1.5 text-center leading-none',
+        'bg-surface border-border shadow-elevation inline-flex flex-col items-center rounded-md border px-2.5 py-1.5 text-center leading-none',
         className,
       )}
     >

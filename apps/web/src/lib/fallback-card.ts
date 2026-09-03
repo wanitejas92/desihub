@@ -1,25 +1,49 @@
-import { EVENT_CATEGORY_LABELS, type EventCategory } from '@desihub/shared';
+import type { EventCategory } from '@desihub/shared';
 
 /**
- * Generates a branded SVG fallback card for events with no uploaded image. We
- * never scrape organiser artwork, so a missing image must always resolve to
- * something designed — never a broken image. Output is a data URI usable as an
- * <img> src or a CSS background, rendered server-side with no network.
+ * Generates a branded SVG fallback image for events with no uploaded photo.
+ * We never scrape organiser artwork, so a missing image must always resolve
+ * to something designed — never a broken image. Output is a data URI usable
+ * as an <img> src, rendered server-side with no network.
+ *
+ * Light-first per brief: a white base with a soft pastel wash and a small
+ * accent motif in one of the three brand tones — a clean placeholder
+ * graphic, not a text-bearing "poster." The event title already renders as
+ * real DOM text right below the image on every card, so the fallback
+ * doesn't duplicate it — that used to make sense when the image was a
+ * saturated colour block standing in for a poster; on a light, clean image
+ * it would just be visual noise competing with the real heading.
+ * Categories map onto the three brand tones rather than twelve bespoke
+ * hues — "subtle orange/pink/purple accents," not a rainbow grid.
  */
 
-const CATEGORY_COLORS: Record<EventCategory, [string, string]> = {
-  concert: ['#3B2A5A', '#6D4AA8'],
-  party: ['#7A1F4B', '#C13C7A'],
-  garba_dandiya: ['#8A3B12', '#E8802A'],
-  diwali: ['#7A4A0F', '#E0A82E'],
-  holi: ['#124B63', '#2FA3C9'],
-  temple: ['#5A3210', '#B5762E'],
-  cultural: ['#123B2E', '#2E8F6B'],
-  comedy: ['#5A4A12', '#C9A83C'],
-  food: ['#6B2412', '#D65A2E'],
-  family: ['#123A5A', '#2E7FB5'],
-  workshop: ['#2E2A5A', '#5A54B5'],
-  networking: ['#2A2A2A', '#5A5A5A'],
+type Tone = 'orange' | 'pink' | 'purple';
+
+const TONE_ACCENT: Record<Tone, string> = {
+  orange: '#FF8A00',
+  pink: '#F0446F',
+  purple: '#7B35D6',
+};
+
+const TONE_SOFT: Record<Tone, string> = {
+  orange: '#FFF2E3',
+  pink: '#FFF0F3',
+  purple: '#F3EEFF',
+};
+
+const CATEGORY_TONE: Record<EventCategory, Tone> = {
+  concert: 'orange',
+  garba_dandiya: 'orange',
+  diwali: 'orange',
+  food: 'orange',
+  party: 'pink',
+  holi: 'pink',
+  comedy: 'pink',
+  family: 'pink',
+  temple: 'purple',
+  cultural: 'purple',
+  workshop: 'purple',
+  networking: 'purple',
 };
 
 function escapeXml(s: string): string {
@@ -29,27 +53,6 @@ function escapeXml(s: string): string {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-/** Wraps a title into up to 3 lines for the card. */
-function wrap(title: string, maxChars = 20, maxLines = 3): string[] {
-  const words = title.split(/\s+/);
-  const lines: string[] = [];
-  let line = '';
-  for (const w of words) {
-    if ((line + ' ' + w).trim().length > maxChars && line) {
-      lines.push(line.trim());
-      line = w;
-    } else {
-      line = (line + ' ' + w).trim();
-    }
-    if (lines.length === maxLines) break;
-  }
-  if (line && lines.length < maxLines) lines.push(line.trim());
-  if (lines.length === maxLines && words.join(' ').length > lines.join(' ').length) {
-    lines[maxLines - 1] = lines[maxLines - 1]!.replace(/.{1}$/, '…');
-  }
-  return lines;
 }
 
 export interface FallbackCardInput {
@@ -63,38 +66,27 @@ export interface FallbackCardInput {
 
 export function fallbackCardSvg(input: FallbackCardInput): string {
   const w = input.width ?? 800;
-  const h = input.height ?? 1000;
-  const [c1, c2] = CATEGORY_COLORS[input.category];
-  const lines = wrap(input.title);
-  const lineHeight = 58;
-  const titleTop = h - 60 - (lines.length - 1) * lineHeight - 120;
-
-  const titleTspans = lines
-    .map((ln, i) => `<tspan x="56" y="${titleTop + i * lineHeight}">${escapeXml(ln)}</tspan>`)
-    .join('');
+  const h = input.height ?? 600;
+  const tone = CATEGORY_TONE[input.category];
+  const accent = TONE_ACCENT[tone];
+  const soft = TONE_SOFT[tone];
+  const cx = w * 0.78;
+  const cy = h * 0.4;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${escapeXml(
     input.title,
   )}">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="${c1}"/>
-      <stop offset="1" stop-color="${c2}"/>
+    <linearGradient id="wash" x1="0" y1="0" x2="1" y2="0.85">
+      <stop offset="0" stop-color="${soft}"/>
+      <stop offset="0.7" stop-color="#FFFFFF"/>
     </linearGradient>
-    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="1.5" fill="#ffffff" opacity="0.10"/>
-    </pattern>
   </defs>
-  <rect width="${w}" height="${h}" fill="url(#g)"/>
-  <rect width="${w}" height="${h}" fill="url(#dots)"/>
-  <g font-family="Inter, Arial, system-ui, sans-serif" fill="#ffffff">
-    <text font-size="52" font-weight="700">${titleTspans}</text>
-  </g>
-  <g font-family="Inter, Arial, system-ui, sans-serif" fill="#ffffff">
-    <text x="56" y="${h - 44}" font-size="26" opacity="0.92">${escapeXml(
-      EVENT_CATEGORY_LABELS[input.category],
-    )}${input.organiserName ? ' · ' + escapeXml(input.organiserName) : ''}</text>
-  </g>
+  <rect width="${w}" height="${h}" fill="#FFFFFF"/>
+  <rect width="${w}" height="${h}" fill="url(#wash)"/>
+  <circle cx="${cx}" cy="${cy}" r="${h * 0.32}" fill="${accent}" opacity="0.10"/>
+  <circle cx="${cx}" cy="${cy}" r="${h * 0.18}" fill="${accent}" opacity="0.16"/>
+  <circle cx="${cx}" cy="${cy}" r="${h * 0.07}" fill="${accent}"/>
 </svg>`.trim();
 }
 

@@ -6,6 +6,62 @@ section.
 
 ---
 
+## Phase 1 — Restyle pass: lighter hero, white cards, controlled-accent gradients
+
+A second, explicitly-scoped brief followed the design-system rewrite:
+restyle without touching layout, structure, functionality, content
+hierarchy, or navigation. The concrete asks: gradient reserved for small
+accents/CTAs only (never a large saturated background); the hero
+"significantly lighter... a very subtle soft gradient rather than a large
+blue/purple block"; event cards "predominantly WHITE," not colourful;
+no heavy shadows; no dark image backgrounds or artificial overlays.
+
+### What was built
+
+- **Fallback event image redesigned** (`apps/web/src/lib/fallback-card.ts`):
+  the old branded placeholder filled the whole canvas with a saturated
+  per-category gradient. Rewritten to a white base with a soft pastel wash
+  and a small concentric-circle accent motif, collapsing the 12 categories
+  onto the three brand tones (orange/pink/purple) rather than 12 bespoke
+  hues. Also dropped the title text baked into the SVG — the real DOM
+  `<h3>` under every card already renders it, so on a light, clean image
+  the duplicate text was just noise, not a poster standing in for a photo.
+- **Decorative gradients split by intensity** (`apps/web/src/lib/gradient.ts`):
+  one medium-soft set for the organiser page's single cover band (one
+  accent moment per page), and a new pastel set (`gradientByIndex`) for
+  Popular Cities tiles, which render as a repeated grid and need to stay
+  light like every other card — a grid of six saturated tiles read as
+  "colourful," a grid of six pastel tiles reads as "white with accents."
+- **Hero (`season-strip.tsx`) de-saturated**: mood backgrounds are now
+  pastel `from`/`to` pairs instead of bold gradients, body text switched
+  from white to navy (`text-fg`/`text-fg-muted`), and CTAs now route
+  through the shared `Button` (gradient reserved for the primary button
+  only, per brief).
+- **Announcement ribbon** (`announcement-ribbon.tsx`) changed from a
+  solid-accent band to a soft orange-tint background with navy text —
+  same "small accent, not a block of colour" logic.
+- **Contrast fix for the two floating chips**: once the fallback image and
+  gradients went light, `DateChip`'s off-white fill and `CategoryPill`'s
+  85%-opacity fill risked blending into their own backgrounds. Both
+  switched to solid white (`bg-surface`) + border + shadow, so they read
+  clearly regardless of what's now behind them. Caught by reasoning about
+  the change before rendering it, not from a screenshot.
+- **Popular Cities tiles** got a `border` added to their image wrapper —
+  needed once the no-photo fallback became pastel instead of saturated,
+  for the same definition-against-a-light-background reason as the chips.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests, full production build, and the
+  18-test Playwright suite (mobile + desktop) all pass. Full-page
+  screenshots of home (top/mid), event detail, organiser, browse, and
+  submit — desktop and mobile — confirm the pastel hero, white fallback
+  cards, soft-tint ribbon, and softened organiser/city gradients match the
+  brief, with gradient use now confined to primary buttons and active
+  states only.
+
+---
+
 ## Phase 1 — Full design-system rewrite: "premium European startup" brief
 
 The user supplied a complete, prescriptive design brief (exact hex palette,

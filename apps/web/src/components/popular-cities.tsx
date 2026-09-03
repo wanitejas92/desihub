@@ -42,7 +42,7 @@ function CityTile({ city, count, index }: { city: City; count: number; index: nu
 
   return (
     <Link href={`/browse?city=${encodeURIComponent(city)}`} className="group flex flex-col gap-2">
-      <div className="bg-bg-sunken relative aspect-[3/4] overflow-hidden rounded-lg">
+      <div className="bg-bg-sunken border-border relative aspect-[3/4] overflow-hidden rounded-lg border">
         {image ? (
           <Image
             src={image}
