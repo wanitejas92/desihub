@@ -6,6 +6,8 @@ import { FilterBar } from '@/components/filter-bar';
 import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
 import { getRepository, type EventFilters } from '@/lib/data';
+import { CATEGORY_ICON } from '@/lib/category-icons';
+import { CATEGORY_TONE, TONE_ACCENT, TONE_SOFT } from '@/lib/category-tone';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -53,11 +55,35 @@ export default async function BrowsePage({
 }) {
   const sp = await searchParams;
   const filters = toFilters(sp);
+  const category = typeof sp.category === 'string' ? (sp.category as EventCategory) : undefined;
+  const categoryLabel = category ? EVENT_CATEGORY_LABELS[category] : undefined;
+  const CategoryIcon = category ? CATEGORY_ICON[category] : null;
+  const tone = category ? CATEGORY_TONE[category] : undefined;
 
   return (
     <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-semibold sm:text-3xl">Browse events</h1>
-      <p className="text-fg-muted mt-1">Filter by city, category, language, price and more.</p>
+      <div className="flex items-center gap-3">
+        {CategoryIcon && tone && (
+          <span
+            aria-hidden
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: TONE_SOFT[tone], color: TONE_ACCENT[tone] }}
+          >
+            <CategoryIcon width={22} height={22} />
+          </span>
+        )}
+        <div>
+          <p className="text-accent text-xs font-bold tracking-widest uppercase">Browse</p>
+          <h1 className="font-display text-2xl leading-tight font-semibold sm:text-3xl">
+            {categoryLabel ?? 'All events'}
+          </h1>
+        </div>
+      </div>
+      <p className="text-fg-muted mt-2">
+        {category
+          ? `Every upcoming ${categoryLabel} event, in one place.`
+          : 'Filter by city, category, language, price and more.'}
+      </p>
 
       <div className="mt-6">
         <Suspense fallback={<div className="h-24" />}>

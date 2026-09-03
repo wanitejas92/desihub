@@ -36,9 +36,11 @@ test('quick-filter pills swap the rail below them in place, without navigating',
 
 test('browse filters are URL-driven and shareable', async ({ page }) => {
   await page.goto('/browse');
-  await expect(page.getByRole('heading', { name: 'Browse events' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'All events' })).toBeVisible();
 
   await page.goto('/browse?category=garba_dandiya');
+  // The page title reflects the active category, not a generic label.
+  await expect(page.getByRole('heading', { name: 'Garba & Dandiya' })).toBeVisible();
   await expect(page.getByTestId('event-grid')).toBeVisible();
   await expect(page.locator('a[href^="/e/"]').first()).toBeVisible();
   // The URL carries the filter, so the view is shareable.

@@ -107,7 +107,7 @@ export function QuickFilterRail({
       </nav>
 
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-xl font-semibold sm:text-2xl">{activeFilter.label}</h2>
+        <h2 className="font-display text-lg font-semibold sm:text-xl">{activeFilter.label}</h2>
         {filtered.length > 0 && (
           <Link
             href={activeFilter.href}

@@ -115,7 +115,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             </div>
           </div>
 
-          <h1 className="font-display mt-6 text-3xl leading-tight font-bold sm:text-4xl">
+          <h1 className="font-display mt-6 text-2xl leading-tight font-bold sm:text-3xl">
             {event.title}
           </h1>
 
@@ -144,7 +144,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
           {event.description && (
             <div className="mt-8 max-w-prose">
-              <h2 className="font-display text-xl font-semibold">About this event</h2>
+              <h2 className="font-display text-lg font-semibold sm:text-xl">About this event</h2>
               <p className="text-fg mt-3 leading-relaxed whitespace-pre-line">
                 {event.description}
               </p>

@@ -25,7 +25,7 @@ export function EventRail({
   return (
     <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-xl font-semibold sm:text-2xl">{title}</h2>
+        <h2 className="font-display text-lg font-semibold sm:text-xl">{title}</h2>
         {seeAllHref && events.length > 0 && (
           <Link
             href={seeAllHref}

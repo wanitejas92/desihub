@@ -1,4 +1,5 @@
 import type { EventCategory } from '@desihub/shared';
+import { TONE_ACCENT, TONE_SOFT, CATEGORY_TONE } from './category-tone';
 
 /**
  * Generates a branded SVG fallback image for events with no uploaded photo.
@@ -16,35 +17,6 @@ import type { EventCategory } from '@desihub/shared';
  * Categories map onto the three brand tones rather than twelve bespoke
  * hues — "subtle orange/pink/purple accents," not a rainbow grid.
  */
-
-type Tone = 'orange' | 'pink' | 'purple';
-
-const TONE_ACCENT: Record<Tone, string> = {
-  orange: '#FF8A00',
-  pink: '#F0446F',
-  purple: '#7B35D6',
-};
-
-const TONE_SOFT: Record<Tone, string> = {
-  orange: '#FFF2E3',
-  pink: '#FFF0F3',
-  purple: '#F3EEFF',
-};
-
-const CATEGORY_TONE: Record<EventCategory, Tone> = {
-  concert: 'orange',
-  garba_dandiya: 'orange',
-  diwali: 'orange',
-  food: 'orange',
-  party: 'pink',
-  holi: 'pink',
-  comedy: 'pink',
-  family: 'pink',
-  temple: 'purple',
-  cultural: 'purple',
-  workshop: 'purple',
-  networking: 'purple',
-};
 
 function escapeXml(s: string): string {
   return s

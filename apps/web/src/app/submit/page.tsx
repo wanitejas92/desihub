@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function SubmitPage() {
   return (
     <div className="mx-auto max-w-xl px-4 py-10 sm:px-6">
-      <h1 className="font-display text-3xl font-semibold sm:text-4xl">List your event</h1>
+      <h1 className="font-display text-2xl font-semibold sm:text-3xl">List your event</h1>
       <p className="text-fg-muted mt-2">
         Reach the Desi community across the Netherlands. It&apos;s free, and you only need three
         fields to start.

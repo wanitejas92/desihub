@@ -85,7 +85,7 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
           {org.bio && <p className="text-fg max-w-prose">{org.bio}</p>}
 
           <section className="mt-10">
-            <h2 className="font-display text-xl font-semibold sm:text-2xl">Upcoming events</h2>
+            <h2 className="font-display text-lg font-semibold sm:text-xl">Upcoming events</h2>
             <div className="mt-4">
               {upcoming.length > 0 ? (
                 <EventGrid events={upcoming} />
@@ -100,7 +100,7 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
 
           {past.length > 0 && (
             <section className="mt-12">
-              <h2 className="font-display text-xl font-semibold sm:text-2xl">Past events</h2>
+              <h2 className="font-display text-lg font-semibold sm:text-xl">Past events</h2>
               <div className="mt-4 opacity-90">
                 <EventGrid events={past} />
               </div>

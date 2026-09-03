@@ -40,8 +40,8 @@ export default async function HomePage() {
 
       <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
         <div className="mb-4 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-fg flex items-center gap-1.5 text-xl font-semibold sm:text-2xl">
-            <IconFlame className="text-accent" width={20} height={20} />
+          <h2 className="font-display text-fg flex items-center gap-1.5 text-lg font-semibold sm:text-xl">
+            <IconFlame className="text-accent" width={18} height={18} />
             Trending now
           </h2>
           {featured.length > 0 && (

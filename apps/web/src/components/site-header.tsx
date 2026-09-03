@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderCategoryTabs } from './header-category-tabs';
 import { AnnouncementRibbon } from './announcement-ribbon';
@@ -21,7 +22,9 @@ export function SiteHeader() {
           <HeaderCitySelect />
 
           <div className="flex flex-1 justify-center overflow-hidden">
-            <HeaderCategoryTabs />
+            <Suspense fallback={<div className="h-10 w-full" />}>
+              <HeaderCategoryTabs />
+            </Suspense>
           </div>
 
           <nav className="flex shrink-0 items-center gap-1 sm:gap-2" aria-label="Primary">

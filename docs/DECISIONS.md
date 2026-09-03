@@ -6,6 +6,74 @@ section.
 
 ---
 
+## Phase 1 — Header nav gets real categories and a visible active state; type scale trimmed
+
+Feedback on the header category row and an event-detail screenshot from a
+reference site, with a blunt but accurate critique: "Garba is not a
+category, it's a dance" (the label had been truncated down to a bare
+dance-style word, losing what made it a category), the tabs had no visible
+selected state, every category click landed on the exact same generic
+"Browse events" page regardless of which was clicked, and headings across
+the site — event title, "All events," "Trending now" — ran uniformly
+oversized ("bigger doesn't always mean good").
+
+### What was built
+
+- **`header-category-tabs.tsx` restored full labels.** The header truncates
+  space by shortening `EVENT_CATEGORY_LABELS`, but shortening "Garba &
+  Dandiya" to "Garba" and "Cultural night" to "Cultural" stripped the
+  category-ness out of the words, leaving generic nouns. Restored the
+  meaningful multi-word form ("Garba & Dandiya," "Cultural Nights,"
+  "Comedy Shows," "Food Festivals") — a few more characters, but each one
+  now reads as an event category rather than a bare adjective.
+- **A real active state.** The component became a client component reading
+  `usePathname`/`useSearchParams` (wrapped in `<Suspense>` in
+  `site-header.tsx` so the rest of the site stays statically rendered);
+  the tab matching the current `?category=` gets a filled pill in that
+  category's own brand tone (`aria-current="page"` too, not just visual).
+  Each tab's icon is tone-coloured even at rest, from a shared
+  `CATEGORY_TONE`/`TONE_ACCENT`/`TONE_SOFT` mapping — extracted out of
+  `fallback-card.ts` into `lib/category-tone.ts` since the browse page
+  now needs the same mapping — so the row reads as designed rather than
+  as one flat grey list, without going back to "every element is
+  colourful" (only a 15px icon per tab carries colour at rest).
+- **Browse page became category-aware**, ending "click anything, get the
+  same page." A category filter now swaps the generic "Browse events" H1
+  for a tone-coloured icon badge, an accent "Browse" kicker, and the
+  category's own name as the headline ("Garba & Dandiya" / "Comedy
+  Shows" / …), plus a one-line description naming that category. No
+  category still shows a page, just "All events" instead of the old
+  generic string, with the same kicker+icon treatment giving it presence
+  it didn't have before.
+- **Global heading scale trimmed one notch.** Every section heading
+  ("Trending now," "Popular cities," "Near you," "Upcoming/Past events,"
+  "Browse by category," the quick-filter rail's own heading) moved from
+  `text-xl sm:text-2xl` to `text-lg sm:text-xl`; every page-level H1 that
+  had drifted to `text-3xl sm:text-4xl` (event detail, submit) came down
+  to the same `text-2xl sm:text-3xl` tier the Browse and Organiser pages
+  already used. Net effect: one consistent page-H1 tier and one
+  consistent section-H2 tier site-wide, both a step down from before —
+  closer to the restrained, classy proportions of the reference
+  screenshot than the previous "everything competes at hero size."
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests pass; production build succeeds
+  (48 routes, home page stays statically prerendered — the Suspense
+  boundary around the now-client `HeaderCategoryTabs` keeps `useSearchParams`
+  from forcing the whole layout dynamic). Screenshots of the header (no
+  category vs. an active one), the browse page (generic vs. category-
+  specific header), the event detail title, and the home page's section
+  headings confirm the active pill, the per-category identity, and the
+  smaller, calmer type scale all render as intended.
+- Updated the one E2E assertion that named the old generic heading
+  ("browse filters are URL-driven and shareable") to check for "All
+  events" on the unfiltered page and the category's own name
+  ("Garba & Dandiya") when a category filter is active. Full 18-test
+  Playwright suite (mobile + desktop) passes.
+
+---
+
 ## Phase 1 — Quick filters become in-place, with a trendier pill and a carousel rail
 
 Reference screenshots of another platform's filter row (rounded pills with
