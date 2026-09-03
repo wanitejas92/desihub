@@ -34,6 +34,18 @@ export default function DiscoverScreen() {
 
       <SeasonBanner />
 
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="mt-4 max-h-12 grow-0"
+        contentContainerStyle={{ paddingHorizontal: 16, gap: 8 }}
+      >
+        <QuickFilterChip href="/search" emoji="🎟️" label="All events" />
+        <QuickFilterChip href="/search?when=week" emoji="📅" label="This week" />
+        <QuickFilterChip href="/search?when=weekend" emoji="🎉" label="This weekend" />
+        <QuickFilterChip href="/search?free=1" emoji="✨" label="Free entry" />
+      </ScrollView>
+
       {state.loading && (
         <View className="items-center py-16">
           <ActivityIndicator color="#E8802A" />
@@ -54,7 +66,7 @@ export default function DiscoverScreen() {
             emptyTitle="Nothing this weekend — yet"
             emptyDescription="New events are added all the time."
           />
-          <EventRail title="Featured" events={state.data.featured} />
+          <EventRail title="🔥 Trending now" events={state.data.featured} trending />
           <EventRail title="Near you" events={state.data.near} />
 
           <View className="mt-8 px-4">
@@ -76,5 +88,22 @@ export default function DiscoverScreen() {
         </>
       )}
     </ScrollView>
+  );
+}
+
+/** DesiPass-style quick-jump chip: one tap from Discover into a pre-filtered Search. */
+function QuickFilterChip({ href, emoji, label }: { href: string; emoji: string; label: string }) {
+  return (
+    <Link href={href as never} asChild>
+      <Pressable
+        accessibilityRole="button"
+        className="h-10 flex-row items-center justify-center gap-2 rounded-pill border border-border bg-surface px-4"
+      >
+        <Text style={{ fontSize: 14 }}>{emoji}</Text>
+        <Text className="font-semibold text-fg" style={{ fontSize: 13 }}>
+          {label}
+        </Text>
+      </Pressable>
+    </Link>
   );
 }

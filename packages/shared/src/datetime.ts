@@ -63,6 +63,28 @@ export function formatEventDate(
   }).format(toDate(input));
 }
 
+/** Compact date for a range's end, e.g. "18 Oct" — no year, no weekday. */
+export function formatEventDateShort(
+  input: string | Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+  locale = 'en-NL',
+): string {
+  return new Intl.DateTimeFormat(locale, { timeZone, day: 'numeric', month: 'short' }).format(
+    toDate(input),
+  );
+}
+
+/** True if both instants fall on the same calendar day in the given timezone. */
+export function isSameLocalDay(
+  a: string | Date,
+  b: string | Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+): boolean {
+  const pa = zonedParts(toDate(a), timeZone);
+  const pb = zonedParts(toDate(b), timeZone);
+  return ordinal(pa) === ordinal(pb);
+}
+
 export function formatEventTime(
   input: string | Date,
   timeZone: string = DEFAULT_TIMEZONE,
@@ -116,6 +138,43 @@ export function isThisWeekend(
 /** A monotonically increasing day number for same-year comparisons. */
 function ordinal(p: ZonedParts): number {
   return Date.UTC(p.year, p.month - 1, p.day) / 86_400_000;
+}
+
+/** True if the event's local date falls within the next 7 days (today included). */
+export function isThisWeek(
+  input: string | Date,
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIMEZONE,
+): boolean {
+  const event = zonedParts(toDate(input), timeZone);
+  const today = zonedParts(now, timeZone);
+  const delta = ordinal(event) - ordinal(today);
+  return delta >= 0 && delta <= 6;
+}
+
+function ordinalToISODate(ord: number): string {
+  return new Date(ord * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** `{ from, to }` (YYYY-MM-DD) bounding the upcoming Sat–Sun, for date-range filters. */
+export function weekendDateRange(
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIMEZONE,
+): { from: string; to: string } {
+  const today = zonedParts(now, timeZone);
+  const daysToSat = (6 - today.weekday + 7) % 7;
+  const isWeekendNow = today.weekday === 6 || today.weekday === 0;
+  const satOrdinal = isWeekendNow ? ordinal(today) : ordinal(today) + daysToSat;
+  return { from: ordinalToISODate(satOrdinal), to: ordinalToISODate(satOrdinal + 1) };
+}
+
+/** `{ from, to }` (YYYY-MM-DD) bounding the next 7 days (today included). */
+export function weekDateRange(
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIMEZONE,
+): { from: string; to: string } {
+  const today = zonedParts(now, timeZone);
+  return { from: ordinalToISODate(ordinal(today)), to: ordinalToISODate(ordinal(today) + 6) };
 }
 
 /**

@@ -9,9 +9,18 @@ import { test, expect } from '@playwright/test';
 test('home shows the season strip and event sections', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Featured' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Trending now' })).toBeVisible();
   // At least one event card links to an event page.
   await expect(page.locator('a[href^="/e/"]').first()).toBeVisible();
+  // The section heading plus at least one card badge both say "Trending".
+  await expect(page.getByText('Trending', { exact: false }).nth(1)).toBeVisible();
+});
+
+test('quick-filter pills jump into a pre-filtered, shareable browse view', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: 'This weekend' }).click();
+  await expect(page).toHaveURL(/\/browse\?when=weekend/);
+  await expect(page.getByRole('heading', { name: 'Browse events' })).toBeVisible();
 });
 
 test('browse filters are URL-driven and shareable', async ({ page }) => {

@@ -10,10 +10,11 @@ interface EventCardProps {
   event: EventWithRelations;
   priority?: boolean;
   className?: string;
+  trending?: boolean;
 }
 
 /** Signature card: full-bleed image, floating date chip, category pill. */
-export function EventCard({ event, priority, className }: EventCardProps) {
+export function EventCard({ event, priority, className, trending }: EventCardProps) {
   const price = formatPriceRange(
     event.min_price_cents,
     event.max_price_cents,
@@ -55,6 +56,11 @@ export function EventCard({ event, priority, className }: EventCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-1 p-3">
+        {trending && (
+          <span className="rounded-pill bg-accent-subtle text-accent mb-1 inline-flex w-fit items-center gap-1 px-2 py-0.5 text-xs font-bold tracking-wide uppercase">
+            🔥 Trending
+          </span>
+        )}
         <h3 className="font-display text-fg group-hover:text-accent text-lg leading-tight font-semibold">
           {event.title}
         </h3>

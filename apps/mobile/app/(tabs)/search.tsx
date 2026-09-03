@@ -14,6 +14,8 @@ import {
   CITIES,
   EVENT_CATEGORIES,
   EVENT_CATEGORY_LABELS,
+  weekDateRange,
+  weekendDateRange,
   type City,
   type EventCategory,
 } from '@desihub/shared';
@@ -24,13 +26,21 @@ import { EmptyState } from '@/components/EmptyState';
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ category?: string }>();
+  const params = useLocalSearchParams<{ category?: string; when?: string; free?: string }>();
   const [q, setQ] = useState('');
   const [category, setCategory] = useState<EventCategory | undefined>(
     (params.category as EventCategory) || undefined,
   );
   const [city, setCity] = useState<City | undefined>(undefined);
-  const [freeOnly, setFreeOnly] = useState(false);
+  const [freeOnly, setFreeOnly] = useState(params.free === '1');
+  // A "when" deep link (from Discover's quick filters) is a one-time initial
+  // range — like `category`, it's not re-derived from a Chip toggle.
+  const dateRange =
+    params.when === 'weekend'
+      ? weekendDateRange()
+      : params.when === 'week'
+        ? weekDateRange()
+        : undefined;
 
   const state = useAsync(async () => {
     const repo = getRepository();
@@ -39,6 +49,8 @@ export default function SearchScreen() {
       category,
       city,
       price: freeOnly ? 'free' : undefined,
+      dateFrom: dateRange?.from,
+      dateTo: dateRange?.to,
     });
   }, [q, category, city, freeOnly]);
 

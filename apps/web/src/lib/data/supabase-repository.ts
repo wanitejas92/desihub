@@ -1,5 +1,6 @@
 import {
   draftSlug,
+  isThisWeek,
   isThisWeekend,
   slugify,
   type SubmitEventInput,
@@ -88,6 +89,11 @@ export class SupabaseEventRepository implements EventRepository {
       .limit(limit);
     if (error) throw error;
     return (data ?? []).map(normaliseEvent);
+  }
+
+  async thisWeek(limit = 8): Promise<EventWithRelations[]> {
+    const up = await this.upcoming();
+    return up.filter((e) => isThisWeek(e.starts_at)).slice(0, limit);
   }
 
   async thisWeekend(limit = 8): Promise<EventWithRelations[]> {

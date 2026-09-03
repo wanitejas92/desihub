@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   dateChip,
+  isThisWeek,
   isThisWeekend,
+  weekDateRange,
+  weekendDateRange,
+  formatEventDateShort,
+  isSameLocalDay,
   countdownLabel,
   isPast,
   buildIcs,
@@ -42,6 +47,45 @@ describe('isThisWeekend', () => {
   });
   it('is false for the following Tuesday', () => {
     expect(isThisWeekend('2026-10-20T18:00:00Z', friday)).toBe(false);
+  });
+});
+
+describe('isThisWeek', () => {
+  const friday = new Date('2026-10-16T10:00:00Z'); // a Friday
+  it('is true for today and for six days out', () => {
+    expect(isThisWeek('2026-10-16T20:00:00Z', friday)).toBe(true);
+    expect(isThisWeek('2026-10-22T09:00:00Z', friday)).toBe(true);
+  });
+  it('is false eight days out', () => {
+    expect(isThisWeek('2026-10-24T09:00:00Z', friday)).toBe(false);
+  });
+  it('is false for yesterday', () => {
+    expect(isThisWeek('2026-10-15T09:00:00Z', friday)).toBe(false);
+  });
+});
+
+describe('weekendDateRange / weekDateRange', () => {
+  const friday = new Date('2026-10-16T10:00:00Z');
+  it('bounds the upcoming Sat–Sun', () => {
+    expect(weekendDateRange(friday)).toEqual({ from: '2026-10-17', to: '2026-10-18' });
+  });
+  it('stays on the current weekend when today is already Sat/Sun', () => {
+    const saturday = new Date('2026-10-17T10:00:00Z');
+    expect(weekendDateRange(saturday)).toEqual({ from: '2026-10-17', to: '2026-10-18' });
+  });
+  it('bounds the next 7 days from today', () => {
+    expect(weekDateRange(friday)).toEqual({ from: '2026-10-16', to: '2026-10-22' });
+  });
+});
+
+describe('formatEventDateShort / isSameLocalDay', () => {
+  it('formats a compact day + month', () => {
+    expect(formatEventDateShort('2026-10-17T18:30:00Z')).toBe('17 Oct');
+  });
+  it('detects same vs different local days', () => {
+    // Amsterdam is CEST (+2) in October: 20:00Z and 21:00Z are both still the 17th locally.
+    expect(isSameLocalDay('2026-10-17T20:00:00Z', '2026-10-17T21:00:00Z')).toBe(true);
+    expect(isSameLocalDay('2026-10-17T20:00:00Z', '2026-10-18T15:00:00Z')).toBe(false);
   });
 });
 

@@ -3,11 +3,14 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   formatEventDate,
+  formatEventDateShort,
   formatEventTime,
   formatPriceRange,
+  isSameLocalDay,
   EVENT_CATEGORY_LABELS,
 } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
+import { cn } from '@/lib/cn';
 import { EventImage } from '@/components/event-image';
 import { CategoryPill } from '@/components/category-pill';
 import { DateChip } from '@/components/date-chip';
@@ -72,7 +75,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   };
 
   return (
-    <article className="max-w-content mx-auto px-4 py-6 sm:px-6">
+    <article className="max-w-content mx-auto px-4 py-6 pb-28 sm:px-6 lg:pb-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
@@ -119,7 +122,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             <span aria-hidden>·</span>
             <span>
               {formatEventTime(event.starts_at)}
-              {event.ends_at ? `–${formatEventTime(event.ends_at)}` : ''}
+              {event.ends_at &&
+                (isSameLocalDay(event.starts_at, event.ends_at)
+                  ? `–${formatEventTime(event.ends_at)}`
+                  : ` – ${formatEventDateShort(event.ends_at)}, ${formatEventTime(event.ends_at)}`)}
             </span>
             {event.age_policy && (
               <>
@@ -189,6 +195,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             slug={event.organiser.slug}
             verified={event.organiser.verified}
             city={event.organiser.city}
+            showFollow
           />
         </aside>
       </div>
@@ -198,40 +205,58 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <EventRail title="Similar events" events={similar} />
         </div>
       )}
+
+      {/*
+        Mobile-only sticky CTA bar — the desktop sticky aside covers lg+.
+        aria-hidden: this duplicates the aside's ticket action for scroll
+        convenience; the same control stays keyboard/AT-reachable up there.
+      */}
+      <div
+        aria-hidden="true"
+        className="border-border bg-bg/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t px-4 py-3 backdrop-blur lg:hidden"
+      >
+        <div>
+          <p className="text-fg-subtle text-xs">Price</p>
+          <p className="font-display text-fg text-lg font-semibold">{price}</p>
+        </div>
+        <div className="shrink-0">
+          <TicketCta event={event} compact />
+        </div>
+      </div>
     </article>
   );
 }
 
 function TicketCta({
   event,
+  compact,
 }: {
   event: Awaited<ReturnType<Awaited<ReturnType<typeof getRepository>>['getEventBySlug']>>;
+  compact?: boolean;
 }) {
   if (!event) return null;
+  const base = compact
+    ? 'rounded-md px-5 py-2.5 font-semibold whitespace-nowrap'
+    : 'mt-4 w-full rounded-md px-4 py-3 font-semibold';
+
   if (event.status === 'sold_out') {
     return (
-      <button
-        disabled
-        className="bg-bg-sunken text-fg-muted mt-4 w-full cursor-not-allowed rounded-md px-4 py-3 font-semibold"
-      >
+      <button disabled className={cn('bg-bg-sunken text-fg-muted cursor-not-allowed', base)}>
         Sold out
       </button>
     );
   }
   if (event.status === 'cancelled') {
     return (
-      <button
-        disabled
-        className="bg-error-bg text-error mt-4 w-full cursor-not-allowed rounded-md px-4 py-3 font-semibold"
-      >
+      <button disabled className={cn('bg-error-bg text-error cursor-not-allowed', base)}>
         Cancelled
       </button>
     );
   }
   if (event.is_free) {
     return (
-      <div className="bg-success-bg text-success mt-4 w-full rounded-md px-4 py-3 text-center font-semibold">
-        Free entry — no ticket needed
+      <div className={cn('bg-success-bg text-success text-center', base)}>
+        {compact ? 'Free entry' : 'Free entry — no ticket needed'}
       </div>
     );
   }
@@ -241,15 +266,19 @@ function TicketCta({
         href={event.external_ticket_url}
         target="_blank"
         rel="noopener noreferrer"
-        className="bg-accent text-accent-fg hover:bg-accent-hover mt-4 block w-full rounded-md px-4 py-3 text-center font-semibold transition-colors"
+        tabIndex={compact ? -1 : undefined}
+        className={cn(
+          'bg-accent text-accent-fg hover:bg-accent-hover inline-block text-center transition-colors',
+          base,
+        )}
       >
         Get tickets
       </a>
     );
   }
   return (
-    <div className="bg-bg-subtle text-fg-muted mt-4 w-full rounded-md px-4 py-3 text-center text-sm">
-      Tickets coming soon
+    <div className={cn('bg-bg-subtle text-fg-muted text-center text-sm', base)}>
+      {compact ? 'Coming soon' : 'Tickets coming soon'}
     </div>
   );
 }

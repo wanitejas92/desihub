@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { EmailCapture } from '@/components/email-capture';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { SeasonStrip } from '@/components/season-strip';
+import { QuickFilters } from '@/components/quick-filters';
 import { CategoryTiles, CityTiles } from '@/components/browse-tiles';
 import { EmptyState } from '@/components/empty-state';
 import { getRepository } from '@/lib/data';
@@ -20,11 +22,12 @@ export default async function HomePage() {
   return (
     <>
       <SeasonStrip />
+      <QuickFilters />
 
       <EventRail
         title="This weekend"
         events={weekend}
-        seeAllHref="/browse"
+        seeAllHref="/browse?when=weekend"
         priorityFirst
         emptyTitle="Nothing this weekend — yet"
         emptyDescription="New events are added all the time. Check what's coming up, or be the first to list one."
@@ -32,13 +35,21 @@ export default async function HomePage() {
 
       <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
         <div className="mb-4 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-xl font-semibold sm:text-2xl">Featured</h2>
+          <h2 className="font-display text-xl font-semibold sm:text-2xl">🔥 Trending now</h2>
+          {featured.length > 0 && (
+            <Link
+              href="/browse"
+              className="text-accent shrink-0 text-sm font-semibold hover:underline"
+            >
+              See all →
+            </Link>
+          )}
         </div>
         {featured.length > 0 ? (
-          <EventGrid events={featured} />
+          <EventGrid events={featured} trending />
         ) : (
           <EmptyState
-            title="No featured events right now"
+            title="No trending events right now"
             description="Browse everything that's coming up across the Netherlands."
             action={{ href: '/browse', label: 'Browse all events' }}
           />

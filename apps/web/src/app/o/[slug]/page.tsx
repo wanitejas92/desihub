@@ -59,6 +59,10 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
               )}
             </h1>
             {org.city && <p className="text-fg-muted">{org.city}</p>}
+            <p className="text-fg-muted mt-1 text-sm">
+              <span className="text-fg font-semibold">{org.events.length}</span>{' '}
+              {org.events.length === 1 ? 'event' : 'events'} listed
+            </p>
           </div>
         </div>
         <FollowButton organiserSlug={org.slug} organiserName={org.name} />

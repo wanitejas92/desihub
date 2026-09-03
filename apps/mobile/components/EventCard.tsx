@@ -7,7 +7,15 @@ import { CategoryPill } from './CategoryPill';
 import { SaveButton } from './SaveButton';
 
 /** Signature card: full-bleed image, floating date chip, category pill, save. */
-export function EventCard({ event, width }: { event: EventWithRelations; width?: number }) {
+export function EventCard({
+  event,
+  width,
+  trending,
+}: {
+  event: EventWithRelations;
+  width?: number;
+  trending?: boolean;
+}) {
   const price = formatPriceRange(
     event.min_price_cents,
     event.max_price_cents,
@@ -48,6 +56,13 @@ export function EventCard({ event, width }: { event: EventWithRelations; width?:
         </View>
 
         <View className="gap-0.5 p-3">
+          {trending && (
+            <View className="mb-1 self-start rounded-pill bg-accent-subtle px-2 py-0.5">
+              <Text className="font-bold uppercase text-accent" style={{ fontSize: 10 }}>
+                🔥 Trending
+              </Text>
+            </View>
+          )}
           <Text className="font-semibold text-fg" style={{ fontSize: 16 }} numberOfLines={2}>
             {event.title}
           </Text>

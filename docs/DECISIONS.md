@@ -6,6 +6,76 @@ section.
 
 ---
 
+## Phase 1 — DesiPass-inspired discovery pass (web + mobile)
+
+Requested after seeing screenshots of desipass.com (a Germany-based Desi event
+ticketing marketplace). `desipass.com` itself was unreachable from this
+container (network egress blocked the domain), so this pass is built from the
+user's own screenshots (home, event detail, organiser page) rather than a
+live fetch — kept to **functional/UX patterns**, not their visual identity;
+DesiHub keeps its own marigold/Fraunces/Geist system throughout.
+
+### What was built
+
+- **Quick-filter pills** (`QuickFilters` on web, a chip row on mobile Discover):
+  "All events / This week / This weekend / Free entry", one tap from the
+  homepage into a pre-filtered, shareable `/browse` (or `/search` on mobile)
+  URL — mirrors DesiPass's "All / Upcoming in 48hrs / Weekend / This Month"
+  row. New `weekDateRange`/`weekendDateRange` helpers in `@desihub/shared`
+  compute the bounds once so home, browse's `?when=`, and mobile's `?when=`
+  all agree.
+- **"🔥 Trending now"** replaces the plain "Featured" section on both apps;
+  `EventCard`/`EventGrid` (and their mobile equivalents) gained an optional
+  `trending` badge — same idea as DesiPass's per-card "Trending" tag, styled
+  with our own accent instead of copying their red.
+- **Multi-day date display fix**: an event whose `ends_at` falls on a
+  different calendar day (multi-day festivals like Navratri) now reads
+  "20:00 – 25 Oct, 00:00" instead of silently dropping the end date. New
+  `formatEventDateShort`/`isSameLocalDay` helpers in `@desihub/shared`.
+- **Sticky mobile ticket bar** on the event detail page (web `lg:hidden` fixed
+  bar; a native equivalent on the RN screen) — price + primary CTA stay
+  reachable while scrolled through the description/similar-events, like
+  DesiPass's persistent bottom bar. It's `aria-hidden`/`tabIndex={-1}` on web
+  (the same control stays keyboard/AT-reachable in the primary panel above) —
+  a deliberate accessible-duplicate pattern, not an oversight.
+- **Follow surfaced earlier**: the event page's organiser mini-card now shows
+  the existing `FollowButton` inline (`showFollow`), not just the full
+  organiser page — DesiPass surfaces Follow right on the event page.
+- **Organiser page**: added a real "`N` events listed" stat next to the
+  header. Deliberately **not** copied: DesiPass's "X people viewed this
+  event" and "guests hosted" counters — Phase 1 has no view/attendance
+  tracking, and inventing the number would violate the same "never invent an
+  API response" rule the mock catalogue follows.
+
+### Decisions
+
+- **Follow stays sign-in-free.** DesiPass gates Follow behind a sign-in wall;
+  DesiHub's `FollowButton` already works with zero account (localStorage,
+  Phase 2 migrates it on sign-in) — kept as the better-UX version, not
+  changed to match.
+- **No ticketing/checkout was added.** DesiPass is a full ticketing
+  marketplace (buy/sell, QR check-in); DesiHub Phase 1 is deliberately a
+  listings/discovery layer that hands off to the organiser's own ticket page
+  — unchanged, that's Phase 3 scope, not a "make it like DesiPass" ask.
+- **No hero banner + floating profile card on the organiser page.** DesiPass's
+  organiser page uses a full-bleed banner photo; DesiHub has no organiser
+  banner asset in the data model (only `logo_url`) and won't fabricate one —
+  the existing simple header just gained an honest stat instead.
+
+### Verification
+
+- `pnpm typecheck` / `pnpm lint` / `pnpm test` (52 unit tests, up from 44 —
+  new `datetime.ts` helpers are covered) all pass across every package.
+- Web: `pnpm build` (still 47 routes) + full Playwright suite, now 18 tests
+  (added quick-filter navigation and trending-badge assertions) across mobile
+  + desktop projects — all green. Screenshots taken at 1440px and 390px
+  confirm the quick-filter row, trending badges, and the sticky mobile ticket
+  bar with the multi-day date fix all render correctly.
+- Mobile: `tsc --noEmit` + `eslint` pass; not launched in this container (no
+  simulator here — same honest limit as the rest of Phase 1 mobile).
+
+---
+
 ## Phase 1 — Listings layer (mobile)
 
 ### What was built

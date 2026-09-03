@@ -9,11 +9,13 @@ export function EventRail({
   events,
   emptyTitle,
   emptyDescription,
+  trending,
 }: {
   title: string;
   events: EventWithRelations[];
   emptyTitle?: string;
   emptyDescription?: string;
+  trending?: boolean;
 }) {
   return (
     <View className="mt-6">
@@ -31,7 +33,7 @@ export function EventRail({
           keyExtractor={(e) => e.id}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, gap: 12 }}
-          renderItem={({ item }) => <EventCard event={item} width={220} />}
+          renderItem={({ item }) => <EventCard event={item} width={220} trending={trending} />}
         />
       )}
     </View>

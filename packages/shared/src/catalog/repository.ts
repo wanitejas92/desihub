@@ -19,6 +19,7 @@ export interface EventRepository {
   listEvents(filters: EventFilters): Promise<Paginated<EventWithRelations>>;
   getEventBySlug(slug: string): Promise<EventWithRelations | null>;
   featured(limit?: number): Promise<EventWithRelations[]>;
+  thisWeek(limit?: number): Promise<EventWithRelations[]>;
   thisWeekend(limit?: number): Promise<EventWithRelations[]>;
   nearYou(city: string | undefined, limit?: number): Promise<EventWithRelations[]>;
   similar(event: EventWithRelations, limit?: number): Promise<EventWithRelations[]>;

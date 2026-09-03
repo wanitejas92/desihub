@@ -1,7 +1,13 @@
 import type { EventWithRelations } from '@/lib/data';
 import { EventCard } from './event-card';
 
-export function EventGrid({ events }: { events: EventWithRelations[] }) {
+export function EventGrid({
+  events,
+  trending,
+}: {
+  events: EventWithRelations[];
+  trending?: boolean;
+}) {
   return (
     <ul
       role="list"
@@ -10,7 +16,7 @@ export function EventGrid({ events }: { events: EventWithRelations[] }) {
     >
       {events.map((event, i) => (
         <li key={event.id}>
-          <EventCard event={event} priority={i < 4} />
+          <EventCard event={event} priority={i < 4} trending={trending} />
         </li>
       ))}
     </ul>

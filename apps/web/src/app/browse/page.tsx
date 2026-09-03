@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import type { City, EventCategory } from '@desihub/shared';
-import { EVENT_CATEGORY_LABELS } from '@desihub/shared';
+import { EVENT_CATEGORY_LABELS, weekDateRange, weekendDateRange } from '@desihub/shared';
 import { FilterBar } from '@/components/filter-bar';
 import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
@@ -28,6 +28,11 @@ export async function generateMetadata({
 
 function toFilters(sp: SearchParams): EventFilters {
   const str = (k: string) => (typeof sp[k] === 'string' ? (sp[k] as string) : undefined);
+  // `when` is a quick-filter shorthand (home page pills) for a date range that's
+  // otherwise expressed as explicit `from`/`to` — it takes priority when present.
+  const when = str('when');
+  const quickRange =
+    when === 'weekend' ? weekendDateRange() : when === 'week' ? weekDateRange() : undefined;
   return {
     search: str('q'),
     city: str('city') as City | undefined,
@@ -35,8 +40,8 @@ function toFilters(sp: SearchParams): EventFilters {
     language: str('language'),
     price: str('price') === 'free' ? 'free' : str('price') === 'paid' ? 'paid' : undefined,
     familyFriendly: sp.family === '1',
-    dateFrom: str('from'),
-    dateTo: str('to'),
+    dateFrom: quickRange?.from ?? str('from'),
+    dateTo: quickRange?.to ?? str('to'),
     includePast: sp.past === '1',
   };
 }

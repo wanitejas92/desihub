@@ -1,5 +1,5 @@
 import { draftSlug, type SubmitEventInput, type SubscribeInput } from '../schemas';
-import { isThisWeekend } from '../datetime';
+import { isThisWeek, isThisWeekend } from '../datetime';
 import type { EventRepository, SubmitResult, SubscribeResult } from './repository';
 import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';
@@ -26,6 +26,12 @@ export class MockEventRepository implements EventRepository {
   async featured(limit = 6): Promise<EventWithRelations[]> {
     return applyFilters(this.events, {})
       .filter((e) => e.featured)
+      .slice(0, limit);
+  }
+
+  async thisWeek(limit = 8): Promise<EventWithRelations[]> {
+    return applyFilters(this.events, {})
+      .filter((e) => isThisWeek(e.starts_at))
       .slice(0, limit);
   }
 

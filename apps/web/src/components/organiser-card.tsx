@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { FollowButton } from './follow-button';
 
 interface OrganiserCardProps {
   name: string;
@@ -6,9 +7,10 @@ interface OrganiserCardProps {
   verified: boolean;
   city?: string | null;
   bio?: string | null;
+  showFollow?: boolean;
 }
 
-export function OrganiserCard({ name, slug, verified, city, bio }: OrganiserCardProps) {
+export function OrganiserCard({ name, slug, verified, city, bio, showFollow }: OrganiserCardProps) {
   return (
     <div className="border-border bg-surface rounded-md border p-4">
       <p className="text-fg-subtle text-xs font-semibold tracking-wide uppercase">Organised by</p>
@@ -19,7 +21,7 @@ export function OrganiserCard({ name, slug, verified, city, bio }: OrganiserCard
         >
           {name.charAt(0)}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <Link href={`/o/${slug}`} className="text-fg hover:text-accent font-semibold">
             {name}
             {verified && (
@@ -32,6 +34,11 @@ export function OrganiserCard({ name, slug, verified, city, bio }: OrganiserCard
           {bio && <p className="text-fg-muted mt-1 line-clamp-2 text-sm">{bio}</p>}
         </div>
       </div>
+      {showFollow && (
+        <div className="mt-3">
+          <FollowButton organiserSlug={slug} organiserName={name} />
+        </div>
+      )}
     </div>
   );
 }
