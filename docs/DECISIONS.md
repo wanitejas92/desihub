@@ -6,6 +6,59 @@ section.
 
 ---
 
+## Phase 1 — DesiPass visual pass, part 2: header + organiser page layout
+
+Second follow-up — "I want exact same UI like DesiPass... even layout and
+all." `desipass.com` is still blocked from this container on every retry;
+this pass is built from the same three user-supplied screenshots (home,
+event detail, organiser page), described back to the user in full before
+building, so the reference stays honest about what's actually known vs.
+guessed.
+
+### What changed
+
+- **Header rebuilt to DesiPass's layout**: logo + an "All Cities"
+  city-select pill (`HeaderCitySelect`, client component, navigates to
+  `/browse?city=`), a centred category-tabs row (`HeaderCategoryTabs`  —  6
+  curated categories + "More →", full 12-category list stays on `/browse`
+  rather than cramming every category into the nav), a search icon, then
+  Submit event + theme toggle. A gradient **announcement ribbon**
+  (`AnnouncementRibbon`) sits above the nav row pointing at `/submit`,
+  matching their "Create Event" banner. The ribbon scrolls away with the
+  page; only the compact nav row underneath stays `sticky` (keeping it in
+  the ribbon would have doubled the pinned header's height on every page).
+- **Organiser page rebuilt to their banner-card layout**: a full-bleed
+  gradient banner (deterministic per organiser, hashed from `org.id` into
+  the same colour pairs the event fallback-card generator uses — no
+  organiser has a banner photo asset, so this is a designed placeholder,
+  not a guess at their actual brand colour) with the profile card floating
+  over its bottom edge, avatar/name/city/event-count/Follow inside it.
+
+### Decision
+
+- **No fabricated stats.** DesiPass's organiser page shows follower and
+  "guests hosted" counts; DesiHub has no backend aggregation for either in
+  Phase 1 (follows are per-device localStorage, not server-counted) so
+  those numbers would be invented. The one stat shown — "N events listed"
+  — is real, computed from the organiser's actual event list.
+- **Category tabs are curated, not exhaustive.** DesiPass's nav has ~6
+  categories; DesiHub has 12 first-class ones (a deliberate Phase 0 scope
+  decision, not something to walk back for a nav bar). Showing all 12 would
+  overflow the header, so the 6 most attended-feeling categories are tabs
+  and the rest live one click away via "More →" into `/browse`.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / `test` (53 unit tests) and the full Playwright
+  suite (18 tests, mobile + desktop) all pass unchanged. Screenshots at
+  1440px and 390px (home header, organiser page) confirm the ribbon +
+  nav row + city pill + category tabs render correctly and don't overflow
+  on mobile (the header's "Browse" fallback link, category tabs, and city
+  pill each have their own breakpoint so exactly one wayfinding option is
+  visible at any width).
+
+---
+
 ## Phase 1 — DesiPass visual pass: accent colour + card anatomy
 
 Follow-up to the discovery pass below. The user pushed back — the first pass

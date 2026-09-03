@@ -30,6 +30,22 @@ export async function generateMetadata({
   };
 }
 
+/** Deterministic banner gradient per organiser — no photo asset, so a designed gradient instead. */
+const BANNER_GRADIENTS: [string, string][] = [
+  ['#3B2A5A', '#6D4AA8'],
+  ['#7A1F4B', '#C13C7A'],
+  ['#8A3B12', '#E8802A'],
+  ['#124B63', '#2FA3C9'],
+  ['#123B2E', '#2E8F6B'],
+  ['#6B2412', '#D65A2E'],
+];
+
+function bannerGradient(id: string): [string, string] {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return BANNER_GRADIENTS[hash % BANNER_GRADIENTS.length]!;
+}
+
 export default async function OrganiserPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const repo = await getRepository();
@@ -38,60 +54,71 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
 
   const upcoming = org.events.filter((e) => !isPast(e.ends_at ?? e.starts_at));
   const past = org.events.filter((e) => isPast(e.ends_at ?? e.starts_at));
+  const [from, to] = bannerGradient(org.id);
 
   return (
-    <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
-      <header className="border-border flex flex-col gap-4 border-b pb-8 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <span
-            aria-hidden
-            className="rounded-pill bg-accent-subtle font-display text-accent flex h-16 w-16 shrink-0 items-center justify-center text-2xl font-semibold"
-          >
-            {org.name.charAt(0)}
-          </span>
-          <div>
-            <h1 className="font-display text-2xl font-semibold sm:text-3xl">
-              {org.name}
-              {org.verified && (
-                <span className="text-accent ml-2 align-middle" title="Verified organiser">
-                  ✓
-                </span>
-              )}
-            </h1>
-            {org.city && <p className="text-fg-muted">{org.city}</p>}
-            <p className="text-fg-muted mt-1 text-sm">
-              <span className="text-fg font-semibold">{org.events.length}</span>{' '}
-              {org.events.length === 1 ? 'event' : 'events'} listed
-            </p>
+    <div>
+      <div
+        className="paper-texture relative h-40 sm:h-56"
+        style={{ background: `linear-gradient(120deg, ${from}, ${to})` }}
+        aria-hidden
+      />
+
+      <div className="max-w-content mx-auto px-4 sm:px-6">
+        <div className="border-border bg-surface shadow-elevation relative -mt-12 flex flex-col gap-4 rounded-lg border p-5 sm:-mt-16 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-center gap-4">
+            <span
+              aria-hidden
+              className="rounded-pill bg-accent-subtle font-display text-accent border-bg flex h-16 w-16 shrink-0 items-center justify-center border-4 text-2xl font-semibold sm:h-20 sm:w-20"
+            >
+              {org.name.charAt(0)}
+            </span>
+            <div>
+              <h1 className="font-display text-2xl font-semibold sm:text-3xl">
+                {org.name}
+                {org.verified && (
+                  <span className="text-accent ml-2 align-middle" title="Verified organiser">
+                    ✓
+                  </span>
+                )}
+              </h1>
+              {org.city && <p className="text-fg-muted">{org.city}</p>}
+              <p className="text-fg-muted mt-1 text-sm">
+                <span className="text-fg font-semibold">{org.events.length}</span>{' '}
+                {org.events.length === 1 ? 'event' : 'events'} listed
+              </p>
+            </div>
           </div>
+          <FollowButton organiserSlug={org.slug} organiserName={org.name} />
         </div>
-        <FollowButton organiserSlug={org.slug} organiserName={org.name} />
-      </header>
 
-      {org.bio && <p className="text-fg mt-6 max-w-prose">{org.bio}</p>}
+        <div className="py-8">
+          {org.bio && <p className="text-fg max-w-prose">{org.bio}</p>}
 
-      <section className="mt-10">
-        <h2 className="font-display text-xl font-semibold sm:text-2xl">Upcoming events</h2>
-        <div className="mt-4">
-          {upcoming.length > 0 ? (
-            <EventGrid events={upcoming} />
-          ) : (
-            <EmptyState
-              title="No upcoming events"
-              description={`${org.name} hasn't listed an upcoming event yet. Follow them to be the first to know.`}
-            />
+          <section className="mt-10">
+            <h2 className="font-display text-xl font-semibold sm:text-2xl">Upcoming events</h2>
+            <div className="mt-4">
+              {upcoming.length > 0 ? (
+                <EventGrid events={upcoming} />
+              ) : (
+                <EmptyState
+                  title="No upcoming events"
+                  description={`${org.name} hasn't listed an upcoming event yet. Follow them to be the first to know.`}
+                />
+              )}
+            </div>
+          </section>
+
+          {past.length > 0 && (
+            <section className="mt-12">
+              <h2 className="font-display text-xl font-semibold sm:text-2xl">Past events</h2>
+              <div className="mt-4 opacity-90">
+                <EventGrid events={past} />
+              </div>
+            </section>
           )}
         </div>
-      </section>
-
-      {past.length > 0 && (
-        <section className="mt-12">
-          <h2 className="font-display text-xl font-semibold sm:text-2xl">Past events</h2>
-          <div className="mt-4 opacity-90">
-            <EventGrid events={past} />
-          </div>
-        </section>
-      )}
+      </div>
     </div>
   );
 }
