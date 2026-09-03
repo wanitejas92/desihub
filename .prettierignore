@@ -1,0 +1,10 @@
+node_modules
+.next
+.expo
+dist
+build
+coverage
+pnpm-lock.yaml
+*.md
+supabase/migrations
+packages/ui-tokens/src/tokens.css
