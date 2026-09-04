@@ -1,6 +1,7 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { CITIES, EVENT_LANGUAGES, type AccountUser } from '@desihub/shared';
 import { updateProfileAction, type ProfileState } from '@/lib/account/actions';
 import { Button } from './ui/button';
@@ -13,7 +14,15 @@ const initial: ProfileState = { status: 'idle' };
  * nothing here is marked required.
  */
 export function ProfileForm({ user }: { user: AccountUser }) {
+  const router = useRouter();
   const [state, action, pending] = useActionState(updateProfileAction, initial);
+
+  useEffect(() => {
+    if (state.status === 'success') {
+      const timer = setTimeout(() => router.push('/'), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [state.status, router]);
 
   return (
     <form
