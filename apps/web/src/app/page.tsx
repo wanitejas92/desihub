@@ -37,17 +37,20 @@ export default async function HomePage() {
   return (
     <>
       {/*
-        Banners at the top — before search bar. Everything fits on one
-        screen: banners, search, and buttons together.
+        Banners, search, and buttons fill the full screen below the header
+        (min-h forces it even when content is short) so the quick filter
+        rail below always starts past the fold, regardless of viewport size.
       */}
-      {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
-          <PromoCarousel banners={banners} />
-        </div>
-      )}
+      <div className="min-h-[calc(100vh-4rem)]">
+        {banners.length > 0 && (
+          <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
+            <PromoCarousel banners={banners} />
+          </div>
+        )}
 
-      <Hero />
-      <HeroTrustBadges />
+        <Hero />
+        <HeroTrustBadges />
+      </div>
 
       <QuickFilterRail
         eventsByFilter={{
