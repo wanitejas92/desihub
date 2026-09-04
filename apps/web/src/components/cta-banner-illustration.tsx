@@ -81,7 +81,7 @@ export function CtaBannerIllustration({ className }: { className?: string }) {
         </g>
 
         {/* performer at the mic, right edge */}
-        <g transform="translate(1330, 230) scale(1.4)" fill="white">
+        <g transform="translate(1395, 250) scale(1.15)" fill="white" opacity="0.55">
           <rect x="-2.5" y="20" width="5" height="110" opacity="0.9" />
           <path d="M-18,20 L18,20 L11,3 L-11,3 Z" opacity="0.9" />
           <circle cx="0" cy="-26" r="17" />

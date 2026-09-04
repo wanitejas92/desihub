@@ -1,43 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 /**
  * The hero's illustrated panel — an original SVG scene (skyline, crowd,
- * sparkles), not a traced or generated image, the same rule the brand mark
- * follows. "Rotating banner" here means the accent motif cycling — fireworks,
- * string lights, confetti — crossfaded over one continuous, always-animated
- * scene, rather than three unrelated static pictures snapping in and out.
+ * glowing arch, ornaments), not a traced or generated image, the same rule
+ * the brand mark follows. One consistent composition, kept alive through
+ * animation (glow pulse, sparkle twinkle, a gentle crowd sway) rather than
+ * a static picture.
  */
 
-const ACCENTS = ['fireworks', 'lights', 'confetti'] as const;
-type Accent = (typeof ACCENTS)[number];
-
-function useRotatingAccent(intervalMs = 4200): Accent {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduceMotion) return;
-    const id = setInterval(() => setIndex((i) => (i + 1) % ACCENTS.length), intervalMs);
-    return () => clearInterval(id);
-  }, [intervalMs]);
-
-  return ACCENTS[index]!;
-}
-
-/** One dome + minaret cluster, repeated along the skyline. */
+/** Onion dome + flanking minarets, the recurring skyline unit. */
 function DomeCluster({ x, scale = 1 }: { x: number; scale?: number }) {
   return (
     <g transform={`translate(${x}, 0) scale(${scale})`} fill="currentColor">
-      <rect x="-38" y="120" width="76" height="90" rx="3" />
-      <path d="M-38,120 Q0,50 38,120 Z" />
-      <rect x="-6" y="30" width="12" height="30" />
-      <circle cx="0" cy="26" r="7" />
-      <rect x="-46" y="150" width="14" height="60" />
-      <path d="M-46,150 Q-39,128 -32,150 Z" />
-      <rect x="32" y="150" width="14" height="60" />
-      <path d="M32,150 Q39,128 46,150 Z" />
+      {/* main dome drum + onion cap */}
+      <rect x="-42" y="140" width="84" height="110" rx="2" />
+      <path d="M-42,140 Q-42,95 0,80 Q42,95 42,140 Z" />
+      <path d="M0,80 Q-14,60 0,42 Q14,60 0,80 Z" />
+      <rect x="-3.5" y="20" width="7" height="24" />
+      <circle cx="0" cy="16" r="6" />
+      {/* flanking minarets */}
+      <rect x="-58" y="175" width="15" height="75" />
+      <path d="M-58,175 Q-50.5,150 -43,175 Z" />
+      <rect x="-64" y="130" width="4" height="4" />
+      <rect x="43" y="175" width="15" height="75" />
+      <path d="M43,175 Q50.5,150 58,175 Z" />
     </g>
   );
 }
@@ -45,20 +31,18 @@ function DomeCluster({ x, scale = 1 }: { x: number; scale?: number }) {
 /** A crowd member: head, torso, two raised arms. `lean` varies the arm angle for variety. */
 function CrowdFigure({ x, lean = 0, h = 1 }: { x: number; lean?: number; h?: number }) {
   return (
-    <g transform={`translate(${x}, ${(1 - h) * 40})`} fill="currentColor">
-      <circle cx="0" cy="0" r="10" />
-      <path d="M-12,10 Q0,2 12,10 L14,50 Q0,58 -14,50 Z" />
+    <g transform={`translate(${x}, ${(1 - h) * 40})`}>
+      <circle cx="0" cy="0" r="11" />
+      <path d="M-13,11 Q0,2 13,11 L15,54 Q0,63 -15,54 Z" />
       <path
-        d={`M-10,14 Q${-24 + lean},-6 ${-30 + lean},-34`}
-        stroke="currentColor"
-        strokeWidth="7"
+        d={`M-11,15 Q${-26 + lean},-6 ${-33 + lean},-37`}
+        strokeWidth="7.5"
         strokeLinecap="round"
         fill="none"
       />
       <path
-        d={`M10,14 Q${24 + lean},-6 ${30 + lean},-34`}
-        stroke="currentColor"
-        strokeWidth="7"
+        d={`M11,15 Q${26 + lean},-6 ${33 + lean},-37`}
+        strokeWidth="7.5"
         strokeLinecap="round"
         fill="none"
       />
@@ -77,38 +61,81 @@ function Sparkle({ x, y, size, delay }: { x: number; y: number; size: number; de
   );
 }
 
+/** A hanging pendant ornament, dangling from a thin chain off the top edge. */
+function Ornament({
+  x,
+  drop,
+  size,
+  color,
+}: {
+  x: number;
+  drop: number;
+  size: number;
+  color: string;
+}) {
+  return (
+    <g transform={`translate(${x}, 0)`}>
+      <line x1="0" y1="0" x2="0" y2={drop} stroke={color} strokeWidth="1.5" opacity="0.6" />
+      <path
+        d={`M${-size},${drop} L${size},${drop} L0,${drop + size * 1.6} Z`}
+        fill={color}
+        opacity="0.9"
+      />
+      <circle cx="0" cy={drop} r={size * 0.6} fill={color} />
+    </g>
+  );
+}
+
+/** One faceted diamond, the corner-confetti motif. */
+function Facet({ x, y, size, color }: { x: number; y: number; size: number; color: string }) {
+  return (
+    <path
+      d={`M${x},${y - size} L${x + size},${y} L${x},${y + size} L${x - size},${y} Z`}
+      fill={color}
+      opacity="0.85"
+    />
+  );
+}
+
 const SPARKLES = [
-  { x: 60, y: 90, size: 8, delay: 0 },
-  { x: 720, y: 140, size: 11, delay: 0.6 },
-  { x: 640, y: 60, size: 6, delay: 1.4 },
-  { x: 110, y: 260, size: 6, delay: 2.1 },
-  { x: 760, y: 320, size: 9, delay: 0.9 },
-  { x: 40, y: 400, size: 7, delay: 1.8 },
-  { x: 690, y: 440, size: 8, delay: 2.6 },
-  { x: 150, y: 60, size: 5, delay: 3.1 },
+  { x: 90, y: 130, size: 7, delay: 0 },
+  { x: 700, y: 90, size: 9, delay: 0.7 },
+  { x: 640, y: 210, size: 6, delay: 1.5 },
+  { x: 140, y: 300, size: 6, delay: 2.2 },
+  { x: 730, y: 380, size: 8, delay: 1.0 },
+  { x: 60, y: 420, size: 6, delay: 1.9 },
+  { x: 400, y: 70, size: 6, delay: 2.7 },
 ];
 
-const FIREWORK_BURSTS = [
-  { x: 180, y: 130 },
-  { x: 610, y: 90 },
-  { x: 700, y: 260 },
+const ORNAMENTS = [
+  { x: 620, drop: 90, size: 9, color: '#FFD37A' },
+  { x: 690, drop: 130, size: 7, color: '#F49BC1' },
+  { x: 760, drop: 70, size: 8, color: '#C79CF0' },
+  { x: 560, drop: 60, size: 6, color: '#F49BC1' },
 ];
 
-const LIGHT_STRING = Array.from({ length: 11 }, (_, i) => ({
-  x: 60 + i * 68,
-  y: 40 + Math.sin(i * 0.9) * 18,
-}));
+const LEFT_FACETS = [
+  { x: 46, y: 540, size: 24, color: '#FF7A3D' },
+  { x: 92, y: 590, size: 32, color: '#F0446F' },
+  { x: 26, y: 630, size: 20, color: '#FFB05A' },
+  { x: 96, y: 520, size: 15, color: '#FF9A4D' },
+  { x: 40, y: 680, size: 22, color: '#E0345C' },
+  { x: 110, y: 660, size: 14, color: '#FFC98A' },
+  { x: 60, y: 470, size: 12, color: '#FF9A4D' },
+];
 
-const CONFETTI = Array.from({ length: 22 }, (_, i) => ({
-  x: (i * 137) % 800,
-  y: 30 + ((i * 219) % 380),
-  r: (i * 41) % 180,
-  hue: i % 3,
-}));
+const RIGHT_FACETS = [
+  { x: 754, y: 580, size: 28, color: '#7B35D6' },
+  { x: 700, y: 630, size: 21, color: '#4C6FE0' },
+  { x: 774, y: 640, size: 15, color: '#9B5CE0' },
+  { x: 720, y: 690, size: 20, color: '#5D2AA8' },
+  { x: 764, y: 500, size: 13, color: '#8B5CE8' },
+  { x: 690, y: 560, size: 12, color: '#4C6FE0' },
+];
+
+const CROWD_X = [70, 150, 230, 310, 390, 470, 550, 630, 710];
 
 export function HeroIllustration({ className }: { className?: string }) {
-  const accent = useRotatingAccent();
-
   return (
     <div className={className} aria-hidden>
       <svg
@@ -118,19 +145,29 @@ export function HeroIllustration({ className }: { className?: string }) {
         role="presentation"
       >
         <defs>
-          <linearGradient id="hero-sky" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FF8A00" />
-            <stop offset="52%" stopColor="#F0146F" />
-            <stop offset="100%" stopColor="#5B1AA6" />
+          <linearGradient id="hero-sky" x1="0" y1="0" x2="0.15" y2="1">
+            <stop offset="0%" stopColor="#FFF3E4" />
+            <stop offset="22%" stopColor="#FFB35C" />
+            <stop offset="48%" stopColor="#F0446F" />
+            <stop offset="100%" stopColor="#3D1268" />
           </linearGradient>
-          <radialGradient id="hero-glow" cx="50%" cy="38%" r="45%">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-            <stop offset="55%" stopColor="#FFD9A0" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#FFD9A0" stopOpacity="0" />
+          <radialGradient id="hero-glow" cx="50%" cy="30%" r="30%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+            <stop offset="35%" stopColor="#FFDDEE" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#FFDDEE" stopOpacity="0" />
           </radialGradient>
+          <linearGradient id="hero-arch" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#C77CF0" />
+            <stop offset="100%" stopColor="#7B35D6" />
+          </linearGradient>
           <linearGradient id="hero-skyline" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3A1050" />
-            <stop offset="100%" stopColor="#1A0630" />
+            <stop offset="0%" stopColor="#C2560E" />
+            <stop offset="100%" stopColor="#8A3208" />
+          </linearGradient>
+          <linearGradient id="hero-crowd-light" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#3A160A" />
+            <stop offset="45%" stopColor="#2A1030" />
+            <stop offset="100%" stopColor="#160A38" />
           </linearGradient>
           <clipPath id="hero-clip">
             <rect width="800" height="1000" rx="28" />
@@ -139,104 +176,83 @@ export function HeroIllustration({ className }: { className?: string }) {
 
         <g clipPath="url(#hero-clip)">
           <rect width="800" height="1000" fill="url(#hero-sky)" />
-          <rect width="800" height="1000" fill="url(#hero-glow)" className="hero-glow-pulse" />
 
-          {/* faceted texture accents, matching the diamond confetti motif */}
-          <g opacity="0.12" fill="white">
-            <path d="M40,500 L70,530 L40,560 L10,530 Z" />
-            <path d="M760,180 L790,210 L760,240 L730,210 Z" />
-            <path d="M720,620 L745,645 L720,670 L695,645 Z" />
+          {/* the glowing arch behind the skyline — the reference's centrepiece */}
+          <g className="hero-glow-pulse" style={{ transformOrigin: '400px 300px' }}>
+            <path
+              d="M400,40 Q580,130 580,320 L580,620 Q400,680 220,620 L220,320 Q220,130 400,40 Z"
+              fill="url(#hero-arch)"
+              opacity="0.92"
+            />
+            <rect width="800" height="1000" fill="url(#hero-glow)" />
           </g>
+
+          {/* mandala medallion, upper-left, clear of the arch */}
+          <g
+            transform="translate(105, 130)"
+            stroke="#FFE3B0"
+            strokeWidth="1.4"
+            fill="none"
+            opacity="0.45"
+          >
+            <circle r="58" />
+            <circle r="42" />
+            {Array.from({ length: 12 }, (_, i) => {
+              const a = (i / 12) * Math.PI * 2;
+              return (
+                <line
+                  key={i}
+                  x1={Math.cos(a) * 42}
+                  y1={Math.sin(a) * 42}
+                  x2={Math.cos(a) * 58}
+                  y2={Math.sin(a) * 58}
+                />
+              );
+            })}
+          </g>
+
+          {ORNAMENTS.map((o, i) => (
+            <Ornament key={i} {...o} />
+          ))}
 
           {SPARKLES.map((s, i) => (
             <Sparkle key={i} {...s} />
           ))}
 
-          {/* rotating accent layer */}
-          <g
-            className="hero-accent"
-            style={{ opacity: accent === 'fireworks' ? 1 : 0 }}
-            fill="white"
-          >
-            {FIREWORK_BURSTS.map((f, i) => (
-              <g key={i} transform={`translate(${f.x}, ${f.y})`}>
-                {Array.from({ length: 10 }, (_, j) => {
-                  const angle = (j / 10) * Math.PI * 2;
-                  return (
-                    <line
-                      key={j}
-                      x1={Math.cos(angle) * 6}
-                      y1={Math.sin(angle) * 6}
-                      x2={Math.cos(angle) * 26}
-                      y2={Math.sin(angle) * 26}
-                      stroke="white"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      opacity="0.9"
-                    />
-                  );
-                })}
-                <circle r="4" fill="white" />
-              </g>
-            ))}
-          </g>
-
-          <g className="hero-accent" style={{ opacity: accent === 'lights' ? 1 : 0 }}>
-            <path
-              d={`M${LIGHT_STRING[0]!.x},${LIGHT_STRING[0]!.y} ${LIGHT_STRING.map((p) => `L${p.x},${p.y}`).join(' ')}`}
-              stroke="white"
-              strokeWidth="1.5"
-              opacity="0.5"
-              fill="none"
-            />
-            {LIGHT_STRING.map((p, i) => (
-              <circle key={i} cx={p.x} cy={p.y + 10} r="5" fill="#FFE28A" opacity="0.95" />
-            ))}
-          </g>
-
-          <g className="hero-accent" style={{ opacity: accent === 'confetti' ? 1 : 0 }}>
-            {CONFETTI.map((c, i) => (
-              <rect
-                key={i}
-                x={c.x}
-                y={c.y}
-                width="10"
-                height="10"
-                rx="2"
-                fill={['#FFFFFF', '#FFE28A', '#FFD1E3'][c.hue]}
-                opacity="0.85"
-                transform={`rotate(${c.r} ${c.x + 5} ${c.y + 5})`}
-              />
-            ))}
-          </g>
-
-          {/* skyline — a low band, so the crowd stands against the bright glow
-              above it rather than getting swallowed by the dark base. */}
-          <g transform="translate(0, 620)" fill="url(#hero-skyline)">
-            <DomeCluster x={90} scale={0.8} />
-            <DomeCluster x={280} scale={1.05} />
-            <DomeCluster x={480} scale={0.88} />
-            <DomeCluster x={670} scale={0.75} />
-            <rect x="0" y="270" width="800" height="110" />
+          {/* skyline — a continuous base wall under the domes, so it reads as
+              one palace, not islands with gaps. Domes rise up into the arch's
+              lower half, the way the reference layers them. */}
+          <g transform="translate(0, 520)" fill="url(#hero-skyline)">
+            <DomeCluster x={90} scale={1.05} />
+            <DomeCluster x={270} scale={0.75} />
+            <DomeCluster x={530} scale={0.75} />
+            <DomeCluster x={710} scale={1.05} />
+            <rect x="0" y="330" width="800" height="150" />
           </g>
 
           {/* crowd — positioning transform on the outer group, sway animation on
               the inner one: a CSS animation on an element replaces its SVG
               `transform` attribute rather than composing with it, so the two
               concerns need separate elements or the position is lost. */}
-          <g transform="translate(0, 600)" fill="#0F0620">
+          <g
+            transform="translate(0, 610)"
+            fill="url(#hero-crowd-light)"
+            stroke="url(#hero-crowd-light)"
+          >
             <g className="hero-crowd">
-              <CrowdFigure x={70} lean={-6} h={0.9} />
-              <CrowdFigure x={150} lean={8} h={1.05} />
-              <CrowdFigure x={230} lean={-10} h={0.95} />
-              <CrowdFigure x={310} lean={4} h={1.1} />
-              <CrowdFigure x={390} lean={-4} h={1} />
-              <CrowdFigure x={470} lean={10} h={0.92} />
-              <CrowdFigure x={550} lean={-8} h={1.05} />
-              <CrowdFigure x={630} lean={6} h={0.96} />
-              <CrowdFigure x={710} lean={-6} h={1.02} />
+              {CROWD_X.map((x, i) => (
+                <CrowdFigure key={x} x={x} lean={i % 2 === 0 ? -6 : 8} h={1.05 + (i % 3) * 0.08} />
+              ))}
             </g>
           </g>
+
+          {/* corner confetti, warm left / cool right — echoes the crowd's rim light */}
+          {LEFT_FACETS.map((f, i) => (
+            <Facet key={`l${i}`} {...f} />
+          ))}
+          {RIGHT_FACETS.map((f, i) => (
+            <Facet key={`r${i}`} {...f} />
+          ))}
         </g>
       </svg>
     </div>
