@@ -28,7 +28,7 @@ export default async function SignInPage({
   const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/account';
 
   return (
-    <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-center">
+    <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-start">
       <div>
         <p className="text-accent text-xs font-bold tracking-widest uppercase">Account</p>
         <h1 className="font-display mt-1 text-2xl leading-tight font-semibold sm:text-3xl">
