@@ -37,22 +37,19 @@ export default async function HomePage() {
   return (
     <>
       {/*
-        Banners, search, and buttons fill the full screen below the header
-        (min-h forces it even when content is short) so the quick filter
-        rail below always starts past the fold, regardless of viewport size.
-        Centered vertically so any leftover space splits evenly instead of
-        dumping into one gap before the filter rail.
+        Banners, search, and buttons sized to their natural content height —
+        forcing this block to fill the full viewport looked broken on tall
+        monitors (huge dead margins, worse when no banner is active). Natural
+        sizing keeps it compact and consistent across screen sizes.
       */}
-      <div className="flex min-h-[calc(100vh-4rem)] flex-col justify-center">
-        {banners.length > 0 && (
-          <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
-            <PromoCarousel banners={banners} />
-          </div>
-        )}
+      {banners.length > 0 && (
+        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
+          <PromoCarousel banners={banners} />
+        </div>
+      )}
 
-        <Hero />
-        <HeroTrustBadges />
-      </div>
+      <Hero />
+      <HeroTrustBadges />
 
       <QuickFilterRail
         eventsByFilter={{

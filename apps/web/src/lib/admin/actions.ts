@@ -201,7 +201,7 @@ export async function createBannerAction(
       title: parsed.data.title,
       image_url: parsed.data.image_url,
       link_url: parsed.data.event_link,
-      is_active: true,
+      active: true,
     });
     if (error) throw error;
     revalidatePath('/');
