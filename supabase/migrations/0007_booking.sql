@@ -106,3 +106,39 @@ create policy booking_configurations_write on booking_configurations
     exists (select 1 from events e where e.id = booking_configurations.event_id
             and (owns_organiser(e.organiser_id) or is_admin()))
   );
+
+-- ---------------------------------------------------------------------------
+-- Keep entry_type and is_free from ever disagreeing
+--
+-- `is_free` is the denormalised flag every filter, card and query already
+-- reads; `entry_type` is the richer truth. A column default cannot know about
+-- the other column, so a free event inserted by any writer that predates this
+-- migration (the seed, the admin importer, a manual INSERT) would land as
+-- `paid` while `is_free` said otherwise — and the booking service would offer
+-- a ticket CTA for a free event.
+--
+-- So derive rather than default: a writer that knows only the old flag gets a
+-- correct entry_type, and `is_free` always follows entry_type afterwards.
+-- ---------------------------------------------------------------------------
+create or replace function sync_event_entry_type()
+returns trigger language plpgsql as $$
+begin
+  -- Insert-only: a free row that never set entry_type is sitting on the
+  -- default, not on an intentional 'paid'.
+  if tg_op = 'INSERT' and new.entry_type = 'paid' and new.is_free then
+    new.entry_type := 'free';
+  end if;
+
+  -- entry_type is authoritative from here on, for inserts and updates alike.
+  new.is_free := new.entry_type in ('free', 'registration');
+  return new;
+end $$;
+
+drop trigger if exists events_sync_entry_type on events;
+create trigger events_sync_entry_type
+  before insert or update of entry_type, is_free on events
+  for each row execute function sync_event_entry_type();
+
+-- Re-run the backfill through the same rule so existing rows agree too.
+update events set entry_type = 'free' where is_free and entry_type = 'paid';
+update events set is_free = (entry_type in ('free', 'registration'));

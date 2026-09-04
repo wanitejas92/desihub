@@ -83,6 +83,29 @@ dead buttons.
   Collecting VIP/Early-bird tiers we cannot sell against would be friction in
   exchange for unusable data.
 
+### Verified against real Postgres 16
+
+All seven migrations were applied in order on a scratch Postgres 16 with minimal
+`auth`/`storage` stubs, then exercised:
+
+- `booking_url_required_for_redirects` rejects an `external_url` row with no
+  URL — a half-configured channel can never render as a dead "Book now".
+- `events_lineup_is_array` rejects a non-array `lineup`.
+- Deleting an event cascades its booking row away; one row per event is
+  enforced by the primary key.
+- Under the `anon` role, a draft event's booking row is invisible while
+  published ones are readable — the RLS policy, not just the query, does it.
+
+**One real bug was found this way and fixed.** `entry_type` was a plain column
+default of `'paid'`, so the migration's backfill only corrected rows that
+existed *at migration time*: a free event inserted afterwards by any writer that
+predates this change (the seed, the admin importer, a manual INSERT) landed as
+`paid` while `is_free` said otherwise — and the booking service would then offer
+a ticket CTA for a free event. Replaced with a `before insert or update` trigger
+that derives the pair: a writer that knows only the old flag gets a correct
+`entry_type`, and `is_free` always follows `entry_type` afterwards. The mock
+catalogue applies the same rule, so dev and production cannot drift.
+
 ### Open / deferred
 
 - `booking_configurations` has no organiser-facing editor yet; the submit form
