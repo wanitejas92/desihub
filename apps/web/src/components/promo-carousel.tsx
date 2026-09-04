@@ -58,7 +58,21 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-[3/1]">
+      {/*
+        Fixed pixel heights from lg up, not aspect-ratio: the content column
+        is capped at max-w-content (1200px) well before 1366px, so banner
+        *width* stops changing at exactly the viewport sizes that matter most
+        (1366–1920) — an aspect-ratio would scale height with a width that
+        never actually moves. Per-tier heights stay comfortably under the
+        available space at the *shortest* member of each Tailwind tier
+        (768px for `xl` covering 1366×768/1440×900, 864px for `2xl` covering
+        1536×864/1920×1080), leaving 30px+ of headroom there; the homepage's
+        `lg:min-h` wrapper (see the comment in page.tsx) makes up whatever
+        this leaves open on the *taller* member of each tier, so Quick
+        Filters lands below the fold either way rather than this needing to
+        be pixel-perfect on its own.
+      */}
+      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[360px] xl:h-[440px] 2xl:h-[540px]">
         {banners.map((b, i) => (
           <Slide key={b.id} banner={b} active={i === index} position={i + 1} total={count} />
         ))}

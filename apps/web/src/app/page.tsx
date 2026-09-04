@@ -37,19 +37,29 @@ export default async function HomePage() {
   return (
     <>
       {/*
-        Banners, search, and buttons sized to their natural content height —
-        forcing this block to fill the full viewport looked broken on tall
-        monitors (huge dead margins, worse when no banner is active). Natural
-        sizing keeps it compact and consistent across screen sizes.
+        Above-the-fold group: banner, search, buttons, trust badges. Quick
+        Filters sits immediately after with no gap of its own, so on a
+        taller screen any leftover space has to come from *this* wrapper, not
+        from the banner growing unboundedly or from luck. `lg:min-h` (desktop
+        only — mobile scrolls naturally) floors this block at one viewport
+        tall minus the header (h-16 + 1px border = 65px); it is NOT flexed or
+        centered, so the box stacks top-down as normal and any slack lands
+        as plain space *after* the badges, pushing Quick Filters below the
+        fold on any desktop height, not just the four this was tuned against
+        (1366×768, 1440×900, 1536×864, 1920×1080). The banner itself
+        (see PromoCarousel) still has a real, bounded size per breakpoint —
+        this wrapper only closes the gap that size leaves open.
       */}
-      {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
-          <PromoCarousel banners={banners} />
-        </div>
-      )}
+      <div className="lg:min-h-[calc(100vh-65px)]">
+        {banners.length > 0 && (
+          <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
+            <PromoCarousel banners={banners} />
+          </div>
+        )}
 
-      <Hero />
-      <HeroTrustBadges />
+        <Hero />
+        <HeroTrustBadges />
+      </div>
 
       <QuickFilterRail
         eventsByFilter={{
