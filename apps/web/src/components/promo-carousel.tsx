@@ -72,7 +72,7 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
         Filters lands below the fold either way rather than this needing to
         be pixel-perfect on its own.
       */}
-      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[360px] xl:h-[440px] 2xl:h-[540px]">
+      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[280px] xl:h-[340px] 2xl:h-[420px]">
         {banners.map((b, i) => (
           <Slide key={b.id} banner={b} active={i === index} position={i + 1} total={count} />
         ))}
