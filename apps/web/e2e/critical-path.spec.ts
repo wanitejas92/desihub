@@ -13,9 +13,31 @@ test('home shows the season strip and event sections', async ({ page }) => {
   // At least one event card links to an event page, and carries the four
   // things a card is allowed to say: date, title, venue, price. (Cards no
   // longer repeat a "Trending" badge under a heading that already says it.)
-  const card = page.locator('a[href^="/e/"]').first();
+  // Scoped to the grid: the promo carousel's slides are also /e/ links, and
+  // a banner is not a card.
+  const card = page.getByTestId('event-grid').locator('a[href^="/e/"]').first();
   await expect(card).toBeVisible();
   await expect(card.getByRole('heading')).toBeVisible();
+});
+
+test('the promo carousel rotates and its dots jump between banners', async ({ page }) => {
+  await page.goto('/');
+  const carousel = page.getByRole('region', { name: 'Featured events' });
+  await expect(carousel).toBeVisible();
+
+  // Three demo banners, so three dots, first one current.
+  const dots = carousel.getByRole('button', { name: /^Show / });
+  await expect(dots).toHaveCount(3);
+  await expect(dots.first()).toHaveAttribute('aria-current', 'true');
+
+  // Jumping is immediate — a reader must not have to wait for the rotation.
+  await dots.nth(2).click();
+  await expect(dots.nth(2)).toHaveAttribute('aria-current', 'true');
+  await expect(dots.first()).toHaveAttribute('aria-current', 'false');
+
+  // Every slide carries alt text; a banner with no text alternative would be
+  // invisible to screen readers and to search.
+  await expect(carousel.getByAltText('Diwali season across the Netherlands')).toBeVisible();
 });
 
 test('quick-filter pills swap the rail below them in place, without navigating', async ({

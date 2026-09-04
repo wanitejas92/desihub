@@ -19,4 +19,19 @@ export const test = base.extend({
   },
 });
 
+/**
+ * A per-run suffix for demo sign-in emails.
+ *
+ * The mock account store is a globalThis singleton in the server process, and
+ * `reuseExistingServer` means a local dev server survives between runs — so a
+ * fixed address carries last run's follows and orders into this one, and a
+ * "Follow DesiBeats" button turns up already reading "Following". Salting the
+ * address per run makes each run start from a genuinely new account.
+ */
+export const RUN_ID = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+export function demoEmail(prefix: string, project: string): string {
+  return `${prefix}-${project}-${RUN_ID}@example.nl`;
+}
+
 export { expect };

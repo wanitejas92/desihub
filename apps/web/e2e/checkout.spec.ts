@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, demoEmail } from './fixtures';
 
 /**
  * Phase 3 — checkout. Runs against the mock order repository (no Supabase/
@@ -60,7 +60,7 @@ test('buying two tickets issues two tickets with distinct codes', async ({ page 
 });
 
 test('a signed-in purchase shows up under My tickets', async ({ page }, testInfo) => {
-  const email = `buyer-${testInfo.project.name}@example.nl`;
+  const email = demoEmail('buyer', testInfo.project.name);
   await signIn(page, email);
 
   await page.goto('/e/sufi-night-kavita-seth');
@@ -78,7 +78,7 @@ test('a signed-in purchase shows up under My tickets', async ({ page }, testInfo
 });
 
 test('buying tickets reduces the spots left on the event page', async ({ page }, testInfo) => {
-  await signIn(page, `inventory-${testInfo.project.name}@example.nl`);
+  await signIn(page, demoEmail('inventory', testInfo.project.name));
 
   // A different event from the other checkout tests: inventory is shared,
   // in-memory, server-wide state, and Playwright runs specs concurrently —

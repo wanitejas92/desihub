@@ -6,6 +6,54 @@ section.
 
 ---
 
+## Phase 4 — The homepage's artwork moves into a rotating strip you upload to
+
+The hero was ~700px before a visitor saw a single event: a large headline
+beside a large code-owned illustration. Two problems, one structural. It
+pushed the search bar and the first event below the fold, and it meant
+homepage artwork had two different homes — a hard-coded illustration up top,
+and the banner table we had already designed for exactly this.
+
+So the artwork column is gone and the hero is a compact centred block:
+headline, one line of copy, search, two actions. Directly beneath it sits the
+**promo carousel**, filled from the `banners` table and the public `banners`
+storage bucket. Changing what the homepage leads with is now an upload plus a
+row — never a code change and never a deploy. The trust badges moved *below*
+the strip: they are reassurance, not a headline, and above the artwork they
+were only delaying the thing people came for.
+
+### Decisions
+
+- **Fallback art is the base layer, not an `onError` swap.** A server-rendered
+  `<img>` whose file is missing fires its error event *before* React hydrates,
+  so an onError handler never runs and the reader is left looking at a
+  broken-image marker — which is exactly what the first build did. Layering
+  designed art underneath and fading the real banner in on load cannot miss
+  the event, because it never listens for one.
+- **The window lives in the RLS policy**, not the query, so an expired banner
+  cannot leak even if a caller forgets to filter. The adapter deliberately
+  does not repeat the conditions.
+- **A failed banner query returns `[]`, not an error.** The strip renders
+  nothing when there are no banners, which is a valid state on a fresh
+  install — a broken banner table must never take the homepage down.
+- **Slides are cross-faded but `aria-hidden` and untabbable when inactive.**
+  An invisible link is a keyboard trap.
+- Dots are real buttons: the strip is operable without a mouse and without
+  waiting for the rotation to come round. Rotation pauses on hover and focus,
+  and does not start at all under `prefers-reduced-motion`.
+
+### E2E hygiene fixed along the way
+
+Two account/checkout tests failed on a *second* run against the same dev
+server. Not a regression: the mock account store is a `globalThis` singleton
+in the server process, `reuseExistingServer` keeps that process alive between
+runs, and a fixed demo address carried last run's follows into this one — so
+a "Follow DesiBeats" button turned up already reading "Following". Demo
+sign-in addresses are now salted per run (`demoEmail()` in `e2e/fixtures.ts`),
+and the suite passes twice in a row against one server.
+
+---
+
 ## Phase 4 — Booking becomes an adapter, and the event page is rebuilt on it
 
 The product decision that drives everything here: **for the first release DesiHub

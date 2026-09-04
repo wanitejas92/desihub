@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, demoEmail } from './fixtures';
 
 /**
  * Phase 2 — accounts. These run against the mock account adapter (no
@@ -23,7 +23,7 @@ test('account pages require signing in, and send you back afterwards', async ({ 
 });
 
 test('demo sign-in creates an account and the header reflects it', async ({ page }, testInfo) => {
-  const email = `header-${testInfo.project.name}@example.nl`;
+  const email = demoEmail('header', testInfo.project.name);
 
   await page.goto('/');
   await expect(page.getByRole('link', { name: 'Sign in' })).toBeVisible();
@@ -39,7 +39,7 @@ test('demo sign-in creates an account and the header reflects it', async ({ page
 test('an event saved before signing in follows you into the account', async ({
   page,
 }, testInfo) => {
-  const email = `merge-${testInfo.project.name}@example.nl`;
+  const email = demoEmail('merge', testInfo.project.name);
 
   await page.goto('/browse');
   const heart = page.getByRole('button', { name: 'Save to favourites' }).first();
@@ -56,7 +56,7 @@ test('an event saved before signing in follows you into the account', async ({
 });
 
 test('saving while signed in survives a full page reload', async ({ page }, testInfo) => {
-  await signIn(page, `persist-${testInfo.project.name}@example.nl`);
+  await signIn(page, demoEmail('persist', testInfo.project.name));
 
   await page.goto('/browse');
   await page.getByRole('button', { name: 'Save to favourites' }).first().click();
@@ -67,7 +67,7 @@ test('saving while signed in survives a full page reload', async ({ page }, test
 });
 
 test('profile edits persist', async ({ page }, testInfo) => {
-  await signIn(page, `profile-${testInfo.project.name}@example.nl`);
+  await signIn(page, demoEmail('profile', testInfo.project.name));
 
   await page.getByLabel('Name').fill('Rehan');
   await page.getByLabel('Your city').selectOption('Utrecht');
@@ -82,7 +82,7 @@ test('profile edits persist', async ({ page }, testInfo) => {
 });
 
 test('following an organiser shows up under Following', async ({ page }, testInfo) => {
-  await signIn(page, `follow-${testInfo.project.name}@example.nl`);
+  await signIn(page, demoEmail('follow', testInfo.project.name));
 
   await page.goto('/o/desibeats');
   await page.getByRole('button', { name: /^Follow / }).click();
@@ -93,7 +93,7 @@ test('following an organiser shows up under Following', async ({ page }, testInf
 });
 
 test('signing out returns to the anonymous experience', async ({ page }, testInfo) => {
-  await signIn(page, `signout-${testInfo.project.name}@example.nl`);
+  await signIn(page, demoEmail('signout', testInfo.project.name));
 
   await page.getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('/');

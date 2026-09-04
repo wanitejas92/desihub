@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
-import { Hero } from '@/components/hero';
+import { Hero, HeroTrustBadges } from '@/components/hero';
+import { PromoCarousel } from '@/components/promo-carousel';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
 import { FeaturedArtists } from '@/components/featured-artists';
@@ -12,13 +13,15 @@ import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
 import { EmptyState } from '@/components/empty-state';
 import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
+import { getBannerRepository } from '@/lib/banners';
 import { topVenues } from '@/lib/top-venues';
 
 // Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const repo = await getRepository();
+  const [repo, bannerRepo] = await Promise.all([getRepository(), getBannerRepository()]);
+  const banners = await bannerRepo.listActive();
   const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, upcoming, cities, venuePool] =
     await Promise.all([
       repo.listEvents({ limit: 12 }),
@@ -34,6 +37,21 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
+
+      {/*
+        The rotating promo strip is the homepage's artwork slot — banners are
+        uploaded to the bucket and curated in the banners table, never hard-coded
+        here. It renders nothing when there are none, so the page still reads
+        as finished on a fresh install.
+      */}
+      {banners.length > 0 && (
+        <div className="max-w-content mx-auto px-4 sm:px-6">
+          <PromoCarousel banners={banners} />
+        </div>
+      )}
+
+      <HeroTrustBadges />
+
       <QuickFilterRail
         eventsByFilter={{
           all: allUpcoming.items,
