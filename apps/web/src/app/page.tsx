@@ -36,20 +36,17 @@ export default async function HomePage() {
 
   return (
     <>
-      <Hero />
-
       {/*
-        The rotating promo strip sits directly below the search bar —
-        banners are uploaded to the bucket and curated in the banners table.
-        It renders nothing when there are none, so the page still reads
-        as finished on a fresh install.
+        Banners at the top — before search bar. Everything fits on one
+        screen: banners, search, and buttons together.
       */}
       {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 py-6 sm:px-6 lg:py-8">
+        <div className="max-w-content mx-auto px-4 py-3 sm:px-6 lg:py-4">
           <PromoCarousel banners={banners} />
         </div>
       )}
 
+      <Hero />
       <HeroTrustBadges />
 
       <QuickFilterRail

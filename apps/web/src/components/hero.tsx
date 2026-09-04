@@ -11,17 +11,17 @@ const TRUST_BADGES = [
 
 /**
  * Homepage hero: search bar and action buttons.
- * The promo banner carousel sits directly below, filling the visual space.
+ * Compact so banners, search, and buttons all fit on one screen.
  */
 export function Hero() {
   return (
     <section className="bg-bg relative overflow-hidden" aria-label="DesiHub">
-      <div className="max-w-content relative mx-auto px-4 pt-8 pb-6 sm:px-6 lg:pt-10 lg:pb-8">
+      <div className="max-w-content relative mx-auto px-4 py-4 sm:px-6 lg:py-5">
         <div className="hero-enter hero-enter-delay mx-auto max-w-4xl">
           <HeroSearchBar />
         </div>
 
-        <div className="hero-enter hero-enter-delay mt-4 flex flex-wrap justify-center gap-3">
+        <div className="hero-enter hero-enter-delay mt-3 flex flex-wrap justify-center gap-2">
           <Button href="/browse">Explore Events</Button>
           <Button href="/submit" variant="outline">
             List Your Event
