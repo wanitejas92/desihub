@@ -31,7 +31,8 @@ export default async function AdminBannersPage() {
             link
           </li>
           <li>
-            5. <strong>Submit:</strong> Click "Create banner" and it will appear on homepage
+            5. <strong>Submit:</strong> Click &quot;Create banner&quot; and it will appear on
+            homepage
           </li>
         </ol>
       </div>
