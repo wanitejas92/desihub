@@ -16,15 +16,25 @@ interface Props {
    * falls back to pasting a URL rather than showing a button that cannot work.
    */
   canUpload: boolean;
+  /** Storage bucket to upload into — each caller's RLS write policy decides who may. */
+  bucket?: string;
+  /** Copy on the empty-state button; defaults to the event-artwork wording. */
+  label?: string;
 }
 
 /**
- * Artwork picker for the event forms. Uploads straight to the `event-images`
- * bucket and writes the resulting public URL into a hidden input, so the
- * enclosing form still submits as a plain FormData post with no client state
- * to thread through.
+ * Artwork picker shared by the event and banner forms. Uploads straight to
+ * the given Storage bucket and writes the resulting public URL into a hidden
+ * input, so the enclosing form still submits as a plain FormData post with
+ * no client state to thread through.
  */
-export function ImageUpload({ name = 'image_url', defaultValue = null, canUpload }: Props) {
+export function ImageUpload({
+  name = 'image_url',
+  defaultValue = null,
+  canUpload,
+  bucket = 'event-images',
+  label = 'Upload artwork',
+}: Props) {
   const [url, setUrl] = useState<string | null>(defaultValue);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,14 +72,14 @@ export function ImageUpload({ name = 'image_url', defaultValue = null, canUpload
       const path = `${auth.user.id}/${crypto.randomUUID()}.${ext}`;
 
       const { error: upErr } = await db.storage
-        .from('event-images')
+        .from(bucket)
         .upload(path, file, { cacheControl: '31536000', upsert: false });
       if (upErr) {
         setError(upErr.message);
         return;
       }
 
-      const { data } = db.storage.from('event-images').getPublicUrl(path);
+      const { data } = db.storage.from(bucket).getPublicUrl(path);
       setUrl(data.publicUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed. Try again.');
@@ -132,9 +142,7 @@ export function ImageUpload({ name = 'image_url', defaultValue = null, canUpload
           className="border-border hover:border-accent hover:bg-accent-subtle/40 text-fg-muted flex w-full flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed px-4 py-7 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
         >
           <IconSparkle width={20} height={20} className="text-accent" />
-          <span className="text-fg text-sm font-semibold">
-            {busy ? 'Uploading…' : 'Upload artwork'}
-          </span>
+          <span className="text-fg text-sm font-semibold">{busy ? 'Uploading…' : label}</span>
           <span className="text-xs">JPG, PNG or WebP · up to 5MB</span>
         </button>
       )}

@@ -3,6 +3,7 @@
 import { useActionState } from 'react';
 import { createBannerAction, type AdminActionState } from '@/lib/admin/actions';
 import { Button } from '../ui/button';
+import { ImageUpload } from '../image-upload';
 import { IconCheckCircle } from '../ui/icons';
 
 const initial: AdminActionState = { status: 'idle' };
@@ -55,19 +56,15 @@ export function BannerForm() {
 
       <div>
         <label htmlFor="image_url" className="text-fg block text-sm font-semibold">
-          Image URL
+          Banner image
         </label>
-        <input
-          id="image_url"
-          name="image_url"
-          type="url"
-          required
-          placeholder="https://..."
-          className="input mt-2 w-full"
-          aria-invalid={Boolean(err('image_url'))}
-        />
+        <div className="mt-2">
+          <ImageUpload name="image_url" canUpload bucket="banners" label="Upload banner image" />
+        </div>
         {err('image_url') && <p className="text-error mt-1 text-sm">{err('image_url')}</p>}
-        <p className="text-fg-subtle mt-1 text-xs">Upload image to Supabase Storage first</p>
+        <p className="text-fg-subtle mt-1 text-xs">
+          Landscape works best — the strip crops to roughly 4:1 on desktop.
+        </p>
       </div>
 
       <div>
