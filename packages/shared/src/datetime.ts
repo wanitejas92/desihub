@@ -63,6 +63,34 @@ export function formatEventDate(
   }).format(toDate(input));
 }
 
+/** Event-page date line, e.g. "Friday 13 November" — no year. */
+export function formatEventDateNoYear(
+  input: string | Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+  locale = 'en-NL',
+): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone,
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(toDate(input));
+}
+
+/** Small date-badge parts, e.g. { month: 'NOV', day: '13' }. */
+export function formatEventDateBadge(
+  input: string | Date,
+  timeZone: string = DEFAULT_TIMEZONE,
+  locale = 'en-NL',
+): { month: string; day: string } {
+  const date = toDate(input);
+  const month = new Intl.DateTimeFormat(locale, { timeZone, month: 'short' })
+    .format(date)
+    .toUpperCase();
+  const day = new Intl.DateTimeFormat(locale, { timeZone, day: 'numeric' }).format(date);
+  return { month, day };
+}
+
 /** Card meta-row date, e.g. "Sat, 17 Oct" — short weekday, no year. */
 export function formatEventDateCompact(
   input: string | Date,

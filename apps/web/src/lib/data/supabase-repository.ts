@@ -169,6 +169,15 @@ export class SupabaseEventRepository implements EventRepository {
     return { ...(org as OrganiserWithEvents), events: (events ?? []).map(normaliseEvent) };
   }
 
+  async followerCount(organiserId: string): Promise<number> {
+    const { count, error } = await this.db
+      .from('follows')
+      .select('user_id', { count: 'exact', head: true })
+      .eq('organiser_id', organiserId);
+    if (error) return 0;
+    return count ?? 0;
+  }
+
   async listOrganiserSlugs(): Promise<string[]> {
     const { data, error } = await this.db.from('organisers').select('slug');
     if (error) throw error;

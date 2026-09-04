@@ -92,6 +92,8 @@ export const eventSchema = z.object({
   category: categoryEnum,
   sub_category: z.string().max(80).nullable(),
   image_url: z.string().url().nullable(),
+  /** Portrait poster for the detail page. Falls back to `image_url` when unset. */
+  poster_image_url: z.string().url().nullable().default(null),
   gallery: z.array(z.string().url()).max(10).default([]),
   starts_at: isoDate,
   ends_at: isoDate.nullable(),

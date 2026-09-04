@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccount } from './account-provider';
-import { Button } from './ui/button';
+import { Button, type ButtonSize } from './ui/button';
 import { IconCheckCircle } from './ui/icons';
 
 /**
@@ -13,9 +13,11 @@ import { IconCheckCircle } from './ui/icons';
 export function FollowButton({
   organiserId,
   organiserName,
+  size,
 }: {
   organiserId: string;
   organiserName: string;
+  size?: ButtonSize;
 }) {
   const { isFollowing, toggleFollowing } = useAccount();
   const following = isFollowing(organiserId);
@@ -26,6 +28,7 @@ export function FollowButton({
       onClick={() => toggleFollowing(organiserId)}
       aria-pressed={following}
       variant={following ? 'soft' : 'primary'}
+      size={size}
       pill
     >
       {following ? (

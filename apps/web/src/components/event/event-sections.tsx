@@ -2,7 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { EventHighlight } from '@desihub/shared';
 import { monogramAvatar } from '@/lib/artist-avatar';
-import { IconMapPin, IconArrowRight } from '@/components/ui/icons';
 
 /**
  * The optional blocks of the event page. Every one of them hides itself when
@@ -90,73 +89,6 @@ export function EventLineup({ lineup }: { lineup: LineupArtist[] }) {
           </li>
         ))}
       </ul>
-    </section>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Venue                                                               */
-/* ------------------------------------------------------------------ */
-
-export function VenueBlock({
-  name,
-  address,
-  city,
-}: {
-  name: string;
-  address: string | null;
-  city: string;
-}) {
-  const query = encodeURIComponent([name, address, city].filter(Boolean).join(', '));
-  return (
-    <section>
-      <SectionHeading>Venue</SectionHeading>
-      <div className="border-border/70 bg-surface mt-4 overflow-hidden rounded-2xl border">
-        {/*
-          A styled map placeholder rather than an embedded tile service: an
-          iframe to a third-party map is a tracking cookie on every event page,
-          and the two links below do the job the visitor actually wants.
-        */}
-        <div
-          className="relative h-32 sm:h-40"
-          style={{
-            backgroundImage:
-              'linear-gradient(135deg, rgba(255,138,0,0.14), rgba(240,68,111,0.14) 45%, rgba(123,53,214,0.14))',
-          }}
-          aria-hidden
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-surface/90 shadow-elevation flex h-11 w-11 items-center justify-center rounded-full">
-              <IconMapPin width={20} height={20} className="text-accent" />
-            </span>
-          </div>
-        </div>
-        <div className="p-5">
-          <p className="text-fg font-display text-lg font-semibold">{name}</p>
-          {address && <p className="text-fg-muted mt-1 text-sm">{address}</p>}
-          <p className="text-fg-muted text-sm">{city}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <a
-              href={`https://www.google.com/maps/search/?api=1&query=${query}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border-border text-fg hover:bg-bg-subtle rounded-pill inline-flex h-10 items-center gap-1.5 border px-4 text-sm font-semibold"
-            >
-              <IconMapPin width={14} height={14} />
-              View on map
-            </a>
-            <a
-              href={`https://www.google.com/maps/dir/?api=1&destination=${query}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:bg-accent-subtle rounded-pill inline-flex h-10 items-center gap-1 px-4 text-sm font-semibold"
-            >
-              Get directions
-              <IconArrowRight width={14} height={14} />
-            </a>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

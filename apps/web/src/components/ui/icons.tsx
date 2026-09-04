@@ -166,6 +166,16 @@ export function IconMegaphone(props: IconProps) {
   );
 }
 
+export function IconExternalLink(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M8.5 4.5H4.5a1.5 1.5 0 0 0-1.5 1.5v9a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-4" />
+      <path d="M11.5 2.5H17.5V8.5" />
+      <path d="M8.5 11.5L17.5 2.5" />
+    </svg>
+  );
+}
+
 export function IconEye(props: IconProps) {
   return (
     <svg {...base(props)}>

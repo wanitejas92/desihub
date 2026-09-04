@@ -136,8 +136,20 @@ export function AdminEventForm() {
         </Field>
       </div>
 
-      <Field label="Artwork" htmlFor="image_url" hint="Optional">
+      <Field
+        label="Artwork"
+        htmlFor="image_url"
+        hint="Optional — wide image for cards and listings"
+      >
         <ImageUpload canUpload />
+      </Field>
+
+      <Field
+        label="Poster"
+        htmlFor="poster_image_url"
+        hint="Optional — portrait artwork for the event page. Falls back to Artwork above."
+      >
+        <ImageUpload name="poster_image_url" canUpload />
       </Field>
 
       <Field label="Description" htmlFor="description" hint="Optional">

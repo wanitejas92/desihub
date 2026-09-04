@@ -52,6 +52,7 @@ export interface AdminEventInput {
   organiser_name: string;
   description: string | null;
   image_url: string | null;
+  poster_image_url: string | null;
   is_free: boolean;
   min_price_cents: number | null;
   booking_url: string | null;

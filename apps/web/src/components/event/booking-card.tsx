@@ -23,7 +23,7 @@ export function BookingCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="border-border/70 bg-surface shadow-elevation rounded-2xl border p-6 lg:sticky lg:top-24">
+    <div className="border-border/70 bg-surface shadow-elevation rounded-2xl border p-6">
       <p className="text-fg-subtle text-xs font-semibold tracking-[0.08em] uppercase">
         {option.label}
       </p>

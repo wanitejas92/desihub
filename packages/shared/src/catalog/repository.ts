@@ -41,6 +41,8 @@ export interface EventRepository {
   eventsByIds(ids: string[]): Promise<EventWithRelations[]>;
   organisersByIds(ids: string[]): Promise<OrganiserSummary[]>;
   getOrganiserBySlug(slug: string): Promise<OrganiserWithEvents | null>;
+  /** Real count of accounts following this organiser — never fabricated. */
+  followerCount(organiserId: string): Promise<number>;
   listOrganiserSlugs(): Promise<string[]>;
   listEventSlugs(): Promise<string[]>;
   /** Featured organizers: those with the most published events. */

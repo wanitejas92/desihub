@@ -918,6 +918,7 @@ function buildEvent(r: Raw): EventWithRelations {
     category: r.category,
     sub_category: r.sub,
     image_url: null,
+    poster_image_url: null,
     gallery: [],
     starts_at: r.start,
     ends_at: r.end,

@@ -134,6 +134,14 @@ export class MockEventRepository implements EventRepository {
     };
   }
 
+  /** No real follows in the mock catalogue — a stable, deterministic stand-in. */
+  async followerCount(organiserId: string): Promise<number> {
+    let hash = 0;
+    for (let i = 0; i < organiserId.length; i++)
+      hash = (hash * 31 + organiserId.charCodeAt(i)) >>> 0;
+    return 8 + (hash % 120);
+  }
+
   async listOrganiserSlugs(): Promise<string[]> {
     return Object.values(MOCK_ORGANISERS).map((o) => o.slug);
   }

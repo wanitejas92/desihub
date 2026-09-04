@@ -189,6 +189,7 @@ export class AdminRepository {
         description: input.description,
         category: input.category,
         image_url: input.image_url,
+        poster_image_url: input.poster_image_url,
         starts_at: input.starts_at,
         ends_at: input.ends_at,
         is_free: input.is_free,

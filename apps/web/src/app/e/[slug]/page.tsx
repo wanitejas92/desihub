@@ -1,20 +1,22 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import {
-  formatEventDate,
-  formatEventDateShort,
+  formatEventDateNoYear,
+  formatEventDateBadge,
   formatEventTime,
   getBookingOptions,
   eventHighlights,
   isSameLocalDay,
+  formatEventDate,
+  formatEventDateShort,
   EVENT_CATEGORY_LABELS,
 } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
 import { EventImage } from '@/components/event-image';
 import { ShareButton } from '@/components/share-button';
 import { FavouriteButton } from '@/components/favourite-button';
-import { OrganiserCard } from '@/components/organiser-card';
+import { EventOrganiserCard } from '@/components/event/event-organiser-card';
+import { VenueMap } from '@/components/event/venue-map';
 import { EventRail } from '@/components/event-rail';
 import { TicketSelector } from '@/components/ticket-selector';
 import { BookingCard, BookingCta } from '@/components/event/booking-card';
@@ -25,10 +27,8 @@ import {
   EventInfoGrid,
   EventLineup,
   SectionHeading,
-  VenueBlock,
 } from '@/components/event/event-sections';
-import { IconChevronRight } from '@/components/ui/icons';
-import { CATEGORY_TONE, TONE_ACCENT } from '@/lib/category-tone';
+import { IconMapPin, IconExternalLink } from '@/components/ui/icons';
 import { eventJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -66,7 +66,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const event = await repo.getEventBySlug(slug);
   if (!event) notFound();
 
-  const similar = await repo.similar(event, 8);
+  const [similar, followerCount] = await Promise.all([
+    repo.similar(event, 8),
+    repo.followerCount(event.organiser.id),
+  ]);
 
   /*
     The one call this page makes about booking. Whether the visitor ends up on
@@ -85,11 +88,6 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl'}/e/${event.slug}`,
   };
 
-  // The hero tint follows the category, so a temple aarti does not arrive
-  // dressed as a nightclub.
-  const tone = CATEGORY_TONE[event.category];
-  const accent = TONE_ACCENT[tone];
-
   const timeLine = `${formatEventTime(event.starts_at)}${
     event.ends_at
       ? isSameLocalDay(event.starts_at, event.ends_at)
@@ -97,6 +95,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         : ` – ${formatEventDateShort(event.ends_at)}, ${formatEventTime(event.ends_at)}`
       : ''
   }`;
+
+  const dateBadge = formatEventDateBadge(event.starts_at);
 
   const infoRows = [
     { label: 'Date', value: formatEventDate(event.starts_at) },
@@ -109,95 +109,116 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     { label: 'Dress code', value: event.dress_code ?? '' },
   ];
 
+  const mapsQuery = event.venue
+    ? encodeURIComponent(
+        [event.venue.name, event.venue.address, event.venue.city].filter(Boolean).join(', '),
+      )
+    : '';
+
   return (
-    <article className="pb-28 lg:pb-16">
+    <article className="pb-28">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
       />
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Hero — image, then the four things a visitor needs in 3 seconds   */}
-      {/* ---------------------------------------------------------------- */}
-      <header className="relative">
-        {/*
-          Wide and shallow on desktop: the cover is context, not the content.
-          A taller band pushed the title, date and price below the fold, which
-          is exactly the information the page exists to deliver in 3 seconds.
-        */}
-        <div className="bg-bg-subtle relative aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9] lg:aspect-[3.6/1]">
-          <EventImage
-            imageUrl={event.image_url}
-            title={event.title}
-            category={event.category}
-            startsAt={event.starts_at}
-            organiserName={event.organiser.name}
-            priority
-            sizes="100vw"
-            fallbackWidth={1600}
-            fallbackHeight={640}
-          />
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
-          />
-        </div>
-
-        <div className="max-w-content relative mx-auto px-4 sm:px-6">
-          <div className="bg-surface shadow-elevation-lg -mt-10 rounded-2xl p-6 sm:-mt-16 sm:p-8">
-            <nav className="text-fg-subtle mb-3 flex items-center text-sm" aria-label="Breadcrumb">
-              <Link href="/browse" className="hover:text-fg">
-                Events
-              </Link>
-              <IconChevronRight width={14} height={14} className="mx-1" />
-              <Link href={`/browse?category=${event.category}`} className="hover:text-fg">
-                {EVENT_CATEGORY_LABELS[event.category]}
-              </Link>
-            </nav>
-
-            <span
-              className="rounded-pill inline-flex items-center px-3 py-1 text-xs font-bold tracking-[0.06em] uppercase"
-              style={{ backgroundColor: `${accent}1F`, color: accent }}
-            >
-              {EVENT_CATEGORY_LABELS[event.category]}
-            </span>
-
-            <h1 className="font-display text-fg mt-3 text-3xl leading-[1.1] font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              {event.title}
-            </h1>
-
-            {event.sub_category && (
-              <p className="text-fg-muted mt-2 max-w-prose text-base sm:text-lg">
-                {event.sub_category}
-              </p>
-            )}
-
-            <ul
-              role="list"
-              className="text-fg-muted mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm sm:text-base"
-            >
-              <li>📅 {formatEventDate(event.starts_at)}</li>
-              <li>⏰ {timeLine}</li>
-              {event.venue && <li>📍 {event.venue.name}</li>}
-              {event.venue && <li>🏙 {event.venue.city}</li>}
-            </ul>
-
-            <div className="mt-6 flex flex-wrap gap-2">
-              <FavouriteButton eventId={event.id} variant="inline" />
-              <ShareButton title={event.title} path={`/e/${event.slug}`} />
-            </div>
+      <div className="max-w-content mx-auto grid gap-8 px-4 py-6 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-10 lg:py-10">
+        {/* ---------------------------------------------------------------- */}
+        {/* Left — poster, organiser, map                                    */}
+        {/* ---------------------------------------------------------------- */}
+        <aside className="space-y-5">
+          <div className="bg-bg-subtle border-border relative aspect-[3/4] w-full overflow-hidden rounded-2xl border">
+            <EventImage
+              imageUrl={event.poster_image_url ?? event.image_url}
+              title={event.title}
+              category={event.category}
+              startsAt={event.starts_at}
+              organiserName={event.organiser.name}
+              priority
+              sizes="(max-width: 1024px) 100vw, 340px"
+              fallbackWidth={800}
+              fallbackHeight={1000}
+            />
+            <FavouriteButton eventId={event.id} className="absolute top-3 right-3" />
           </div>
-        </div>
-      </header>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Body                                                              */}
-      {/* ---------------------------------------------------------------- */}
-      <div className="max-w-content mx-auto grid gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
-        <div className="space-y-12">
+          <EventOrganiserCard
+            id={event.organiser.id}
+            name={event.organiser.name}
+            slug={event.organiser.slug}
+            verified={event.organiser.verified}
+            logoUrl={event.organiser.logo_url}
+            followerCount={followerCount}
+          />
+
+          {event.venue && (
+            <VenueMap
+              name={event.venue.name}
+              address={event.venue.address}
+              city={event.venue.city}
+              lat={event.venue.lat}
+              lng={event.venue.lng}
+            />
+          )}
+        </aside>
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Right — title, date, venue, booking, about                       */}
+        {/* ---------------------------------------------------------------- */}
+        <div className="space-y-6">
+          <h1 className="font-display text-fg text-3xl leading-[1.15] font-bold tracking-tight text-balance sm:text-4xl">
+            {event.title}
+          </h1>
+
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="border-border flex w-14 shrink-0 flex-col items-center rounded-lg border py-1.5">
+                <span className="text-accent-pink text-[10px] font-bold tracking-wider">
+                  {dateBadge.month}
+                </span>
+                <span className="text-fg text-lg leading-none font-bold">{dateBadge.day}</span>
+              </div>
+              <div>
+                <p className="text-fg font-semibold">{formatEventDateNoYear(event.starts_at)}</p>
+                <p className="text-fg-muted text-sm">{timeLine}</p>
+              </div>
+            </div>
+            <ShareButton title={event.title} path={`/e/${event.slug}`} />
+          </div>
+
+          {event.venue && (
+            <div className="border-border/70 flex items-start gap-3 border-t border-b py-5">
+              <span className="border-border text-fg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border">
+                <IconMapPin width={18} height={18} />
+              </span>
+              <div className="min-w-0">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-fg hover:text-accent inline-flex items-center gap-1.5 font-semibold"
+                >
+                  {event.venue.name}
+                  <IconExternalLink width={13} height={13} />
+                </a>
+                <p className="text-fg-muted mt-0.5 text-sm">
+                  {[event.venue.address, event.venue.city].filter(Boolean).join(', ')}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <BookingCard option={booking} calendarEvent={calendarEvent}>
+            {nativeTickets && (
+              <div id="tickets" className="border-border/70 mt-5 scroll-mt-24 border-t pt-5">
+                <TicketSelector event={event} />
+              </div>
+            )}
+          </BookingCard>
+
           {event.description && (
             <section>
-              <SectionHeading>About the event</SectionHeading>
+              <SectionHeading>About Event</SectionHeading>
               <div className="mt-4">
                 <EventDescription text={event.description} />
               </div>
@@ -206,44 +227,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
           <EventHighlights highlights={eventHighlights(event.category)} />
           <EventLineup lineup={event.lineup} />
-
-          {event.venue && (
-            <VenueBlock
-              name={event.venue.name}
-              address={event.venue.address}
-              city={event.venue.city}
-            />
-          )}
-
           <EventInfoGrid rows={infoRows} />
           <EventGallery images={event.gallery} title={event.title} />
-
-          <section>
-            <SectionHeading>Organised by</SectionHeading>
-            <div className="mt-4">
-              <OrganiserCard
-                id={event.organiser.id}
-                name={event.organiser.name}
-                slug={event.organiser.slug}
-                verified={event.organiser.verified}
-                city={event.organiser.city}
-                showFollow
-              />
-            </div>
-          </section>
         </div>
-
-        <aside className="lg:pt-1">
-          <div id="tickets" className="scroll-mt-24">
-            <BookingCard option={booking} calendarEvent={calendarEvent}>
-              {nativeTickets && (
-                <div className="border-border/70 mt-5 border-t pt-5">
-                  <TicketSelector event={event} />
-                </div>
-              )}
-            </BookingCard>
-          </div>
-        </aside>
       </div>
 
       {similar.length > 0 && (
@@ -253,14 +239,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       )}
 
       {/*
-        Mobile sticky booking bar. aria-hidden because it duplicates the card
-        above for thumb reach; the same controls stay keyboard- and
-        screen-reader-reachable in the aside.
+        Persistent price/booking bar, visible on every screen size — the
+        primary call to action lives here, matching how the reference design
+        keeps price and "Book now" pinned regardless of scroll position.
       */}
-      <div
-        aria-hidden="true"
-        className="border-border bg-bg/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t px-4 py-3 backdrop-blur lg:hidden"
-      >
+      <div className="border-border bg-bg/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t px-4 py-3 backdrop-blur sm:px-6">
         <div className="min-w-0">
           <p className="text-fg-subtle text-xs">{booking.label}</p>
           <p className="font-display text-fg truncate text-lg font-semibold">
