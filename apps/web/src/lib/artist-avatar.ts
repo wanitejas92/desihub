@@ -44,3 +44,14 @@ export function artistAvatarDataUri(name: string, index: number): string {
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
+
+/**
+ * Same avatar, tone picked from the name rather than a list position — for
+ * lineups, where there is no stable index and the same artist should look the
+ * same on every event page they appear on.
+ */
+export function monogramAvatar(name: string): string {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  return artistAvatarDataUri(name, hash % TONES.length);
+}

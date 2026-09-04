@@ -1,29 +1,34 @@
 import type { Metadata } from 'next';
-import type { ComponentType, ReactNode, SVGProps } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   formatEventDate,
   formatEventDateShort,
   formatEventTime,
-  formatPriceRange,
+  getBookingOptions,
+  eventHighlights,
   isSameLocalDay,
   EVENT_CATEGORY_LABELS,
 } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
-import { cn } from '@/lib/cn';
 import { EventImage } from '@/components/event-image';
-import { CategoryPill } from '@/components/category-pill';
-import { DateChip } from '@/components/date-chip';
-import { AddToCalendar } from '@/components/add-to-calendar';
 import { ShareButton } from '@/components/share-button';
 import { FavouriteButton } from '@/components/favourite-button';
 import { OrganiserCard } from '@/components/organiser-card';
 import { EventRail } from '@/components/event-rail';
 import { TicketSelector } from '@/components/ticket-selector';
-import { Button } from '@/components/ui/button';
-import { IconChevronRight, IconMapPin } from '@/components/ui/icons';
-import { CATEGORY_ICON } from '@/lib/category-icons';
+import { BookingCard, BookingCta } from '@/components/event/booking-card';
+import { EventDescription } from '@/components/event/event-description';
+import {
+  EventGallery,
+  EventHighlights,
+  EventInfoGrid,
+  EventLineup,
+  SectionHeading,
+  VenueBlock,
+} from '@/components/event/event-sections';
+import { IconChevronRight } from '@/components/ui/icons';
+import { CATEGORY_TONE, TONE_ACCENT } from '@/lib/category-tone';
 import { eventJsonLd } from '@/lib/seo';
 
 export const revalidate = 3600;
@@ -62,16 +67,16 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   if (!event) notFound();
 
   const similar = await repo.similar(event, 8);
-  const price = formatPriceRange(
-    event.min_price_cents,
-    event.max_price_cents,
-    event.is_free,
-    event.currency,
-  );
-  const mapsQuery = encodeURIComponent(
-    event.venue ? `${event.venue.name}, ${event.venue.address ?? ''}, ${event.venue.city}` : '',
-  );
-  const calInput = {
+
+  /*
+    The one call this page makes about booking. Whether the visitor ends up on
+    the organiser's site, in our own checkout, or with a calendar file is the
+    booking service's decision — everything below just renders the answer.
+  */
+  const booking = getBookingOptions(event);
+  const nativeTickets = booking.providerId === 'desihub' && event.ticketTypes.length > 0;
+
+  const calendarEvent = {
     title: event.title,
     description: event.description ?? undefined,
     location: event.venue ? `${event.venue.name}, ${event.venue.city}` : undefined,
@@ -80,240 +85,192 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl'}/e/${event.slug}`,
   };
 
+  // The hero tint follows the category, so a temple aarti does not arrive
+  // dressed as a nightclub.
+  const tone = CATEGORY_TONE[event.category];
+  const accent = TONE_ACCENT[tone];
+
+  const timeLine = `${formatEventTime(event.starts_at)}${
+    event.ends_at
+      ? isSameLocalDay(event.starts_at, event.ends_at)
+        ? `–${formatEventTime(event.ends_at)}`
+        : ` – ${formatEventDateShort(event.ends_at)}, ${formatEventTime(event.ends_at)}`
+      : ''
+  }`;
+
+  const infoRows = [
+    { label: 'Date', value: formatEventDate(event.starts_at) },
+    { label: 'Time', value: timeLine },
+    { label: 'Venue', value: event.venue?.name ?? '' },
+    { label: 'City', value: event.venue?.city ?? '' },
+    { label: 'Category', value: EVENT_CATEGORY_LABELS[event.category] },
+    { label: 'Language', value: event.languages.join(', ') },
+    { label: 'Age limit', value: event.age_policy ?? '' },
+    { label: 'Dress code', value: event.dress_code ?? '' },
+  ];
+
   return (
-    <article className="max-w-content mx-auto px-4 py-6 pb-28 sm:px-6 lg:pb-6">
+    <article className="pb-28 lg:pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd(event)) }}
       />
 
-      <nav className="text-fg-muted mb-4 flex items-center text-sm" aria-label="Breadcrumb">
-        <Link href="/browse" className="hover:text-fg">
-          Events
-        </Link>
-        <IconChevronRight width={14} height={14} className="mx-1.5" />
-        <Link href={`/browse?category=${event.category}`} className="hover:text-fg">
-          {EVENT_CATEGORY_LABELS[event.category]}
-        </Link>
-      </nav>
-
-      <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-        <div>
-          <div className="bg-bg-subtle relative aspect-[16/10] overflow-hidden rounded-lg">
-            <EventImage
-              imageUrl={event.image_url}
-              title={event.title}
-              category={event.category}
-              startsAt={event.starts_at}
-              organiserName={event.organiser.name}
-              priority
-              sizes="(max-width: 1024px) 100vw, 720px"
-              fallbackWidth={1200}
-              fallbackHeight={750}
-            />
-            <div className="absolute top-4 left-4 flex gap-2">
-              <DateChip startsAt={event.starts_at} />
-            </div>
-            <div className="absolute top-4 right-4">
-              <CategoryPill category={event.category} />
-            </div>
-          </div>
-
-          <h1 className="font-display mt-6 text-2xl leading-tight font-bold sm:text-3xl">
-            {event.title}
-          </h1>
-
-          <div className="text-fg-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span>{formatEventDate(event.starts_at)}</span>
-            <span aria-hidden>·</span>
-            <span>
-              {formatEventTime(event.starts_at)}
-              {event.ends_at &&
-                (isSameLocalDay(event.starts_at, event.ends_at)
-                  ? `–${formatEventTime(event.ends_at)}`
-                  : ` – ${formatEventDateShort(event.ends_at)}, ${formatEventTime(event.ends_at)}`)}
-            </span>
-            {event.age_policy && (
-              <>
-                <span aria-hidden>·</span>
-                <span>{event.age_policy}</span>
-              </>
-            )}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <TagChip icon={CATEGORY_ICON[event.category]}>
-              {EVENT_CATEGORY_LABELS[event.category]}
-            </TagChip>
-            {event.age_policy && <TagChip>{event.age_policy}</TagChip>}
-            {event.languages.map((l) => (
-              <TagChip key={l}>{l}</TagChip>
-            ))}
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-2">
-            <AddToCalendar event={calInput} />
-            <ShareButton title={event.title} path={`/e/${event.slug}`} />
-            <FavouriteButton eventId={event.id} variant="inline" />
-          </div>
-
-          {event.description && (
-            <div className="mt-8 max-w-prose">
-              <h2 className="font-display text-lg font-semibold sm:text-xl">About this event</h2>
-              <p className="text-fg mt-3 leading-relaxed whitespace-pre-line">
-                {event.description}
-              </p>
-            </div>
-          )}
+      {/* ---------------------------------------------------------------- */}
+      {/* Hero — image, then the four things a visitor needs in 3 seconds   */}
+      {/* ---------------------------------------------------------------- */}
+      <header className="relative">
+        {/*
+          Wide and shallow on desktop: the cover is context, not the content.
+          A taller band pushed the title, date and price below the fold, which
+          is exactly the information the page exists to deliver in 3 seconds.
+        */}
+        <div className="bg-bg-subtle relative aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9] lg:aspect-[3.6/1]">
+          <EventImage
+            imageUrl={event.image_url}
+            title={event.title}
+            category={event.category}
+            startsAt={event.starts_at}
+            organiserName={event.organiser.name}
+            priority
+            sizes="100vw"
+            fallbackWidth={1600}
+            fallbackHeight={640}
+          />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+          />
         </div>
 
-        {/* Sticky ticket + venue rail */}
-        <aside className="space-y-4">
-          <div className="border-border bg-surface shadow-elevation rounded-lg border p-5 lg:sticky lg:top-20">
-            <p className="font-display text-fg text-lg font-semibold">Choose your tickets</p>
+        <div className="max-w-content relative mx-auto px-4 sm:px-6">
+          <div className="bg-surface shadow-elevation-lg -mt-10 rounded-2xl p-6 sm:-mt-16 sm:p-8">
+            <nav className="text-fg-subtle mb-3 flex items-center text-sm" aria-label="Breadcrumb">
+              <Link href="/browse" className="hover:text-fg">
+                Events
+              </Link>
+              <IconChevronRight width={14} height={14} className="mx-1" />
+              <Link href={`/browse?category=${event.category}`} className="hover:text-fg">
+                {EVENT_CATEGORY_LABELS[event.category]}
+              </Link>
+            </nav>
 
-            {event.ticketTypes.length > 0 && event.status === 'published' ? (
-              <TicketSelector event={event} />
-            ) : (
-              <>
-                <p className="text-fg-muted mt-1 text-sm">Price</p>
-                <p className="font-display text-fg text-2xl font-bold">{price}</p>
-                <TicketCta event={event} />
-                {event.external_ticket_url && (
-                  <p className="text-fg-subtle mt-3 text-center text-xs">
-                    You&apos;ll complete your purchase on the organiser&apos;s ticket page.
-                  </p>
-                )}
-              </>
+            <span
+              className="rounded-pill inline-flex items-center px-3 py-1 text-xs font-bold tracking-[0.06em] uppercase"
+              style={{ backgroundColor: `${accent}1F`, color: accent }}
+            >
+              {EVENT_CATEGORY_LABELS[event.category]}
+            </span>
+
+            <h1 className="font-display text-fg mt-3 text-3xl leading-[1.1] font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+              {event.title}
+            </h1>
+
+            {event.sub_category && (
+              <p className="text-fg-muted mt-2 max-w-prose text-base sm:text-lg">
+                {event.sub_category}
+              </p>
             )}
-          </div>
 
-          {event.venue && (
-            <div className="border-border bg-surface shadow-elevation rounded-lg border p-4">
-              <p className="text-fg-subtle text-xs font-semibold tracking-wide uppercase">Venue</p>
-              <p className="text-fg mt-2 font-semibold">{event.venue.name}</p>
-              {event.venue.address && (
-                <p className="text-fg-muted text-sm">{event.venue.address}</p>
-              )}
-              <p className="text-fg-muted text-sm">{event.venue.city}</p>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${mapsQuery}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-accent mt-3 inline-flex items-center gap-1 text-sm font-semibold hover:underline"
-              >
-                <IconMapPin width={14} height={14} />
-                Get directions
-              </a>
+            <ul
+              role="list"
+              className="text-fg-muted mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm sm:text-base"
+            >
+              <li>📅 {formatEventDate(event.starts_at)}</li>
+              <li>⏰ {timeLine}</li>
+              {event.venue && <li>📍 {event.venue.name}</li>}
+              {event.venue && <li>🏙 {event.venue.city}</li>}
+            </ul>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <FavouriteButton eventId={event.id} variant="inline" />
+              <ShareButton title={event.title} path={`/e/${event.slug}`} />
             </div>
+          </div>
+        </div>
+      </header>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* Body                                                              */}
+      {/* ---------------------------------------------------------------- */}
+      <div className="max-w-content mx-auto grid gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-12">
+        <div className="space-y-12">
+          {event.description && (
+            <section>
+              <SectionHeading>About the event</SectionHeading>
+              <div className="mt-4">
+                <EventDescription text={event.description} />
+              </div>
+            </section>
           )}
 
-          <OrganiserCard
-            id={event.organiser.id}
-            name={event.organiser.name}
-            slug={event.organiser.slug}
-            verified={event.organiser.verified}
-            city={event.organiser.city}
-            showFollow
-          />
+          <EventHighlights highlights={eventHighlights(event.category)} />
+          <EventLineup lineup={event.lineup} />
+
+          {event.venue && (
+            <VenueBlock
+              name={event.venue.name}
+              address={event.venue.address}
+              city={event.venue.city}
+            />
+          )}
+
+          <EventInfoGrid rows={infoRows} />
+          <EventGallery images={event.gallery} title={event.title} />
+
+          <section>
+            <SectionHeading>Organised by</SectionHeading>
+            <div className="mt-4">
+              <OrganiserCard
+                id={event.organiser.id}
+                name={event.organiser.name}
+                slug={event.organiser.slug}
+                verified={event.organiser.verified}
+                city={event.organiser.city}
+                showFollow
+              />
+            </div>
+          </section>
+        </div>
+
+        <aside className="lg:pt-1">
+          <div id="tickets" className="scroll-mt-24">
+            <BookingCard option={booking} calendarEvent={calendarEvent}>
+              {nativeTickets && (
+                <div className="border-border/70 mt-5 border-t pt-5">
+                  <TicketSelector event={event} />
+                </div>
+              )}
+            </BookingCard>
+          </div>
         </aside>
       </div>
 
       {similar.length > 0 && (
-        <div className="border-border mt-12 border-t pt-4">
-          <EventRail title="Similar events" events={similar} />
+        <div className="border-border/70 border-t pt-4">
+          <EventRail title="You may also like" events={similar} />
         </div>
       )}
 
       {/*
-        Mobile-only sticky CTA bar — the desktop sticky aside covers lg+.
-        aria-hidden: this duplicates the aside's ticket action for scroll
-        convenience; the same control stays keyboard/AT-reachable up there.
+        Mobile sticky booking bar. aria-hidden because it duplicates the card
+        above for thumb reach; the same controls stay keyboard- and
+        screen-reader-reachable in the aside.
       */}
       <div
         aria-hidden="true"
         className="border-border bg-bg/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t px-4 py-3 backdrop-blur lg:hidden"
       >
-        <div>
-          <p className="text-fg-subtle text-xs">Price</p>
-          <p className="font-display text-fg text-lg font-semibold">{price}</p>
+        <div className="min-w-0">
+          <p className="text-fg-subtle text-xs">{booking.label}</p>
+          <p className="font-display text-fg truncate text-lg font-semibold">
+            {booking.priceLine || booking.compactLabel}
+          </p>
         </div>
         <div className="shrink-0">
-          {event.ticketTypes.length > 0 && event.status === 'published' ? (
-            <TicketSelector event={event} compact />
-          ) : (
-            <TicketCta event={event} compact />
-          )}
+          <BookingCta option={booking} calendarEvent={calendarEvent} compact />
         </div>
       </div>
     </article>
-  );
-}
-
-function TagChip({
-  icon: Icon,
-  children,
-}: {
-  icon?: ComponentType<SVGProps<SVGSVGElement>>;
-  children: ReactNode;
-}) {
-  return (
-    <span className="border-border bg-surface text-fg-muted rounded-pill inline-flex items-center gap-1.5 border px-3 py-1 text-sm font-medium">
-      {Icon && <Icon width={14} height={14} />}
-      {children}
-    </span>
-  );
-}
-
-function TicketCta({
-  event,
-  compact,
-}: {
-  event: Awaited<ReturnType<Awaited<ReturnType<typeof getRepository>>['getEventBySlug']>>;
-  compact?: boolean;
-}) {
-  if (!event) return null;
-  const base = compact ? 'rounded-md px-5 h-11 font-semibold whitespace-nowrap' : 'mt-4 w-full';
-  const block = compact
-    ? 'inline-flex items-center rounded-md px-5 h-11 font-semibold whitespace-nowrap text-sm'
-    : 'mt-4 w-full flex items-center justify-center rounded-md h-12 font-semibold';
-
-  if (event.status === 'sold_out') {
-    return (
-      <button disabled className={cn('bg-bg-subtle text-fg-muted cursor-not-allowed', block)}>
-        Sold out
-      </button>
-    );
-  }
-  if (event.status === 'cancelled') {
-    return (
-      <button disabled className={cn('bg-error-bg text-error cursor-not-allowed', block)}>
-        Cancelled
-      </button>
-    );
-  }
-  if (event.is_free) {
-    return (
-      <div className={cn('bg-success-bg text-success text-center', block)}>
-        {compact ? 'Free entry' : 'Free entry — no ticket needed'}
-      </div>
-    );
-  }
-  if (event.external_ticket_url) {
-    return (
-      <Button
-        href={event.external_ticket_url}
-        external
-        tabIndex={compact ? -1 : undefined}
-        className={base}
-      >
-        Get tickets
-      </Button>
-    );
-  }
-  return (
-    <div className={cn('bg-bg-subtle text-fg-muted text-center text-sm', block)}>
-      {compact ? 'Coming soon' : 'Tickets coming soon'}
-    </div>
   );
 }

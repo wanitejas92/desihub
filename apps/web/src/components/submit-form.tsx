@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import { CITIES, EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import { submitEventAction, type ActionState } from '@/lib/actions';
 import { Button } from './ui/button';
+import { EntryFields } from './event/entry-fields';
 import { IconSparkle, IconChevronDown, IconChevronRight } from './ui/icons';
 
 const initial: ActionState = { status: 'idle' };
@@ -68,6 +69,8 @@ export function SubmitForm() {
         </select>
       </Field>
 
+      <EntryFields errors={err} />
+
       <button
         type="button"
         onClick={() => setShowMore((v) => !v)}
@@ -118,18 +121,6 @@ export function SubmitForm() {
               placeholder="So we can reach you about your event"
             />
           </Field>
-          <Field label="Ticket link" htmlFor="ticket_url" error={err('ticket_url')}>
-            <input
-              id="ticket_url"
-              name="ticket_url"
-              type="url"
-              className="input"
-              placeholder="https://…"
-            />
-          </Field>
-          <label className="text-fg flex items-center gap-2 text-sm font-medium">
-            <input type="checkbox" name="is_free" /> This is a free event
-          </label>
         </div>
       )}
 

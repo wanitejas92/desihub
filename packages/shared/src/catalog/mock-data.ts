@@ -1,4 +1,5 @@
 import type { EventCategory, EventLanguage } from '../constants';
+import type { BookingConfiguration, EntryType } from '../booking/types';
 import type { EventWithRelations } from './types';
 
 /**
@@ -825,9 +826,88 @@ const raw: Raw[] = [
   },
 ];
 
+/**
+ * Booking and lineup overrides, keyed by slug. Everything not listed falls
+ * back to the derivation below (paid → the organiser's own booking page, free
+ * → nothing to book), which is what the MVP catalogue actually looks like.
+ * The handful of entries here exist to keep every branch of the booking
+ * service exercised in dev and in E2E.
+ */
+const BOOKING_OVERRIDES: Record<
+  string,
+  { entry?: EntryType; booking?: Partial<BookingConfiguration>; dress?: string }
+> = {
+  // Pilot organisers on DesiHub's own checkout. Degrades to their external
+  // page when native ticketing is switched off (which is the default).
+  'sufi-night-kavita-seth': {
+    booking: { booking_type: 'desihub', provider: 'DesiHub' },
+    dress: 'Smart casual / Indian formal',
+  },
+  'punjabi-live-bhangra-arena': {
+    booking: { booking_type: 'desihub', provider: 'DesiHub' },
+  },
+  // Free, but the host wants an RSVP so they can size the room.
+  'desi-professionals-meetup': {
+    entry: 'registration',
+    booking: {
+      booking_type: 'free_registration',
+      provider: 'the organiser',
+      booking_url: 'https://desi-professionals.example.org/rsvp',
+    },
+  },
+  // Cash on the night — the community-hall model.
+  'carnatic-classical-evening': { entry: 'door' },
+};
+
+const LINEUPS: Record<string, { name: string; role: string }[]> = {
+  'sufi-night-kavita-seth': [
+    { name: 'Kavita Seth', role: 'Live artist' },
+    { name: 'Kanishk Seth', role: 'Producer' },
+  ],
+  'punjabi-live-bhangra-arena': [
+    { name: 'Jazzy B', role: 'Live artist' },
+    { name: 'DJ Chetas', role: 'DJ' },
+    { name: 'Dhol Foundation', role: 'Dhol & percussion' },
+  ],
+  'bollywood-saturdays-oct': [
+    { name: 'DJ Suketu', role: 'DJ' },
+    { name: 'DJ Amyra', role: 'DJ' },
+  ],
+};
+
+/**
+ * A plausible organiser booking page. Fictional `.example.org` hosts, on
+ * purpose: the mock catalogue must never point a real visitor at a real
+ * third-party site we have no relationship with.
+ */
+function mockBookingUrl(orgSlug: string, eventSlug: string): string {
+  return `https://${orgSlug}.example.org/events/${eventSlug}`;
+}
+
+function buildBooking(r: Raw, orgSlug: string, entry: EntryType): BookingConfiguration {
+  const override = BOOKING_OVERRIDES[r.slug]?.booking ?? {};
+  const base: BookingConfiguration = {
+    event_id: r.id,
+    booking_type: entry === 'paid' ? 'external_url' : 'none',
+    provider: entry === 'paid' ? orgs[r.org]!.name : null,
+    booking_url: entry === 'paid' ? mockBookingUrl(orgSlug, r.slug) : null,
+    external_event_id: null,
+    status: r.sold_out ? 'sold_out' : 'available',
+    metadata: {},
+  };
+  const merged = { ...base, ...override };
+  // A DesiHub-ticketed event still keeps its organiser link, so turning native
+  // ticketing off leaves a working booking route rather than a dead card.
+  if (merged.booking_type === 'desihub' && !override.booking_url) {
+    merged.booking_url = mockBookingUrl(orgSlug, r.slug);
+  }
+  return merged;
+}
+
 function buildEvent(r: Raw): EventWithRelations {
   const o = orgs[r.org]!;
   const v = vens[r.ven]!;
+  const entry: EntryType = BOOKING_OVERRIDES[r.slug]?.entry ?? (r.free ? 'free' : 'paid');
   return {
     id: r.id,
     organiser_id: o.id,
@@ -843,11 +923,14 @@ function buildEvent(r: Raw): EventWithRelations {
     ends_at: r.end,
     doors_at: null,
     is_free: r.free,
+    entry_type: entry,
     min_price_cents: r.minC,
     max_price_cents: r.maxC,
     currency: 'EUR',
     languages: r.langs,
     age_policy: r.age,
+    dress_code: BOOKING_OVERRIDES[r.slug]?.dress ?? null,
+    lineup: (LINEUPS[r.slug] ?? []).map((a) => ({ ...a, image_url: null })),
     // Events with in-platform ticket_types sell through our own checkout
     // (Phase 3); external_ticket_url stays for the (currently none, in the
     // mock catalogue) case of an organiser who tickets elsewhere.
@@ -875,6 +958,7 @@ function buildEvent(r: Raw): EventWithRelations {
       lat: v.lat,
       lng: v.lng,
     },
+    booking: buildBooking(r, o.slug, entry),
     ticketTypes: r.free
       ? []
       : [

@@ -19,7 +19,10 @@ export default defineConfig({
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
-    command: `pnpm build && E2E_PORT=${PORT} PORT=${PORT} pnpm start`,
+    // DesiHub's own ticketing is off by default (MVP sends people to the
+    // organiser's booking page). E2E runs with it on so both booking providers
+    // stay covered — the external redirect and our native checkout.
+    command: `NEXT_PUBLIC_DESIHUB_TICKETING=1 pnpm build && E2E_PORT=${PORT} PORT=${PORT} NEXT_PUBLIC_DESIHUB_TICKETING=1 pnpm start`,
     url: `http://localhost:${PORT}`,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,

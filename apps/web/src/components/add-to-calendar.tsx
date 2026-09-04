@@ -5,8 +5,19 @@ import { buildIcs, googleCalendarUrl, type CalendarEventInput } from '@desihub/s
 import { Button } from './ui/button';
 import { IconCalendarPlus } from './ui/icons';
 
+export type CalendarEvent = CalendarEventInput;
+
 /** Add-to-calendar: Google link + a client-generated .ics download (no backend). */
-export function AddToCalendar({ event }: { event: CalendarEventInput }) {
+export function AddToCalendar({
+  event,
+  label = 'Add to calendar',
+  /** Full-width primary treatment, for when this *is* the booking CTA. */
+  full,
+}: {
+  event: CalendarEventInput;
+  label?: string;
+  full?: boolean;
+}) {
   const [open, setOpen] = useState(false);
 
   function downloadIcs() {
@@ -23,17 +34,18 @@ export function AddToCalendar({ event }: { event: CalendarEventInput }) {
   }
 
   return (
-    <div className="relative">
+    <div className={full ? 'relative' : 'relative inline-block'}>
       <Button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        variant="secondary"
-        pill
+        variant={full ? 'primary' : 'secondary'}
+        pill={!full}
+        className={full ? 'w-full' : undefined}
       >
         <IconCalendarPlus width={16} height={16} />
-        Add to calendar
+        {label}
       </Button>
       {open && (
         <div

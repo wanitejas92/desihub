@@ -5,6 +5,7 @@ export * from './season';
 export * from './slug';
 export * from './schemas';
 export * from './supabase';
+export * from './booking/index';
 export * from './catalog/index';
 export * from './account/index';
 export * from './checkout/index';

@@ -1,10 +1,16 @@
 import type { Event, Organiser, Venue, TicketType } from '../schemas';
+import type { BookingConfiguration } from '../booking/types';
 import type { EventCategory, City } from '../constants';
 
 /** An event joined with the relations the listings layer needs to render. */
 export interface EventWithRelations extends Event {
   organiser: Pick<Organiser, 'id' | 'name' | 'slug' | 'verified' | 'city' | 'logo_url'>;
   venue: Pick<Venue, 'id' | 'name' | 'city' | 'address' | 'lat' | 'lng'> | null;
+  /**
+   * How this event is booked. Null means "not configured" — the booking
+   * service derives a sensible default rather than the page branching on it.
+   */
+  booking: BookingConfiguration | null;
   ticketTypes: Pick<
     TicketType,
     | 'id'

@@ -6,6 +6,93 @@ section.
 
 ---
 
+## Phase 4 — Booking becomes an adapter, and the event page is rebuilt on it
+
+The product decision that drives everything here: **for the first release DesiHub
+does not take money.** Organisers already sell somewhere — their own site,
+Eventbrite, a WhatsApp number — and asking them to move their ticketing before
+we have an audience is the wrong trade. So DesiHub lists the event, shows the
+price, and hands the visitor over.
+
+That is a positioning choice, not a permanent one, which is why it is built as an
+adapter rather than a redirect.
+
+### What the split is
+
+- **`Event` owns admission**: `entry_type` (`free` / `registration` / `paid` /
+  `door`) plus the price range. This is about money and who may come in.
+- **`booking_configurations` owns the channel**: one row per event saying
+  `booking_type`, `provider`, `booking_url`, `status`. Moving an organiser from
+  their own booking page to DesiHub ticketing is an UPDATE to this row. Nothing
+  in `events` changes, and neither does the page.
+- **The event detail page reads neither.** It calls `getBookingOptions(event)`
+  once and renders the `BookingOption` it gets back — a label, a price line, one
+  of four CTA kinds, and a disclosure note. It cannot tell where booking happens,
+  which is precisely the property that makes new providers cheap.
+
+### Why not just put `booking_url` on `events`
+
+Because the second provider is where that design fails. A partner API needs an
+external id, a live availability call and a status that changes without us
+touching the row; DesiHub ticketing needs none of those but does need inventory.
+Both would have ended up as nullable columns on `events` guarded by `if` ladders
+in the page — which is the exact shape the brief asked us to avoid.
+
+### Which providers are live
+
+| `booking_type` | State | Notes |
+| --- | --- | --- |
+| `none` | On | Turn up, or pay at the door. CTA is the calendar. |
+| `free_registration` | On | Organiser's RSVP form. |
+| `external_url` | On | The MVP workhorse. |
+| `desihub` | **Built, off** | Phase 3's Stripe checkout, behind `NEXT_PUBLIC_DESIHUB_TICKETING`. |
+| `external_api` | Interface only | Eventbrite and friends. |
+
+Phase 3 was not deleted — it was demoted to one provider among several. Turning
+it on for everyone is a one-line change in `enabledBookingTypes()`; turning it on
+for a single pilot organiser is one config row plus that flag. E2E runs with the
+flag **on** so both paths — external handover and native checkout — stay covered.
+
+A config naming a disabled channel **degrades** rather than breaking: it falls
+back to the booking URL if there is one, and to "booking opens soon" if not. No
+dead buttons.
+
+### Decisions inside the page
+
+- **The handover is interrupted on purpose.** Clicking `Book now` opens a
+  confirmation naming the destination and showing the real hostname before
+  anything navigates. The visitor must never think DesiHub took their payment.
+  It is a real `<a href>` underneath, so modified clicks, right-click and copy
+  all behave normally — the dialog only intercepts a plain left-click.
+- **Highlights are derived from the category, not asked of the organiser.** A
+  field most submitters would leave blank is not worth the form friction when
+  the category already implies the answer. An override column can be layered on
+  later without touching the page.
+- **The line-up is an embedded array, not an `artists` table.** DesiHub has no
+  artist profiles yet; a table we cannot populate would put dead links on every
+  event page. Artists link into a filtered browse instead. Promoting this to a
+  real entity later only changes what fills the array.
+- **The venue block is a styled placeholder plus two links, not an embedded
+  map.** A third-party map iframe is a tracking cookie on every event page, and
+  "View on map" / "Get directions" is what the visitor actually wanted.
+- **Every optional section hides itself when empty.** An event page padded out
+  with empty Gallery and Artists headings reads as abandoned, and most community
+  events genuinely fill in only half of them.
+- **The submit form asks one booking question, not for ticket types.** Four
+  radio options, then a price range and the link the organiser already has.
+  Collecting VIP/Early-bird tiers we cannot sell against would be friction in
+  exchange for unusable data.
+
+### Open / deferred
+
+- `booking_configurations` has no organiser-facing editor yet; the submit form
+  writes the initial row and changes go through admin.
+- `ExternalApiProvider` is an interface with no implementation — the first real
+  partner integration will prove whether `getAvailability` belongs on it.
+- Waitlists render as a disabled state; there is no capture behind them yet.
+
+---
+
 ## Phase 3 — Checkout: ticket selection, orders, and the wallet
 
 `orders`, `tickets` and `ticket_types` have existed since Phase 0, RLS-gated

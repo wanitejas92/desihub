@@ -59,10 +59,12 @@ test('event detail shows title, price, calendar, share and JSON-LD', async ({ pa
   await expect(
     page.getByRole('heading', { level: 1, name: 'Sufi Night with Kavita Seth' }),
   ).toBeVisible();
-  await expect(page.getByRole('button', { name: /Add to calendar/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Add to calendar/i }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: /Share/i })).toBeVisible();
   await expect(page.getByText('Standard')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Select tickets' })).toBeVisible();
+  // The information grid answers what/when/where without scrolling for it.
+  await expect(page.getByRole('heading', { name: 'Event information' })).toBeVisible();
 
   // JSON-LD Event schema is present for SEO.
   const jsonLd = await page.locator('script[type="application/ld+json"]').first().innerText();
@@ -71,10 +73,39 @@ test('event detail shows title, price, calendar, share and JSON-LD', async ({ pa
   expect(parsed.name).toBe('Sufi Night with Kavita Seth');
 });
 
-test('a free event shows the free-entry state, not a ticket CTA', async ({ page }) => {
+test('a free event offers the calendar, not a ticket CTA', async ({ page }) => {
   await page.goto('/e/ganesh-chaturthi-aarti');
-  await expect(page.getByText('Free entry — no ticket needed')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Get tickets' })).toHaveCount(0);
+  await expect(page.getByText('No ticket or registration needed')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Book now' })).toHaveCount(0);
+});
+
+test('an externally-booked event warns before handing the visitor over', async ({ page }) => {
+  await page.goto('/e/bollywood-saturdays-oct');
+  // The card states who takes the money, before anything is clicked.
+  await expect(page.getByText(/Booking and payment are handled by/i).first()).toBeVisible();
+
+  await page.getByRole('link', { name: 'Book now' }).first().click();
+
+  // A confirmation, not a silent redirect — the visitor must never believe
+  // DesiHub is processing their payment.
+  const dialog = page.getByRole('dialog');
+  await expect(dialog.getByText("You're leaving DesiHub")).toBeVisible();
+  await expect(dialog.getByText('desibeats.example.org')).toBeVisible();
+  await expect(dialog.getByRole('link', { name: /Continue to booking/i })).toHaveAttribute(
+    'href',
+    /desibeats\.example\.org/,
+  );
+
+  await dialog.getByRole('button', { name: 'Cancel' }).click();
+  await expect(dialog).toBeHidden();
+  // Cancelling keeps us on DesiHub.
+  expect(page.url()).toContain('/e/bollywood-saturdays-oct');
+});
+
+test('a free-registration event asks people to register', async ({ page }) => {
+  await page.goto('/e/desi-professionals-meetup');
+  await expect(page.getByRole('link', { name: 'Register' }).first()).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Book now' })).toHaveCount(0);
 });
 
 test('submit form validates and accepts the three required fields', async ({ page }) => {

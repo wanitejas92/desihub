@@ -32,8 +32,13 @@ export async function submitEventAction(
     description: emptyToUndefined(formData.get('description') as string),
     organiser_name: emptyToUndefined(formData.get('organiser_name') as string),
     contact_email: (formData.get('contact_email') as string) || '',
-    ticket_url: (formData.get('ticket_url') as string) || '',
-    is_free: formData.get('is_free') === 'on',
+    entry_type: (formData.get('entry_type') as string) || 'free',
+    min_price_cents: eurosToCents(formData.get('min_price') as string),
+    max_price_cents: eurosToCents(formData.get('max_price') as string),
+    booking_url: (formData.get('booking_url') as string) || '',
+    // `is_free` stays derived rather than asked: it is the denormalised flag
+    // every filter and card reads, and entry_type is now the source of truth.
+    is_free: ['free', 'registration'].includes((formData.get('entry_type') as string) || 'free'),
   };
 
   const parsed = submitEventSchema.safeParse(raw);
@@ -80,6 +85,13 @@ export async function subscribeAction(
   } catch {
     return { status: 'error', message: 'Something went wrong. Please try again.' };
   }
+}
+
+/** Organisers type euros; everything downstream is integer cents. */
+function eurosToCents(v: string | null): number | null {
+  if (!v) return null;
+  const n = Number.parseFloat(v.replace(',', '.'));
+  return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
 }
 
 function emptyToUndefined(v: string | null): string | undefined {

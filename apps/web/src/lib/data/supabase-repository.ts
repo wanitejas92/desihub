@@ -24,7 +24,8 @@ const EVENT_SELECT = `
   *,
   organiser:organisers!inner(id,name,slug,verified,city,logo_url),
   venue:venues(id,name,city,address,lat,lng),
-  ticketTypes:ticket_types(id,name,price_cents,quantity,sold,fee_mode,min_per_order,max_per_order)
+  ticketTypes:ticket_types(id,name,price_cents,quantity,sold,fee_mode,min_per_order,max_per_order),
+  booking:booking_configurations(event_id,booking_type,provider,booking_url,external_event_id,status,metadata)
 `;
 
 const VISIBLE = ['published', 'sold_out', 'cancelled'];
@@ -213,6 +214,9 @@ function normaliseEvent(row: Record<string, unknown>): EventWithRelations {
     organiser: organiser as EventWithRelations['organiser'],
     venue: (venue as EventWithRelations['venue']) ?? null,
     ticketTypes: (row.ticketTypes as EventWithRelations['ticketTypes']) ?? [],
+    // A 1:1 embed still arrives as an array. Null when unconfigured — the
+    // booking service derives a default rather than the page branching.
+    booking: (pickOne(row.booking) as EventWithRelations['booking']) ?? null,
   };
 }
 

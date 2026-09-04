@@ -10,6 +10,7 @@ import {
   CITIES,
   EVENT_LANGUAGES,
 } from './constants';
+import { BOOKING_STATUSES, BOOKING_TYPES, ENTRY_TYPES } from './booking/types';
 import { slugify } from './slug';
 
 /**
@@ -96,11 +97,36 @@ export const eventSchema = z.object({
   ends_at: isoDate.nullable(),
   doors_at: isoDate.nullable(),
   is_free: z.boolean().default(false),
+  /**
+   * How you get in. `is_free` stays as the denormalised flag every filter and
+   * card already reads; `entry_type` is the richer answer the booking layer
+   * needs (a free event that still requires registration is not the same as
+   * one you can just turn up to).
+   */
+  entry_type: z.enum(ENTRY_TYPES).default('paid'),
   min_price_cents: nonNegInt.nullable(),
   max_price_cents: nonNegInt.nullable(),
   currency: z.string().length(3).default('EUR'),
   languages: z.array(languageEnum).default([]),
   age_policy: z.string().max(80).nullable(),
+  dress_code: z.string().max(120).nullable().default(null),
+  /**
+   * The performers. A lightweight embedded list, not an entity: DesiHub has no
+   * artist profiles yet, and inventing a table we cannot populate would give
+   * every event page a set of dead links. Promoting this to a real `artists`
+   * table later only changes what fills the array.
+   */
+  lineup: z
+    .array(
+      z.object({
+        name: z.string().min(1).max(120),
+        role: z.string().max(80).nullable().default(null),
+        image_url: z.string().url().nullable().default(null),
+      }),
+    )
+    .max(20)
+    .default([]),
+  /** @deprecated Superseded by `booking_configurations.booking_url`. */
   external_ticket_url: z.string().url().nullable(),
   status: eventStatusEnum.default('draft'),
   featured: z.boolean().default(false),
@@ -111,6 +137,22 @@ export const eventSchema = z.object({
   created_at: isoDate,
 });
 export type Event = z.infer<typeof eventSchema>;
+
+/**
+ * Booking lives in its own table, one row per event. Kept separate from
+ * `events` so switching an organiser from their own booking page to DesiHub
+ * ticketing is an update to this row and nothing else — no event migration, no
+ * change to the detail page.
+ */
+export const bookingConfigurationSchema = z.object({
+  event_id: uuid,
+  booking_type: z.enum(BOOKING_TYPES).default('none'),
+  provider: z.string().max(80).nullable().default(null),
+  booking_url: z.string().url().nullable().default(null),
+  external_event_id: z.string().max(160).nullable().default(null),
+  status: z.enum(BOOKING_STATUSES).default('available'),
+  metadata: z.record(z.unknown()).default({}),
+});
 
 export const ticketTypeSchema = z
   .object({
@@ -197,20 +239,51 @@ export type EventSource = z.infer<typeof eventSourceSchema>;
  * The `/submit` form: three required fields, everything else optional. No
  * login required. Produces a draft event for review.
  */
-export const submitEventSchema = z.object({
-  // Required (the three visible fields).
-  title: z.string().trim().min(3, 'Give your event a title').max(200),
-  starts_at: isoDate,
-  city: cityEnum,
-  // Optional.
-  category: categoryEnum.optional(),
-  venue_name: z.string().max(160).optional(),
-  description: z.string().max(8000).optional(),
-  organiser_name: z.string().max(160).optional(),
-  contact_email: z.string().email('Enter a valid email').optional().or(z.literal('')),
-  ticket_url: z.string().url('Enter a valid link').optional().or(z.literal('')),
-  is_free: z.boolean().optional(),
-});
+export const submitEventSchema = z
+  .object({
+    // Required (the three visible fields).
+    title: z.string().trim().min(3, 'Give your event a title').max(200),
+    starts_at: isoDate,
+    city: cityEnum,
+    // Optional.
+    category: categoryEnum.optional(),
+    venue_name: z.string().max(160).optional(),
+    description: z.string().max(8000).optional(),
+    organiser_name: z.string().max(160).optional(),
+    contact_email: z.string().email('Enter a valid email').optional().or(z.literal('')),
+    /**
+     * How people attend, asked as one question with four answers rather than
+     * as a ticket-type builder. Organisers who already sell somewhere else
+     * just paste their link.
+     */
+    entry_type: z.enum(ENTRY_TYPES).default('free'),
+    min_price_cents: nonNegInt.nullable().optional(),
+    max_price_cents: nonNegInt.nullable().optional(),
+    booking_url: z.string().url('Enter a valid link').optional().or(z.literal('')),
+    /** @deprecated Old field name for `booking_url`; still accepted. */
+    ticket_url: z.string().url('Enter a valid link').optional().or(z.literal('')),
+    is_free: z.boolean().optional(),
+  })
+  .superRefine((v, ctx) => {
+    if (v.entry_type === 'paid' && !v.booking_url && !v.ticket_url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['booking_url'],
+        message: 'Add the link where people buy tickets',
+      });
+    }
+    if (
+      v.min_price_cents != null &&
+      v.max_price_cents != null &&
+      v.max_price_cents < v.min_price_cents
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['max_price_cents'],
+        message: 'Highest price must be at least the lowest price',
+      });
+    }
+  });
 export type SubmitEventInput = z.infer<typeof submitEventSchema>;
 
 /** Email capture: city + interests, collected one field at a time. */
