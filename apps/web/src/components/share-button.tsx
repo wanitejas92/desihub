@@ -1,13 +1,28 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { Button } from './ui/button';
 import { IconShare, IconCheckCircle } from './ui/icons';
+import { cn } from '@/lib/cn';
 
-export function ShareButton({ title, path }: { title: string; path: string }) {
+interface ShareButtonProps {
+  title: string;
+  path: string;
+  /** 'pill' — full labelled button (event page). 'overlay' — small translucent
+   *  circle for sitting on a card image, matching FavouriteButton's overlay. */
+  variant?: 'pill' | 'overlay';
+  className?: string;
+}
+
+export function ShareButton({ title, path, variant = 'pill', className }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
-  async function share() {
+  async function share(e: MouseEvent) {
+    // Cards wrap this in their own outer link — never let the share tap
+    // double as a navigation.
+    e.preventDefault();
+    e.stopPropagation();
+
     const url = typeof window !== 'undefined' ? `${window.location.origin}${path}` : path;
     if (navigator.share) {
       try {
@@ -26,8 +41,25 @@ export function ShareButton({ title, path }: { title: string; path: string }) {
     }
   }
 
+  if (variant === 'overlay') {
+    return (
+      <button
+        type="button"
+        onClick={share}
+        aria-label={copied ? 'Link copied' : 'Share this event'}
+        className={cn(
+          'bg-surface/95 shadow-elevation text-fg-muted hover:text-fg inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full backdrop-blur transition-colors',
+          copied && 'text-success',
+          className,
+        )}
+      >
+        {copied ? <IconCheckCircle width={15} height={15} /> : <IconShare width={15} height={15} />}
+      </button>
+    );
+  }
+
   return (
-    <Button type="button" onClick={share} variant="secondary" pill>
+    <Button type="button" onClick={share} variant="secondary" pill className={className}>
       {copied ? <IconCheckCircle width={16} height={16} /> : <IconShare width={16} height={16} />}
       {copied ? 'Link copied!' : 'Share'}
     </Button>

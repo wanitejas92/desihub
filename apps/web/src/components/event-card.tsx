@@ -3,6 +3,7 @@ import { formatPriceRange, formatEventDateCompact, formatEventTime } from '@desi
 import type { EventWithRelations } from '@/lib/data';
 import { EventImage } from './event-image';
 import { FavouriteButton } from './favourite-button';
+import { ShareButton } from './share-button';
 import { cn } from '@/lib/cn';
 
 interface EventCardProps {
@@ -63,8 +64,9 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
         />
       </div>
 
-      <div className="absolute top-3 right-3 z-10">
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
         <FavouriteButton eventId={event.id} />
+        <ShareButton title={event.title} path={`/e/${event.slug}`} variant="overlay" />
       </div>
 
       {trending && (

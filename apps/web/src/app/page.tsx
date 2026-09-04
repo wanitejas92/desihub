@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { Hero, HeroTrustBadges } from '@/components/hero';
+import { CategoryQuickNav } from '@/components/category-quick-nav';
 import { PromoCarousel } from '@/components/promo-carousel';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
@@ -51,6 +52,8 @@ export default async function HomePage() {
         this wrapper only closes the gap that size leaves open.
       */}
       <div className="lg:min-h-[calc(100vh-65px)]">
+        <CategoryQuickNav />
+
         {banners.length > 0 && (
           <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
             <PromoCarousel banners={banners} />

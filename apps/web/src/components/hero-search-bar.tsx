@@ -35,7 +35,7 @@ export function HeroSearchBar() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-border bg-surface shadow-elevation-lg flex flex-col gap-2 rounded-2xl border p-3 sm:gap-0 sm:p-2.5 lg:flex-row lg:items-center"
+      className="border-border bg-accent-subtle/50 shadow-elevation-lg flex flex-col gap-2 rounded-2xl border p-3 sm:gap-0 sm:p-2.5 lg:flex-row lg:items-center"
     >
       <div className="relative flex-1 lg:pr-2">
         <IconSearch
