@@ -212,15 +212,90 @@ export class SupabaseEventRepository implements EventRepository {
   }
 
   async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
-    // Persisted as a draft event source for review (no auth required).
     const slug = `${draftSlug(input.title)}-${slugify(crypto.randomUUID().slice(0, 6))}`;
-    const { error } = await this.db.from('event_sources').insert({
+
+    // Provenance first, and unconditionally: it is the one record that
+    // survives even if the draft insert below is refused by RLS (an
+    // anonymous submitter owns no organiser), so a submission is never
+    // silently lost.
+    const { error: srcErr } = await this.db.from('event_sources').insert({
       kind: 'manual',
-      url: input.ticket_url || null,
+      url: input.booking_url || input.ticket_url || null,
       raw_text: JSON.stringify(input),
     });
-    if (error) throw error;
+    if (srcErr) throw srcErr;
+
+    // Then the real draft row, which is what puts the submission in the
+    // admin review queue. Without this the queue would only ever show events
+    // an admin created, and public submissions would sit unread in a table
+    // nobody looks at.
+    await this.insertDraftEvent(input, slug);
     return { ok: true, slug };
+  }
+
+  /**
+   * Best-effort: a signed-in organiser gets a draft they own; an anonymous
+   * submitter is blocked by `events_insert` RLS and falls back to the
+   * `event_sources` record alone, which an admin can still import. Either
+   * way the submitter sees the same "we'll review it" confirmation, because
+   * from their side both outcomes are the same.
+   */
+  private async insertDraftEvent(input: SubmitEventInput, slug: string): Promise<void> {
+    const { data: auth } = await this.db.auth.getUser();
+    if (!auth.user) return;
+
+    const organiserName = input.organiser_name?.trim() || 'Unnamed organiser';
+    const organiserSlug = slugify(organiserName);
+
+    const { data: existing } = await this.db
+      .from('organisers')
+      .select('id')
+      .eq('slug', organiserSlug)
+      .maybeSingle();
+
+    let organiserId = existing?.id as string | undefined;
+    if (!organiserId) {
+      const { data: created, error } = await this.db
+        .from('organisers')
+        .insert({
+          name: organiserName,
+          slug: organiserSlug,
+          city: input.city,
+          contact_email: input.contact_email || null,
+          owner_id: auth.user.id,
+        })
+        .select('id')
+        .maybeSingle();
+      if (error || !created) return;
+      organiserId = created.id as string;
+    }
+
+    let venueId: string | null = null;
+    if (input.venue_name) {
+      const { data: venue } = await this.db
+        .from('venues')
+        .insert({ name: input.venue_name, city: input.city })
+        .select('id')
+        .maybeSingle();
+      venueId = (venue?.id as string) ?? null;
+    }
+
+    await this.db.from('events').insert({
+      organiser_id: organiserId,
+      venue_id: venueId,
+      title: input.title,
+      slug,
+      description: input.description ?? null,
+      category: input.category ?? 'community',
+      image_url: input.image_url || null,
+      starts_at: input.starts_at,
+      is_free: input.is_free ?? false,
+      min_price_cents: input.min_price_cents ?? null,
+      max_price_cents: input.max_price_cents ?? null,
+      external_ticket_url: input.booking_url || input.ticket_url || null,
+      // Always a draft, never published — the review queue is the only way in.
+      status: 'draft',
+    });
   }
 
   async subscribe(input: SubscribeInput): Promise<SubscribeResult> {

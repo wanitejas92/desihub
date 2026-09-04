@@ -251,6 +251,8 @@ export const submitEventSchema = z
     description: z.string().max(8000).optional(),
     organiser_name: z.string().max(160).optional(),
     contact_email: z.string().email('Enter a valid email').optional().or(z.literal('')),
+    /** Poster/artwork, uploaded to Storage by the form before it submits. */
+    image_url: z.string().url('Enter a valid image link').optional().or(z.literal('')),
     /**
      * How people attend, asked as one question with four answers rather than
      * as a ticket-type builder. Organisers who already sell somewhere else

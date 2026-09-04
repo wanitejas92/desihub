@@ -32,6 +32,7 @@ export async function submitEventAction(
     description: emptyToUndefined(formData.get('description') as string),
     organiser_name: emptyToUndefined(formData.get('organiser_name') as string),
     contact_email: (formData.get('contact_email') as string) || '',
+    image_url: (formData.get('image_url') as string) || '',
     entry_type: (formData.get('entry_type') as string) || 'free',
     min_price_cents: eurosToCents(formData.get('min_price') as string),
     max_price_cents: eurosToCents(formData.get('max_price') as string),

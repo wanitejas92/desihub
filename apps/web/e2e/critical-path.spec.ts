@@ -1,10 +1,22 @@
-import { test, expect } from './fixtures';
+import { test, expect, demoEmail } from './fixtures';
 
 /**
  * Critical path for the listings layer: discover → browse → filter → event →
  * submit. Payments/wallet/scan arrive in later phases; this covers everything
  * Phase 1 ships. Runs against both mobile and desktop projects.
  */
+
+/**
+ * The mock account adapter reads the role off the address (see
+ * `mockRoleFor`), which is the only way to get an admin offline — there is no
+ * `profiles` row to promote.
+ */
+async function signInAsAdmin(page: import('@playwright/test').Page, project: string) {
+  await page.goto('/sign-in');
+  await page.getByLabel('Email address').fill(demoEmail('admin', project));
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.waitForURL('**/account');
+}
 
 test('home shows the season strip and event sections', async ({ page }) => {
   await page.goto('/');
@@ -149,7 +161,24 @@ test('organiser page lists their events with a follow button', async ({ page }) 
   await expect(page.locator('a[href^="/e/"]').first()).toBeVisible();
 });
 
-test('admin import extracts fields from pasted text (text-only)', async ({ page }) => {
+test('the admin portal turns away anyone who is not an admin', async ({ page }, testInfo) => {
+  // Signed out: sent to sign-in, with the destination preserved.
+  await page.goto('/admin');
+  await expect(page).toHaveURL(/\/sign-in\?next=/);
+
+  // Signed in as an ordinary attendee: sent home, not to sign-in — they are
+  // authenticated, they just lack the role.
+  await page.goto('/sign-in');
+  await page.getByLabel('Email address').fill(demoEmail('attendee', testInfo.project.name));
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.waitForURL('**/account');
+
+  await page.goto('/admin');
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test('admin import extracts fields from pasted text (text-only)', async ({ page }, testInfo) => {
+  await signInAsAdmin(page, testInfo.project.name);
   await page.goto('/admin/import');
   await page.getByRole('button', { name: 'Use sample' }).click();
   await page.getByRole('button', { name: 'Extract fields' }).click();

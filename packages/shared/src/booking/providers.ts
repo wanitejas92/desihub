@@ -1,4 +1,5 @@
 import { formatMoney, formatPriceRange } from '../money';
+import type { EventStatus } from '../constants';
 import type { BookingConfiguration, BookingOption, BookingType, EntryType } from './types';
 
 /**
@@ -13,7 +14,9 @@ export interface BookableEvent {
   min_price_cents: number | null;
   max_price_cents: number | null;
   currency: string;
-  status: 'draft' | 'published' | 'cancelled' | 'sold_out';
+  /** Follows the event status enum, so a new status cannot silently bypass
+   *  the checks in `service.ts` that read it. */
+  status: EventStatus;
 }
 
 /**

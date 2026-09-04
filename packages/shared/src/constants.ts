@@ -32,8 +32,15 @@ export const EVENT_CATEGORY_LABELS: Record<EventCategory, string> = {
   networking: 'Networking',
 };
 
-export const EVENT_STATUSES = ['draft', 'published', 'cancelled', 'sold_out'] as const;
+export const EVENT_STATUSES = ['draft', 'published', 'cancelled', 'sold_out', 'rejected'] as const;
 export type EventStatus = (typeof EVENT_STATUSES)[number];
+
+/**
+ * What the public may see. `draft` and `rejected` are the two statuses that
+ * stay with the owning organiser and admins — the first because it has not
+ * been reviewed yet, the second because it has and the answer was no.
+ */
+export const PUBLIC_EVENT_STATUSES = ['published', 'cancelled', 'sold_out'] as const;
 
 export const ORDER_STATUSES = ['pending', 'paid', 'failed', 'refunded', 'cancelled'] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];

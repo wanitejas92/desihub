@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { AccountUser } from '@desihub/shared';
-import { IconHeart, IconUsers } from './ui/icons';
+import { IconHeart, IconUsers, IconShieldCheck } from './ui/icons';
 
 /**
  * The account corner of the header. Signed out it's a plain "Sign in" link
@@ -27,6 +27,16 @@ export function HeaderAccount({ user }: { user: AccountUser | null }) {
 
   return (
     <>
+      {user.role === 'admin' && (
+        <Link
+          href="/admin"
+          aria-label="Admin"
+          title="Admin"
+          className="text-fg-muted hover:bg-bg-subtle hover:text-accent hidden h-10 w-10 items-center justify-center rounded-full transition-colors sm:inline-flex"
+        >
+          <IconShieldCheck width={18} height={18} />
+        </Link>
+      )}
       <Link
         href="/account/saved"
         aria-label="Saved events"

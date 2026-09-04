@@ -72,6 +72,23 @@ export function mockUserIdFor(email: string): string {
   return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20)}`;
 }
 
+/**
+ * Role for a demo account, derived from the address.
+ *
+ * In a configured deployment `profiles.role` is the only source of truth and
+ * an admin promotes people from the portal. Offline there is no such row and
+ * no way to run the promoting SQL, so the admin surfaces would be unreachable
+ * — and untestable — without a convention. `admin@…` and `organiser@…` are
+ * that convention. It is confined to this mock, which is selected only when
+ * Supabase env is absent, so it cannot grant anyone anything in production.
+ */
+function mockRoleFor(email: string): AccountUser['role'] {
+  const local = email.trim().toLowerCase().split('@')[0] ?? '';
+  if (local === 'admin' || local.startsWith('admin-')) return 'admin';
+  if (local === 'organiser' || local.startsWith('organiser-')) return 'organiser';
+  return 'attendee';
+}
+
 /** Creates the account on first sign-in, returns the existing one after that. */
 export function mockSignIn(email: string): AccountUser {
   const id = mockUserIdFor(email);
@@ -85,7 +102,7 @@ export function mockSignIn(email: string): AccountUser {
     city: null,
     languages: [],
     notificationPrefs: { ...DEFAULT_PREFS },
-    role: 'attendee',
+    role: mockRoleFor(email),
   };
   accounts.set(id, { user, saved: new Set(), follows: new Set() });
   return user;

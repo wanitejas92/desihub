@@ -4,6 +4,7 @@ import { useActionState, useState } from 'react';
 import { CITIES, EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import { submitEventAction, type ActionState } from '@/lib/actions';
 import { Button } from './ui/button';
+import { ImageUpload } from './image-upload';
 import { EntryFields } from './event/entry-fields';
 import { IconSparkle, IconChevronDown, IconChevronRight } from './ui/icons';
 
@@ -13,7 +14,7 @@ const initial: ActionState = { status: 'idle' };
  * Dead-simple event submission: three visible fields (title, date, city).
  * Everything else lives behind "Add more details". No login required.
  */
-export function SubmitForm() {
+export function SubmitForm({ canUpload = false }: { canUpload?: boolean }) {
   const [state, action, pending] = useActionState(submitEventAction, initial);
   const [showMore, setShowMore] = useState(false);
 
@@ -99,6 +100,9 @@ export function SubmitForm() {
           </Field>
           <Field label="Venue name" htmlFor="venue_name">
             <input id="venue_name" name="venue_name" className="input" placeholder="e.g. Melkweg" />
+          </Field>
+          <Field label="Event artwork" htmlFor="image_url">
+            <ImageUpload canUpload={canUpload} />
           </Field>
           <Field label="Description" htmlFor="description">
             <textarea
