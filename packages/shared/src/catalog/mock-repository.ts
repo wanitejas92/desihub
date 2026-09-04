@@ -142,6 +142,33 @@ export class MockEventRepository implements EventRepository {
     return this.events.map((e) => e.slug);
   }
 
+  async listFeaturedOrganizers(limit = 6): Promise<OrganiserSummary[]> {
+    // Count published events per organizer, return top by count.
+    const publishedByOrg = new Map<
+      string,
+      { org: (typeof MOCK_ORGANISERS)[string]; count: number }
+    >();
+    for (const event of this.events) {
+      if (event.status !== 'published') continue;
+      const orgSlug = event.organiser.slug;
+      const org = Object.values(MOCK_ORGANISERS).find((o) => o.slug === orgSlug);
+      if (!org) continue;
+      const entry = publishedByOrg.get(org.id) || { org, count: 0 };
+      publishedByOrg.set(org.id, { org, count: entry.count + 1 });
+    }
+    return Array.from(publishedByOrg.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, limit)
+      .map((entry) => ({
+        id: entry.org.id,
+        name: entry.org.name,
+        slug: entry.org.slug,
+        verified: entry.org.verified,
+        city: entry.org.city as OrganiserSummary['city'],
+        logo_url: null,
+      }));
+  }
+
   async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
     // No persistence in the mock; return the slug the draft would receive.
     return { ok: true, slug: draftSlug(input.title) };

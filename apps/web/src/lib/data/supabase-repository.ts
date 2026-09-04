@@ -181,6 +181,36 @@ export class SupabaseEventRepository implements EventRepository {
     return (data ?? []).map((r) => r.slug as string);
   }
 
+  async listFeaturedOrganizers(limit = 6): Promise<OrganiserSummary[]> {
+    // Organizers with the most published events (only published count).
+    const { data, error } = await this.db
+      .from('organisers')
+      .select(
+        `
+        id,
+        name,
+        slug,
+        verified,
+        city,
+        logo_url,
+        event_count:events(count)
+      `,
+      )
+      .eq('events.status', 'published')
+      .order('event_count', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data ?? []).map((r) => ({
+      id: r.id,
+      name: r.name,
+      slug: r.slug,
+      verified: r.verified,
+      city: r.city as OrganiserSummary['city'],
+      logo_url: r.logo_url,
+    }));
+  }
+
   async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
     // Persisted as a draft event source for review (no auth required).
     const slug = `${draftSlug(input.title)}-${slugify(crypto.randomUUID().slice(0, 6))}`;

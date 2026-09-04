@@ -43,6 +43,8 @@ export interface EventRepository {
   getOrganiserBySlug(slug: string): Promise<OrganiserWithEvents | null>;
   listOrganiserSlugs(): Promise<string[]>;
   listEventSlugs(): Promise<string[]>;
+  /** Featured organizers: those with the most published events. */
+  listFeaturedOrganizers(limit?: number): Promise<OrganiserSummary[]>;
   submitEvent(input: SubmitEventInput): Promise<SubmitResult>;
   subscribe(input: SubscribeInput): Promise<SubscribeResult>;
 }
