@@ -47,26 +47,33 @@ export function SiteFooter() {
           </ul>
         </nav>
 
-        <nav aria-label="About">
+        <nav aria-label="DesiHub">
           <h2 className="text-sm font-semibold">DesiHub</h2>
           <ul className="text-fg-muted mt-3 space-y-2 text-sm">
             <li>
-              <Link href="/submit" className="hover:text-fg">
-                Submit an event
+              <Link href="/browse" className="hover:text-fg">
+                All events
               </Link>
             </li>
             <li>
-              <Link href="/browse" className="hover:text-fg">
-                All events
+              <Link href="/submit" className="hover:text-fg">
+                List your event
+              </Link>
+            </li>
+            <li>
+              <Link href="/account" className="hover:text-fg">
+                Your account
               </Link>
             </li>
           </ul>
         </nav>
       </div>
       <div className="border-border border-t">
-        <p className="max-w-content text-fg-subtle mx-auto px-4 py-6 text-xs sm:px-6">
-          © {new Date().getFullYear()} DesiHub. Made for the Desi community in the Netherlands.
-        </p>
+        <div className="max-w-content mx-auto flex flex-col items-center gap-3 px-4 py-6 sm:flex-row sm:justify-between sm:px-6">
+          <p className="text-fg-subtle text-xs">
+            © {new Date().getFullYear()} DesiHub. Made for the Desi community in the Netherlands.
+          </p>
+        </div>
       </div>
     </footer>
   );

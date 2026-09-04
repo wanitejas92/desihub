@@ -49,7 +49,7 @@ export function HeroSearchBar() {
         />
       </div>
 
-      <div className="border-border flex items-center gap-3 border-t pt-1 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-1">
+      <div className="border-border flex flex-wrap items-center gap-x-3 gap-y-2 border-t pt-2 sm:flex-nowrap sm:border-t-0 sm:border-l sm:pt-0 sm:pl-1">
         <FieldSelect
           icon={IconMapPin}
           value={city}
@@ -64,7 +64,12 @@ export function HeroSearchBar() {
           placeholder="Any time"
           options={WHEN_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
         />
-        <Button type="submit" pill size="sm" className="shrink-0">
+        <Button
+          type="submit"
+          pill
+          size="sm"
+          className="w-full justify-center sm:w-auto sm:shrink-0"
+        >
           Search
         </Button>
       </div>

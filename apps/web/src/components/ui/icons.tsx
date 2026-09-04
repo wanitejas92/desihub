@@ -295,3 +295,59 @@ export function IconHandshake(props: IconProps) {
     </svg>
   );
 }
+
+export function IconShieldCheck(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M10 2.5l6 2.2v4.5c0 4-2.6 6.7-6 8.3-3.4-1.6-6-4.3-6-8.3V4.7z" />
+      <path d="M7.3 10l1.9 1.9 3.5-3.9" />
+    </svg>
+  );
+}
+
+export function IconHeadset(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 10.5v-1a7 7 0 0 1 14 0v1" />
+      <rect x="2.5" y="10" width="3.5" height="5" rx="1.4" />
+      <rect x="14" y="10" width="3.5" height="5" rx="1.4" />
+      <path d="M17.5 15v.8a2.7 2.7 0 0 1-2.7 2.7H12" />
+    </svg>
+  );
+}
+
+export function IconInstagram(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2.5" y="2.5" width="15" height="15" rx="4.5" />
+      <circle cx="10" cy="10" r="4" />
+      <circle cx="14.6" cy="5.4" r="0.6" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function IconFacebook(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12.5 17.5v-6.4h2.1l.3-2.6h-2.4V6.9c0-.75.2-1.26 1.28-1.26h1.37V3.3A18 18 0 0 0 13 3.2c-1.94 0-3.27 1.18-3.27 3.36v1.94H7.6v2.6h2.13v6.4z" />
+    </svg>
+  );
+}
+
+export function IconYoutube(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="2" y="5" width="16" height="10" rx="3" />
+      <path d="M8.3 7.6v4.8l4.4-2.4z" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+export function IconTiktok(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M11 2.5v9.7a2.6 2.6 0 1 1-2.2-2.57" />
+      <path d="M11 2.5c.4 2 1.9 3.4 3.9 3.6" />
+    </svg>
+  );
+}

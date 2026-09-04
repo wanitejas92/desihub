@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
-import { SeasonStrip } from '@/components/season-strip';
+import { Hero } from '@/components/hero';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
 import { PopularCities } from '@/components/popular-cities';
@@ -31,7 +31,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SeasonStrip />
+      <Hero />
       <QuickFilterRail
         eventsByFilter={{
           all: allUpcoming.items,
