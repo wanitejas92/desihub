@@ -183,32 +183,45 @@ export class SupabaseEventRepository implements EventRepository {
 
   async listFeaturedOrganizers(limit = 6): Promise<OrganiserSummary[]> {
     // Organizers with the most published events (only published count).
-    const { data, error } = await this.db
+    // Fetch all with their published event counts, then sort in JS since
+    // Supabase's count aggregate doesn't support order-by directly.
+    const { data: organisers, error } = await this.db
       .from('organisers')
-      .select(
-        `
-        id,
-        name,
-        slug,
-        verified,
-        city,
-        logo_url,
-        event_count:events(count)
-      `,
-      )
-      .eq('events.status', 'published')
-      .order('event_count', { ascending: false })
-      .limit(limit);
+      .select('id,name,slug,verified,city,logo_url');
 
     if (error) throw error;
-    return (data ?? []).map((r) => ({
-      id: r.id,
-      name: r.name,
-      slug: r.slug,
-      verified: r.verified,
-      city: r.city as OrganiserSummary['city'],
-      logo_url: r.logo_url,
-    }));
+    if (!organisers || organisers.length === 0) return [];
+
+    // Get event counts for each organizer
+    const { data: counts, error: countErr } = await this.db
+      .from('events')
+      .select('organiser_id,id')
+      .eq('status', 'published');
+
+    if (countErr) throw countErr;
+
+    const eventCountByOrganizer = new Map<string, number>();
+    (counts ?? []).forEach((row) => {
+      const id = row.organiser_id as string;
+      eventCountByOrganizer.set(id, (eventCountByOrganizer.get(id) ?? 0) + 1);
+    });
+
+    // Sort by event count (descending) and take the top ones
+    const sorted = organisers
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        verified: r.verified,
+        city: r.city as OrganiserSummary['city'],
+        logo_url: r.logo_url,
+        eventCount: eventCountByOrganizer.get(r.id) ?? 0,
+      }))
+      .filter((r) => r.eventCount > 0)
+      .sort((a, b) => b.eventCount - a.eventCount)
+      .slice(0, limit);
+
+    return sorted.map(({ eventCount: _eventCount, ...r }) => r);
   }
 
   async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
