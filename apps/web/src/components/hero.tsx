@@ -10,46 +10,18 @@ const TRUST_BADGES = [
 ] as const;
 
 /**
- * Homepage hero: a compact centred block — headline, one line of copy,
- * search, two actions.
- *
- * Deliberately no artwork column. The homepage's picture is the rotating
- * promo strip directly below, which is filled from the banners table and a
- * storage bucket; putting a second, code-owned image up here both doubled
- * the height of the fold and gave artwork two different homes. One place to
- * upload, and the copy gets to the search bar in half the vertical space.
+ * Homepage hero: search bar and action buttons.
+ * The promo banner carousel sits directly below, filling the visual space.
  */
 export function Hero() {
   return (
     <section className="bg-bg relative overflow-hidden" aria-label="DesiHub">
-      <div className="max-w-content relative mx-auto px-4 pt-10 pb-6 sm:px-6 lg:pt-14 lg:pb-8">
-        <div className="hero-enter mx-auto max-w-3xl text-center">
-          {/*
-            No whitespace-nowrap around "the Netherlands": at 390px it pushed
-            the gradient word clean off the viewport. "Netherlands" is a single
-            word and cannot break on its own, so wrapping is safe and the line
-            simply falls where it fits.
-          */}
-          <h1 className="font-display text-fg text-[1.75rem] leading-[1.12] font-extrabold text-balance sm:text-4xl lg:text-[2.75rem]">
-            Discover the <span className="text-accent">Desi</span> Scene in the{' '}
-            <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(90deg, #F0446F, #7B35D6)' }}
-            >
-              Netherlands
-            </span>
-          </h1>
-
-          <p className="text-fg-muted mx-auto mt-4 max-w-xl text-base sm:text-lg">
-            Concerts, parties, dance, festivals &amp; entertainment — all in one place.
-          </p>
-        </div>
-
-        <div className="hero-enter hero-enter-delay mx-auto mt-7 max-w-4xl">
+      <div className="max-w-content relative mx-auto px-4 pt-8 pb-6 sm:px-6 lg:pt-10 lg:pb-8">
+        <div className="hero-enter hero-enter-delay mx-auto max-w-4xl">
           <HeroSearchBar />
         </div>
 
-        <div className="hero-enter hero-enter-delay mt-5 flex flex-wrap justify-center gap-3">
+        <div className="hero-enter hero-enter-delay mt-4 flex flex-wrap justify-center gap-3">
           <Button href="/browse">Explore Events</Button>
           <Button href="/submit" variant="outline">
             List Your Event
