@@ -140,6 +140,7 @@ export function HeroIllustration({ className }: { className?: string }) {
     <div className={className} aria-hidden>
       <svg
         viewBox="0 0 800 1000"
+        preserveAspectRatio="xMidYMid slice"
         className="h-full w-full"
         xmlns="http://www.w3.org/2000/svg"
         role="presentation"

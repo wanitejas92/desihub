@@ -14,21 +14,26 @@ import { HeroIllustration } from './hero-illustration';
 const HERO_IMAGE = '/hero-banner.png';
 
 export function HeroBannerImage({ className }: { className?: string }) {
-  const [hasImage, setHasImage] = useState(true);
+  const [state, setState] = useState<'pending' | 'loaded' | 'missing'>('pending');
 
   return (
     <div className={`relative overflow-hidden ${className ?? ''}`}>
       <HeroIllustration className="absolute inset-0 h-full w-full" />
-      {hasImage && (
+      {state !== 'missing' && (
         // A drop-in asset whose presence is unknown at build time, so
         // next/image (which needs the file to exist) can't be used here.
+        // Held at opacity-0 until it actually decodes, so a missing file
+        // never flashes a broken-image marker over the fallback art.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={HERO_IMAGE}
           alt=""
           aria-hidden
-          onError={() => setHasImage(false)}
-          className="absolute inset-0 h-full w-full object-cover"
+          onLoad={() => setState('loaded')}
+          onError={() => setState('missing')}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ${
+            state === 'loaded' ? 'opacity-100' : 'opacity-0'
+          }`}
         />
       )}
     </div>

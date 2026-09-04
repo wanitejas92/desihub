@@ -58,7 +58,7 @@ export default async function HomePage() {
           )}
         </div>
         {featured.length > 0 ? (
-          <EventGrid events={featured} trending />
+          <EventGrid events={featured} />
         ) : (
           <EmptyState
             title="No trending events right now"

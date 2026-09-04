@@ -10,10 +10,12 @@ test('home shows the season strip and event sections', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Trending now' })).toBeVisible();
-  // At least one event card links to an event page.
-  await expect(page.locator('a[href^="/e/"]').first()).toBeVisible();
-  // The section heading plus at least one card badge both say "Trending".
-  await expect(page.getByText('Trending', { exact: false }).nth(1)).toBeVisible();
+  // At least one event card links to an event page, and carries the four
+  // things a card is allowed to say: date, title, venue, price. (Cards no
+  // longer repeat a "Trending" badge under a heading that already says it.)
+  const card = page.locator('a[href^="/e/"]').first();
+  await expect(card).toBeVisible();
+  await expect(card.getByRole('heading')).toBeVisible();
 });
 
 test('quick-filter pills swap the rail below them in place, without navigating', async ({
