@@ -7,7 +7,6 @@ import {
   formatEventDateShort,
   formatEventTime,
   formatPriceRange,
-  formatMoney,
   isSameLocalDay,
   EVENT_CATEGORY_LABELS,
 } from '@desihub/shared';
@@ -21,6 +20,7 @@ import { ShareButton } from '@/components/share-button';
 import { FavouriteButton } from '@/components/favourite-button';
 import { OrganiserCard } from '@/components/organiser-card';
 import { EventRail } from '@/components/event-rail';
+import { TicketSelector } from '@/components/ticket-selector';
 import { Button } from '@/components/ui/button';
 import { IconChevronRight, IconMapPin } from '@/components/ui/icons';
 import { CATEGORY_ICON } from '@/lib/category-icons';
@@ -172,38 +172,20 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="border-border bg-surface shadow-elevation rounded-lg border p-5 lg:sticky lg:top-20">
             <p className="font-display text-fg text-lg font-semibold">Choose your tickets</p>
 
-            {event.ticketTypes.length > 0 ? (
-              <ul className="divide-border mt-3 divide-y">
-                {event.ticketTypes.map((tier) => {
-                  const left = Math.max(tier.quantity - tier.sold, 0);
-                  return (
-                    <li key={tier.id} className="flex items-center justify-between gap-3 py-2.5">
-                      <div>
-                        <p className="text-fg text-sm font-medium">{tier.name}</p>
-                        <p className="text-fg-subtle text-xs">
-                          {left > 0 ? `${left} spots left` : 'Sold out'}
-                        </p>
-                      </div>
-                      <p className="text-fg shrink-0 text-sm font-semibold">
-                        {tier.price_cents === 0
-                          ? 'Free'
-                          : formatMoney(tier.price_cents, event.currency)}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
+            {event.ticketTypes.length > 0 && event.status === 'published' ? (
+              <TicketSelector event={event} />
             ) : (
               <>
                 <p className="text-fg-muted mt-1 text-sm">Price</p>
                 <p className="font-display text-fg text-2xl font-bold">{price}</p>
+                <TicketCta event={event} />
+                {event.external_ticket_url && (
+                  <p className="text-fg-subtle mt-3 text-center text-xs">
+                    You&apos;ll complete your purchase on the organiser&apos;s ticket page.
+                  </p>
+                )}
               </>
             )}
-
-            <TicketCta event={event} />
-            <p className="text-fg-subtle mt-3 text-center text-xs">
-              You&apos;ll complete your purchase on the organiser&apos;s ticket page.
-            </p>
           </div>
 
           {event.venue && (
@@ -257,7 +239,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <p className="font-display text-fg text-lg font-semibold">{price}</p>
         </div>
         <div className="shrink-0">
-          <TicketCta event={event} compact />
+          {event.ticketTypes.length > 0 && event.status === 'published' ? (
+            <TicketSelector event={event} compact />
+          ) : (
+            <TicketCta event={event} compact />
+          )}
         </div>
       </div>
     </article>

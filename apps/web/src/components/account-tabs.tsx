@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IconHeart, IconUsers, IconCheckCircle } from './ui/icons';
+import { IconHeart, IconUsers, IconCheckCircle, IconTicket } from './ui/icons';
 import { cn } from '@/lib/cn';
 
 const TABS = [
   { href: '/account', label: 'Profile', Icon: IconCheckCircle },
+  { href: '/account/tickets', label: 'My tickets', Icon: IconTicket },
   { href: '/account/saved', label: 'Saved events', Icon: IconHeart },
   { href: '/account/following', label: 'Following', Icon: IconUsers },
 ] as const;

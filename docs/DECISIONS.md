@@ -6,6 +6,121 @@ section.
 
 ---
 
+## Phase 3 — Checkout: ticket selection, orders, and the wallet
+
+`orders`, `tickets` and `ticket_types` have existed since Phase 0, RLS-gated
+and ready, but nothing wrote to them — Phase 1's event page pointed at
+`external_ticket_url` or said "tickets coming soon," and Phase 2 explicitly
+deferred the wallet as a shell with nothing behind it. This phase is the
+real thing: pick tickets, pay, get a QR-token ticket, see it again under
+"My tickets."
+
+### What shipped
+
+- **`OrderRepository`**, a new contract in `packages/shared/src/checkout/`
+  — the same one-interface-two-implementations split as
+  `EventRepository`/`AccountRepository`. `createOrder` reserves inventory
+  and returns either a paid order (demo mode) or a Stripe Checkout redirect
+  (real mode); `confirmPayment` is what a webhook calls once money actually
+  moves; `cancelOrder` releases a hold; `getOrder`/`listMyOrders` read it
+  back. Checkout works signed out on purpose — `orders.user_id` is
+  nullable, and DesiHub's whole ethos (Phase 1/2) is that nothing requires
+  an account. The unguessable order UUID is itself the access check for a
+  guest's confirmation page, the same pattern Stripe's own Checkout
+  `success_url` relies on.
+- **`MockOrderRepository`** — in-memory, `globalThis`-parked for the same
+  cross-bundle reason `MockAccountRepository` is. Demo mode has no real
+  payment step, so a created order is paid the instant it's created,
+  mirroring the dev sign-in shortcut. A companion `mock-inventory.ts`
+  overlay tracks tickets the mock checkout path has sold on top of the
+  static seed counts in `mock-data.ts`, and `MockEventRepository` now
+  derives `sold_out` from live remaining inventory instead of only the
+  seed's static flag — buy out a ticket type in a dev/E2E run and the event
+  actually flips to sold out.
+- **`SupabaseOrderRepository`** — reserves via the `reserve_tickets` RPC per
+  line (rolling back with `release_tickets` if a later line fails or
+  inventory runs out), inserts the order under the buyer's own RLS-scoped
+  session, and issues tickets through a **service-role client**
+  (`lib/supabase/admin.ts`) — `tickets` deliberately has no client-facing
+  INSERT policy at all (0003_rls.sql), so fabricating a ticket is not
+  something a browser can ever do; only trusted server code (checkout
+  completion, the webhook) can. Free ticket types (`price_cents = 0`) are
+  issued immediately, same as demo mode; a priced ticket with no Stripe key
+  configured returns an honest "not yet configured" error instead of
+  pretending to take payment.
+- **Found and fixed a real gap in the Phase 0 schema**: `reserve_tickets`/
+  `release_tickets` (0002) were plain `plpgsql` functions, not `security
+  definer`, so under RLS a regular buyer's `UPDATE` against `ticket_types`
+  was filtered out by `ticket_types_write` (organiser/admin only) and the
+  function returned `false` for everyone but the organiser — checkout could
+  never have sold a single ticket. `0005_checkout_functions.sql` makes both
+  `security definer`, the same fix already applied to `handle_new_user`,
+  `is_admin` and `owns_organiser` — the quantity/capacity check inside the
+  function body is the real guard, not row ownership.
+- **Stripe adapter, env-gated** (`STRIPE_SECRET_KEY`) — a real Checkout
+  Session per order, line items priced through the same `priceLine`/
+  `sumOrder` fee logic as everywhere else, `metadata.lines` carrying the
+  cart (there is no per-line table on `orders`, so the session is where a
+  pending order's quantities live until paid). `/api/stripe/webhook`
+  verifies the signature and calls `confirmPayment`, independent of whether
+  the buyer's browser ever makes it back to `success_url`.
+- **UI**: a `TicketSelector` on the event page (quantity steppers per
+  tier, a live running total, min/max-per-order respected) replaces the
+  static price/CTA for any event with `ticket_types` configured —
+  `external_ticket_url` remains for the (currently unused in the mock
+  catalogue) case of an organiser who tickets elsewhere. `/checkout` reviews
+  the cart and takes an email; `/orders/[id]` is the confirmation screen,
+  showing each ticket's `qr_token` and a "show this code at the door" line;
+  `/account/tickets` lists every paid order for the signed-in account, a
+  new tab alongside Saved/Following.
+- A purchase revalidates both `/account/tickets` and the specific event's
+  `/e/[slug]` — the event page is ISR-cached (`revalidate = 3600`) and
+  shows live "N spots left," so a sale has to invalidate it immediately or
+  a sold-out event would keep showing tickets for up to an hour.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests (65 in shared, incl. 7 new
+  order-repository tests covering paid/guest/oversell/rollback/listing) and
+  a production build all pass.
+- Full E2E suite: **42 tests, mobile + desktop, all passing** — 5 of them
+  new, covering: the running total updating live as quantity changes, a
+  guest completing checkout with no account, a multi-ticket order issuing
+  one ticket row per unit, a signed-in purchase showing up under My
+  Tickets, and inventory actually decrementing on the event page after a
+  sale (the case that caught the missing revalidation above).
+- The checkout-tests-share-inventory trap bit once during verification: two
+  tests buying from the same event's ticket type raced when Playwright ran
+  them concurrently, the same class of bug the accounts E2E suite already
+  guards against with per-test emails. Fixed the same way — the
+  inventory-assertion test moved to a dedicated event so it isn't racing
+  the other checkout tests for the same counter.
+
+### Open / deferred
+
+- **No visual QR/barcode.** A ticket's `qr_token` renders as text ("show
+  this code at the door"), not a scannable image — a real QR/barcode
+  render deserves either a proper library or to land together with its
+  actual counterpart (an organiser door-scanner), neither of which "build
+  phase 3" on its own asked for.
+- **No organiser check-in / door-scanning UI.** `tickets_checkin`'s RLS
+  policy (0003) and `checked_in_at`/`checked_in_by` columns exist for it,
+  but nothing in this phase reads or writes them yet.
+- **The Supabase + Stripe path is written and type-safe but cannot be
+  exercised in this container** — no Docker, no local Supabase stack, no
+  real Stripe keys — the same honest limit `SupabaseEventRepository` and
+  `SupabaseAccountRepository` have carried since Phase 0/2. Every test that
+  actually ran is against the mock path.
+- **Refunds, transfers, and Klarna** (`KLARNA_MIN_TOTAL_CENTS` already
+  exists in `money.ts`) are not wired to anything yet — `order_status`/
+  `ticket_status` have the enum values (`refunded`, `transferred`) for
+  later, unused today.
+- A pending Stripe order that a buyer abandons is never automatically
+  cancelled — there is no cron/expiry job releasing the hold; `cancelOrder`
+  exists and works, but nothing calls it yet.
+
+---
+
 ## Phase 2 — Accounts: auth, profile, and collections that follow you
 
 Phase 0 shipped the whole account *substrate* — `profiles`, `saved_events`,

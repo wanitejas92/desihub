@@ -10,6 +10,7 @@ import type {
 } from './types';
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';
 import { applyFilters, paginate, cityCounts } from './filter';
+import { mockExtraSold } from './mock-inventory';
 
 /**
  * In-memory repository. Reads from the mock catalogue; writes (submit/subscribe)
@@ -17,7 +18,21 @@ import { applyFilters, paginate, cityCounts } from './filter';
  * This is the adapter used whenever Supabase env is absent.
  */
 export class MockEventRepository implements EventRepository {
-  private events = MOCK_EVENTS;
+  /**
+   * Recomputed on every access (the catalogue is small) so tickets sold via
+   * the mock checkout path — tracked separately in `mock-inventory.ts` so it
+   * survives Next.js's per-bundle module copies — show up here without this
+   * class needing to know when a purchase happened.
+   */
+  private get events(): EventWithRelations[] {
+    return MOCK_EVENTS.map((e) => {
+      if (e.ticketTypes.length === 0) return e;
+      const ticketTypes = e.ticketTypes.map((t) => ({ ...t, sold: t.sold + mockExtraSold(t.id) }));
+      const remaining = ticketTypes.reduce((acc, t) => acc + Math.max(t.quantity - t.sold, 0), 0);
+      const status = remaining <= 0 && e.status === 'published' ? 'sold_out' : e.status;
+      return { ...e, ticketTypes, status };
+    });
+  }
 
   async listEvents(filters: EventFilters): Promise<Paginated<EventWithRelations>> {
     const filtered = applyFilters(this.events, filters);

@@ -848,7 +848,10 @@ function buildEvent(r: Raw): EventWithRelations {
     currency: 'EUR',
     languages: r.langs,
     age_policy: r.age,
-    external_ticket_url: r.free ? null : `https://tickets.example/${r.slug}`,
+    // Events with in-platform ticket_types sell through our own checkout
+    // (Phase 3); external_ticket_url stays for the (currently none, in the
+    // mock catalogue) case of an organiser who tickets elsewhere.
+    external_ticket_url: null,
     status: r.sold_out ? 'sold_out' : 'published',
     featured: r.featured,
     family_friendly: r.family,
@@ -881,6 +884,9 @@ function buildEvent(r: Raw): EventWithRelations {
             price_cents: r.minC ?? 0,
             quantity: 200,
             sold: r.sold_out ? 200 : 40,
+            fee_mode: 'pass_on' as const,
+            min_per_order: 1,
+            max_per_order: 10,
           },
         ],
   };

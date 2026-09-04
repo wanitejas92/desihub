@@ -7,3 +7,4 @@ export * from './schemas';
 export * from './supabase';
 export * from './catalog/index';
 export * from './account/index';
+export * from './checkout/index';

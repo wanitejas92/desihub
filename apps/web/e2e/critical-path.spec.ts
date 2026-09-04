@@ -59,7 +59,8 @@ test('event detail shows title, price, calendar, share and JSON-LD', async ({ pa
   ).toBeVisible();
   await expect(page.getByRole('button', { name: /Add to calendar/i })).toBeVisible();
   await expect(page.getByRole('button', { name: /Share/i })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Get tickets' })).toBeVisible();
+  await expect(page.getByText('Standard')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Select tickets' })).toBeVisible();
 
   // JSON-LD Event schema is present for SEO.
   const jsonLd = await page.locator('script[type="application/ld+json"]').first().innerText();

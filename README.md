@@ -62,6 +62,25 @@ account the first time you sign in.
   sign-in page and account page both say so. This branch is only ever taken
   when Supabase env is absent, so it cannot bypass real auth in a deployment.
 
+## Checkout
+
+Selecting tickets, paying, and getting them back under "My tickets" all work
+the same signed-out-friendly way saving and following do.
+
+- **With Supabase + Stripe configured**: real payment via Stripe Checkout.
+  Free ticket types (€0) issue immediately with no payment step. Set
+  `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` (for `/api/stripe/webhook`)
+  and `SUPABASE_SERVICE_ROLE_KEY` (ticket issuance is a privileged operation
+  with no client-facing RLS insert policy on purpose).
+- **Without Stripe configured** (the default for local dev and E2E): any
+  order is paid instantly and free of charge — the same demo shortcut
+  Phase 2's sign-in uses. A priced ticket type with Supabase configured but
+  no Stripe key returns an honest "not yet configured" error rather than
+  pretending to take payment.
+- Checkout works without an account: a guest's order confirmation is
+  reachable by its (unguessable) order id, no sign-in required. Signed-in
+  purchases also show up under `/account/tickets`.
+
 ## Checks
 
 ```bash

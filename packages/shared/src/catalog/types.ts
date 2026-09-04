@@ -5,7 +5,17 @@ import type { EventCategory, City } from '../constants';
 export interface EventWithRelations extends Event {
   organiser: Pick<Organiser, 'id' | 'name' | 'slug' | 'verified' | 'city' | 'logo_url'>;
   venue: Pick<Venue, 'id' | 'name' | 'city' | 'address' | 'lat' | 'lng'> | null;
-  ticketTypes: Pick<TicketType, 'id' | 'name' | 'price_cents' | 'quantity' | 'sold'>[];
+  ticketTypes: Pick<
+    TicketType,
+    | 'id'
+    | 'name'
+    | 'price_cents'
+    | 'quantity'
+    | 'sold'
+    | 'fee_mode'
+    | 'min_per_order'
+    | 'max_per_order'
+  >[];
 }
 
 export interface OrganiserWithEvents extends Organiser {

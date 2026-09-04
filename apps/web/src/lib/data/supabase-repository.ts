@@ -24,7 +24,7 @@ const EVENT_SELECT = `
   *,
   organiser:organisers!inner(id,name,slug,verified,city,logo_url),
   venue:venues(id,name,city,address,lat,lng),
-  ticketTypes:ticket_types(id,name,price_cents,quantity,sold)
+  ticketTypes:ticket_types(id,name,price_cents,quantity,sold,fee_mode,min_per_order,max_per_order)
 `;
 
 const VISIBLE = ['published', 'sold_out', 'cancelled'];
