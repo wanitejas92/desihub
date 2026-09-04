@@ -58,7 +58,7 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <div className="bg-bg-subtle relative aspect-[16/6] overflow-hidden rounded-2xl sm:aspect-[24/7] lg:aspect-[5.5/1]">
+      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-[3/1]">
         {banners.map((b, i) => (
           <Slide key={b.id} banner={b} active={i === index} position={i + 1} total={count} />
         ))}
