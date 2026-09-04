@@ -164,3 +164,53 @@ function eurosToCents(value: string | null): number | null {
   const n = Number(value.replace(',', '.'));
   return Number.isFinite(n) && n >= 0 ? Math.round(n * 100) : null;
 }
+
+const createBannerSchema = z.object({
+  title: z.string().min(1, 'Title is required').max(200),
+  image_url: z.string().url('Must be a valid image URL'),
+  event_link: z.string().url('Must be a valid URL').nullable().or(z.literal('')),
+});
+
+export async function createBannerAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const { repo } = await adminContext();
+  if (!repo) return notConfigured;
+
+  const raw = {
+    title: (formData.get('title') as string)?.trim(),
+    image_url: (formData.get('image_url') as string)?.trim(),
+    event_link: blankToNull(formData.get('event_link') as string),
+  };
+
+  const parsed = createBannerSchema.safeParse(raw);
+  if (!parsed.success) {
+    const fieldErrors: Record<string, string> = {};
+    for (const issue of parsed.error.issues) {
+      const key = String(issue.path[0] ?? '_');
+      if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+    }
+    return { status: 'error', message: 'Please check the highlighted fields.', fieldErrors };
+  }
+
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const db = await createClient();
+    const { error } = await db.from('banners').insert({
+      title: parsed.data.title,
+      image_url: parsed.data.image_url,
+      link_url: parsed.data.event_link,
+      is_active: true,
+    });
+    if (error) throw error;
+    revalidatePath('/');
+    revalidatePath('/admin/banners');
+    return { status: 'success', message: 'Banner created successfully.' };
+  } catch (err) {
+    return {
+      status: 'error',
+      message: err instanceof Error ? err.message : 'Could not create the banner.',
+    };
+  }
+}

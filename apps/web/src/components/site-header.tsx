@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderAccount } from './header-account';
-import { AnnouncementRibbon } from './announcement-ribbon';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { IconSearch } from './ui/icons';
@@ -24,9 +23,6 @@ const NAV = [
 export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
     <header className="border-border border-b">
-      {/* Scrolls away with the page — only the nav row below stays pinned. */}
-      <AnnouncementRibbon />
-
       <div className="bg-bg/90 sticky top-0 z-40 backdrop-blur">
         <div className="max-w-content mx-auto flex h-16 items-center gap-3 px-4 sm:px-6">
           <Link href="/" className="shrink-0" aria-label="DesiHub home">
