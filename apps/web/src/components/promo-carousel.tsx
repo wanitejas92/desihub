@@ -59,20 +59,20 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
       onBlurCapture={() => setPaused(false)}
     >
       {/*
-        Fixed pixel heights from lg up, not aspect-ratio: the content column
-        is capped at max-w-content (1200px) well before 1366px, so banner
-        *width* stops changing at exactly the viewport sizes that matter most
-        (1366–1920) — an aspect-ratio would scale height with a width that
-        never actually moves. Per-tier heights stay comfortably under the
-        available space at the *shortest* member of each Tailwind tier
-        (768px for `xl` covering 1366×768/1440×900, 864px for `2xl` covering
-        1536×864/1920×1080), leaving 30px+ of headroom there; the homepage's
-        `lg:min-h` wrapper (see the comment in page.tsx) makes up whatever
-        this leaves open on the *taller* member of each tier, so Quick
-        Filters lands below the fold either way rather than this needing to
-        be pixel-perfect on its own.
+        Tied to *actual* viewport height (100vh), not fixed per-breakpoint
+        pixels: a static lg/xl/2xl height only ever matches the exact window
+        heights it was tuned against, and overflows on anything shorter —
+        browser chrome, OS taskbars, or a plain non-maximized window all eat
+        into real viewport height in ways a width breakpoint can't see. The
+        `calc(100vh-315px)` term reserves the header + search/buttons +
+        trust badges below it (295px) plus a small safety margin; clamp()
+        keeps it from vanishing on a very short window (140px floor) or
+        growing past a sensible size on a tall one (300px ceiling) — the
+        homepage's `lg:min-h` wrapper (see page.tsx) then absorbs whatever
+        the 300px cap leaves open on tall screens, so Quick Filters still
+        never peeks.
       */}
-      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[280px] xl:h-[340px] 2xl:h-[420px]">
+      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[clamp(140px,calc(100vh_-_315px),300px)]">
         {banners.map((b, i) => (
           <Slide key={b.id} banner={b} active={i === index} position={i + 1} total={count} />
         ))}
