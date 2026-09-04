@@ -41,7 +41,7 @@ const accounts: Map<string, MockAccount> = (globalStore[STORE_KEY] ??= new Map<
   MockAccount
 >());
 
-const DEFAULT_PREFS: NotificationPrefs = { push: true, email: true, whatsapp: false };
+const DEFAULT_PREFS: NotificationPrefs = { email: true };
 
 /**
  * A stable, well-formed UUID per email, so the same address is the same
@@ -101,6 +101,7 @@ export function mockSignIn(email: string): AccountUser {
     name: null,
     city: null,
     languages: [],
+    interests: [],
     notificationPrefs: { ...DEFAULT_PREFS },
     role: mockRoleFor(email),
   };
@@ -136,6 +137,7 @@ export class MockAccountRepository implements AccountRepository {
       ...(update.name !== undefined ? { name: update.name } : {}),
       ...(update.city !== undefined ? { city: update.city } : {}),
       ...(update.languages !== undefined ? { languages: [...update.languages] } : {}),
+      ...(update.interests !== undefined ? { interests: [...update.interests] } : {}),
       ...(update.notificationPrefs !== undefined
         ? { notificationPrefs: { ...update.notificationPrefs } }
         : {}),

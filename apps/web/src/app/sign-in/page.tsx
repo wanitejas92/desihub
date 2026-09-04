@@ -22,10 +22,13 @@ export default async function SignInPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const [{ next, error }, user] = await Promise.all([searchParams, getCurrentUser()]);
-  if (user) redirect('/account');
 
-  // Only same-site paths, so `?next=` can't bounce someone off-site.
-  const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/account';
+  // Only same-site paths, so `?next=` can't bounce someone off-site. No
+  // explicit destination means the homepage — a page that redirected here
+  // (e.g. a gated /account link) always sets `next` itself, so this default
+  // only fires for the plain "Sign in" entry point in the header.
+  const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
+  if (user) redirect(target);
 
   return (
     <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-start">

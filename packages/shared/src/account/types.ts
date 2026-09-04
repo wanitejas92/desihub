@@ -12,20 +12,31 @@ export interface AccountUser {
   name: string | null;
   city: string | null;
   languages: string[];
+  /** Event categories the user cares about — drives recommendations and the email digest. */
+  interests: string[];
   notificationPrefs: NotificationPrefs;
   role: ProfileRole;
 }
 
+/**
+ * Only `email` is real: it is the one channel DesiHub can actually deliver
+ * to with just an email address on file. `push` and `whatsapp` were stored
+ * preferences with no delivery mechanism behind them (no service-worker
+ * subscription, no phone number on the profile) — dead toggles that looked
+ * like they did something. Kept as optional so old rows with those keys
+ * still parse; nothing in the app reads them anymore.
+ */
 export interface NotificationPrefs {
-  push: boolean;
   email: boolean;
-  whatsapp: boolean;
+  push?: boolean;
+  whatsapp?: boolean;
 }
 
 export interface ProfileUpdate {
   name?: string | null;
   city?: string | null;
   languages?: string[];
+  interests?: string[];
   notificationPrefs?: NotificationPrefs;
 }
 

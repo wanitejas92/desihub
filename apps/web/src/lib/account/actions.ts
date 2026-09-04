@@ -211,9 +211,8 @@ export async function updateProfileAction(
     name: (formData.get('name') as string)?.trim() || undefined,
     city: (formData.get('city') as string) || undefined,
     languages: formData.getAll('languages').map(String),
+    interests: formData.getAll('interests').map(String),
     notifyEmail: formData.get('notifyEmail') === 'on',
-    notifyPush: formData.get('notifyPush') === 'on',
-    notifyWhatsapp: formData.get('notifyWhatsapp') === 'on',
   });
   if (!parsed.success) {
     const fieldErrors: Record<string, string> = {};
@@ -229,11 +228,8 @@ export async function updateProfileAction(
       name: parsed.data.name ?? null,
       city: parsed.data.city ?? null,
       languages: parsed.data.languages,
-      notificationPrefs: {
-        email: parsed.data.notifyEmail,
-        push: parsed.data.notifyPush,
-        whatsapp: parsed.data.notifyWhatsapp,
-      },
+      interests: parsed.data.interests,
+      notificationPrefs: { email: parsed.data.notifyEmail },
     });
     revalidatePath('/account');
     return { status: 'success', message: 'Profile saved.' };

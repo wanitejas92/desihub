@@ -1,14 +1,13 @@
 import { z } from 'zod';
-import { CITIES, EVENT_LANGUAGES } from '../constants';
+import { CITIES, EVENT_CATEGORIES, EVENT_LANGUAGES } from '../constants';
 
 /** What the profile form is allowed to change. Never role, never id, never email. */
 export const profileUpdateSchema = z.object({
   name: z.string().trim().max(120).optional(),
   city: z.enum(CITIES).optional(),
   languages: z.array(z.enum(EVENT_LANGUAGES)).max(EVENT_LANGUAGES.length).default([]),
+  interests: z.array(z.enum(EVENT_CATEGORIES)).max(EVENT_CATEGORIES.length).default([]),
   notifyEmail: z.boolean().default(true),
-  notifyPush: z.boolean().default(true),
-  notifyWhatsapp: z.boolean().default(false),
 });
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 

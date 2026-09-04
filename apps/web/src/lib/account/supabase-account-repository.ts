@@ -7,13 +7,14 @@ import type {
   ProfileUpdate,
 } from '@desihub/shared';
 
-const DEFAULT_PREFS: NotificationPrefs = { push: true, email: true, whatsapp: false };
+const DEFAULT_PREFS: NotificationPrefs = { email: true };
 
 interface ProfileRow {
   id: string;
   name: string | null;
   city: string | null;
   languages: string[] | null;
+  interests: string[] | null;
   notification_prefs: Partial<NotificationPrefs> | null;
   role: AccountUser['role'] | null;
   email: string | null;
@@ -52,6 +53,7 @@ export class SupabaseAccountRepository implements AccountRepository {
       name: profile?.name ?? null,
       city: profile?.city ?? null,
       languages: profile?.languages ?? [],
+      interests: profile?.interests ?? [],
       notificationPrefs: { ...DEFAULT_PREFS, ...(profile?.notification_prefs ?? {}) },
       role: profile?.role ?? 'attendee',
     };
@@ -66,6 +68,7 @@ export class SupabaseAccountRepository implements AccountRepository {
       ...(update.name !== undefined ? { name: update.name } : {}),
       ...(update.city !== undefined ? { city: update.city } : {}),
       ...(update.languages !== undefined ? { languages: update.languages } : {}),
+      ...(update.interests !== undefined ? { interests: update.interests } : {}),
       ...(update.notificationPrefs !== undefined
         ? { notificationPrefs: update.notificationPrefs }
         : {}),
@@ -81,6 +84,7 @@ export class SupabaseAccountRepository implements AccountRepository {
         name: next.name,
         city: next.city,
         languages: next.languages,
+        interests: next.interests,
         notification_prefs: next.notificationPrefs,
       },
       { onConflict: 'id' },
