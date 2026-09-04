@@ -3,7 +3,7 @@
 import { useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { CITIES, EVENT_LANGUAGES, type AccountUser } from '@desihub/shared';
-import { updateProfileAction, type ProfileState } from '@/lib/account/actions';
+import { updateProfileAction, signOutAction, type ProfileState } from '@/lib/account/actions';
 import { Button } from './ui/button';
 
 const initial: ProfileState = { status: 'idle' };
@@ -109,6 +109,11 @@ export function ProfileForm({ user }: { user: AccountUser }) {
         <Button type="submit" disabled={pending}>
           {pending ? 'Saving…' : 'Save profile'}
         </Button>
+        <form action={signOutAction}>
+          <Button type="submit" variant="secondary">
+            Sign out
+          </Button>
+        </form>
         {state.status === 'success' && <p className="text-success text-sm">{state.message}</p>}
         {state.status === 'error' && <p className="text-error text-sm">{state.message}</p>}
       </div>

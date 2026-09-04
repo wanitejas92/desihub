@@ -68,6 +68,103 @@ export async function signInAction(_prev: AuthState, formData: FormData): Promis
   return { status: 'signed_in', message: 'Signed in.' };
 }
 
+export async function signInWithPasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = (formData.get('email') as string)?.trim();
+  const password = (formData.get('password') as string)?.trim();
+
+  if (!email || !password) {
+    return {
+      status: 'error',
+      fieldErrors: { password: 'Email and password are required' },
+    };
+  }
+
+  if (hasSupabase()) {
+    const { createClient } = await import('@/lib/supabase/server');
+    const db = await createClient();
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    if (error) {
+      return { status: 'error', message: 'Invalid email or password. Please try again.' };
+    }
+    revalidatePath('/', 'layout');
+    return { status: 'signed_in', message: 'Signed in successfully.' };
+  }
+
+  // Offline/dev: demo password sign-in
+  const user = mockSignIn(email);
+  (await cookies()).set(DEV_SESSION_COOKIE, user.id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: THIRTY_DAYS,
+  });
+  revalidatePath('/', 'layout');
+  return { status: 'signed_in', message: 'Signed in.' };
+}
+
+export async function signUpWithPasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = (formData.get('email') as string)?.trim();
+  const password = (formData.get('password') as string)?.trim();
+  const confirmPassword = (formData.get('confirmPassword') as string)?.trim();
+
+  if (!email || !password) {
+    return {
+      status: 'error',
+      fieldErrors: { password: 'Email and password are required' },
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      status: 'error',
+      fieldErrors: { confirmPassword: 'Passwords do not match' },
+    };
+  }
+
+  if (password.length < 8) {
+    return {
+      status: 'error',
+      fieldErrors: { password: 'Password must be at least 8 characters' },
+    };
+  }
+
+  if (hasSupabase()) {
+    const { createClient } = await import('@/lib/supabase/server');
+    const db = await createClient();
+    const { error } = await db.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: `${await siteOrigin()}/auth/callback` },
+    });
+    if (error) {
+      return { status: 'error', message: error.message ?? 'Could not create account.' };
+    }
+    return {
+      status: 'sent',
+      message: 'Account created! Check your email to confirm.',
+    };
+  }
+
+  // Offline/dev: demo sign-up
+  const user = mockSignIn(email);
+  (await cookies()).set(DEV_SESSION_COOKIE, user.id, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: THIRTY_DAYS,
+  });
+  revalidatePath('/', 'layout');
+  return { status: 'signed_in', message: 'Account created and signed in.' };
+}
+
 export async function signOutAction(): Promise<void> {
   if (hasSupabase()) {
     const { createClient } = await import('@/lib/supabase/server');
