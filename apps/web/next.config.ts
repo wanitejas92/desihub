@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
       ? [{ protocol: 'https', hostname: supabaseHost, pathname: '/storage/v1/object/public/**' }]
       : [],
   },
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3001', 'localhost:3000', '*.app.github.dev'],
+    },
+  },
 };
 
 export default nextConfig;
