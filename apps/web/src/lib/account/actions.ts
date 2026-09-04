@@ -20,6 +20,22 @@ export interface AuthState {
 
 const THIRTY_DAYS = 60 * 60 * 24 * 30;
 
+/**
+ * Supabase's built-in mailer (no custom SMTP configured) caps outgoing auth
+ * emails at a handful per hour — it exists for local dev/testing, not
+ * production volume. That 429 reads as a generic failure to a user with no
+ * way to tell it apart from "the email service is broken," so it gets its
+ * own message; everything else still logs and falls back to a generic one.
+ */
+function authEmailErrorMessage(error: { message?: string; status?: number }, kind: string): string {
+  const rateLimited = error.status === 429 || /rate limit/i.test(error.message ?? '');
+  if (rateLimited) {
+    return "We've hit our email sending limit for the moment — please try again in a little while.";
+  }
+  console.error(`[auth] ${kind} failed:`, error.message ?? error);
+  return `Could not ${kind}. Please try again.`;
+}
+
 async function siteOrigin(): Promise<string> {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
   const h = await headers();
@@ -46,7 +62,7 @@ export async function signInAction(_prev: AuthState, formData: FormData): Promis
       options: { emailRedirectTo: `${await siteOrigin()}/auth/callback` },
     });
     if (error) {
-      return { status: 'error', message: 'Could not send the sign-in link. Please try again.' };
+      return { status: 'error', message: authEmailErrorMessage(error, 'send the sign-in link') };
     }
     return {
       status: 'sent',
@@ -144,7 +160,7 @@ export async function signUpWithPasswordAction(
       options: { emailRedirectTo: `${await siteOrigin()}/auth/callback` },
     });
     if (error) {
-      return { status: 'error', message: error.message ?? 'Could not create account.' };
+      return { status: 'error', message: authEmailErrorMessage(error, 'create your account') };
     }
     return {
       status: 'sent',
