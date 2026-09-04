@@ -12,6 +12,7 @@ const supabaseHost = (() => {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  trustHost: true,
   transpilePackages: ['@desihub/shared', '@desihub/ui-tokens'],
   images: {
     formats: ['image/webp'],
