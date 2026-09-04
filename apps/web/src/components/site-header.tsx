@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
+import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderCategoryTabs } from './header-category-tabs';
+import { HeaderAccount } from './header-account';
 import { AnnouncementRibbon } from './announcement-ribbon';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { IconSearch } from './ui/icons';
 
-export function SiteHeader() {
+export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
     <header className="border-border border-b">
       {/* Scrolls away with the page — only the nav row below stays pinned. */}
@@ -44,6 +46,7 @@ export function SiteHeader() {
             <Button href="/submit" size="sm">
               Submit event
             </Button>
+            <HeaderAccount user={user} />
           </nav>
         </div>
       </div>

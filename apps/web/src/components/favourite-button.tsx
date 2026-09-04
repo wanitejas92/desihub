@@ -1,7 +1,7 @@
 'use client';
 
 import type { MouseEvent } from 'react';
-import { useFavourites } from '@/lib/use-favourites';
+import { useAccount } from './account-provider';
 import { Button } from './ui/button';
 import { IconHeart } from './ui/icons';
 import { cn } from '@/lib/cn';
@@ -14,20 +14,31 @@ interface FavouriteButtonProps {
   className?: string;
 }
 
-/** Save/unsave toggle — the one real per-browser "favourites" feature (no login system exists yet). */
+/**
+ * Save/unsave toggle. Writes to the account when signed in and to this
+ * device when not — `AccountProvider` decides which, so this component
+ * doesn't need to know.
+ */
 export function FavouriteButton({ eventId, variant = 'overlay', className }: FavouriteButtonProps) {
-  const { isFavourite, toggle } = useFavourites();
-  const active = isFavourite(eventId);
+  const { isSaved, toggleSaved } = useAccount();
+  const active = isSaved(eventId);
 
   function handleClick(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    toggle(eventId);
+    toggleSaved(eventId);
   }
 
   if (variant === 'inline') {
     return (
-      <Button type="button" onClick={handleClick} variant="secondary" pill className={className}>
+      <Button
+        type="button"
+        onClick={handleClick}
+        aria-pressed={active}
+        variant="secondary"
+        pill
+        className={className}
+      >
         <IconHeart
           width={16}
           height={16}

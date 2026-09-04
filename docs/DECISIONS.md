@@ -6,6 +6,104 @@ section.
 
 ---
 
+## Phase 2 — Accounts: auth, profile, and collections that follow you
+
+Phase 0 shipped the whole account *substrate* — `profiles`, `saved_events`,
+`follows`, the `handle_new_user` trigger and `user_id = auth.uid()` RLS
+policies — and Phase 1 deliberately built saving and following on top of
+localStorage instead, so nothing was ever behind a login wall. Phase 2 is
+the layer that was always missing: real sign-in, and collections that move
+with the person instead of the device.
+
+### What was built
+
+- **An `AccountRepository` contract with two adapters**
+  (`packages/shared/src/account/`), the same split the listings layer uses:
+  a Supabase adapter (`apps/web/src/lib/account/supabase-account-repository.ts`,
+  every query already fenced by the Phase 0 RLS policies) and an in-memory
+  mock. Sign-in/out deliberately are *not* on the interface — they need
+  cookies and redirects, so they live in the web layer and the repository
+  only ever exists for an already-identified user.
+- **Email sign-in, no passwords.** Supabase path sends a magic link
+  (`signInWithOtp`) and `/auth/callback` exchanges the code for a session;
+  the callback validates `?next=` is a same-site path so the link can't be
+  turned into an open redirect. Offline/dev path signs straight in against
+  the mock and *says so on the page* rather than implying a real account.
+- **The dev session can't become an auth bypass.** The mock cookie is read
+  only in the `!hasSupabase()` branch, so in any deployment with Supabase
+  env configured it is ignored entirely.
+- **`AccountProvider`** fetches the snapshot (user + saved ids + followed
+  ids) once per request in the root layout and hands it to every card via
+  context, instead of each of ~40 hearts on a page querying for itself.
+  Writes are optimistic and roll back if the session turned out to be gone.
+- **Sign-in merges the device's collections into the account** — the
+  promise Phase 1 made when it chose localStorage. Legacy follows keyed by
+  slug (pre-accounts builds) are resolved to ids server-side so nobody
+  loses a follow they made before accounts existed.
+- **Account area**: profile (name, city, languages, notification prefs —
+  all optional, none of it gates anything), saved events split into coming
+  up vs. already happened, and organisers you follow. `eventsByIds` /
+  `organisersByIds` were added to `EventRepository` (both adapters) rather
+  than fetching the whole catalogue and filtering.
+
+### Bugs caught before shipping
+
+- **The mock store was invisible to itself.** Next bundles server actions
+  and the RSC render separately, and each bundle got its own copy of the
+  shared module — so `signInAction` wrote the account into one `Map` and
+  the layout read from another, leaving the user signed out the instant
+  they signed in. Caught by driving the real flow in a browser, not by
+  typechecking (both copies typecheck fine). Fixed by keying the store off
+  `globalThis`, the same escape hatch the Prisma-client-in-dev pattern uses.
+- **`mergeLocalSchema` rejected every mock id.** It validated ids as
+  `uuid`, which is true behind Supabase and false behind the mock
+  (`ev-01`, `org-telugu`) — so the merge would have silently no-opped in
+  dev and E2E. Ids are opaque strings now; the real guards are the foreign
+  keys and RLS, not a shape check on the browser's payload.
+- **Mobile had no way to sign in at all.** The account entry point was
+  `hidden sm:inline-block`, i.e. invisible on phones. Now icon-only on
+  small screens rather than absent.
+
+### The Google Fonts stall (a test-environment finding)
+
+Account tests kept timing out mid-flow while the page had *already
+rendered correctly*. The cause was outside the app: the render-blocking
+Google Fonts stylesheet is unreachable in this sandbox, and because it
+blocks the `load` event every `page.goto` sat there **~12.6s** before
+giving up (measured against ~0.3s with the request blocked). Multi-step
+tests simply ran out of budget. `e2e/fixtures.ts` now drops font requests
+for the suite — no assertion depends on the webfont — which also cut the
+whole suite from **2.8 minutes to 56 seconds**. Worth noting for
+production too: that stylesheet is render-blocking for real users on a
+slow network, and self-hosting Inter would remove the dependency.
+
+### Verification
+
+- `pnpm typecheck` / `lint` / unit tests (58 in shared, incl. 10 new
+  account tests) and a production build all pass.
+- Full E2E suite: **32 tests, mobile + desktop, all passing** — 14 of them
+  new, covering the gate on `/account/*` and the redirect back afterwards,
+  demo sign-in, the header swap, the anonymous-save→account merge, saves
+  surviving a reload while signed in, profile round-tripping, following,
+  and sign-out returning to the anonymous experience.
+- The full flow was also driven by hand in a browser and screenshotted at
+  each step before the tests were written.
+
+### Open / deferred
+
+- **The wallet stays empty until Phase 3.** `orders` and `tickets` exist
+  in the schema, but nothing writes to them until checkout does, so a "my
+  tickets" screen now would be a shell. Deliberately not built.
+- The Supabase path is written and type-safe but **cannot be exercised in
+  this container** (no Docker, so no local Supabase stack) — the same
+  honest limit `SupabaseEventRepository` has carried since Phase 0. The
+  mock path is what the tests cover.
+- Mobile (Expo) still has no account UI; it shares `packages/shared` so
+  the contract is ready, but the session mechanism differs (SecureStore,
+  not cookies).
+
+---
+
 ## Phase 1 — Homepage + event detail rebuilt against a reference platform
 
 The user supplied three detailed reference screenshots (a homepage and two

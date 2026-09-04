@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { AccountProvider } from '@/components/account-provider';
+import { getAccountSnapshot } from '@/lib/account/session';
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://desihub.nl'),
@@ -26,7 +28,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const { user, savedEventIds, followedOrganiserIds } = await getAccountSnapshot();
+
   return (
     <html lang="en">
       <head>
@@ -44,9 +48,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
+        <AccountProvider
+          user={user}
+          savedEventIds={savedEventIds}
+          followedOrganiserIds={followedOrganiserIds}
+        >
+          <SiteHeader user={user} />
+          <main id="main">{children}</main>
+          <SiteFooter />
+        </AccountProvider>
       </body>
     </html>
   );

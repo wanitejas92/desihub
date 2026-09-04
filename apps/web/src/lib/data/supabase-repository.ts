@@ -14,6 +14,7 @@ import type {
   SubscribeResult,
   EventWithRelations,
   EventFilters,
+  OrganiserSummary,
   OrganiserWithEvents,
   Paginated,
   CityCount,
@@ -128,6 +129,25 @@ export class SupabaseEventRepository implements EventRepository {
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
       .map((s) => s.e);
+  }
+
+  async eventsByIds(ids: string[]): Promise<EventWithRelations[]> {
+    if (ids.length === 0) return [];
+    // No status filter and no date floor: a saved event that sold out, was
+    // cancelled, or has already happened still belongs in the account.
+    const { data, error } = await this.db.from('events').select(EVENT_SELECT).in('id', ids);
+    if (error) throw error;
+    return (data ?? []).map(normaliseEvent);
+  }
+
+  async organisersByIds(ids: string[]): Promise<OrganiserSummary[]> {
+    if (ids.length === 0) return [];
+    const { data, error } = await this.db
+      .from('organisers')
+      .select('id,name,slug,verified,city,logo_url')
+      .in('id', ids);
+    if (error) throw error;
+    return (data ?? []) as OrganiserSummary[];
   }
 
   async getOrganiserBySlug(slug: string): Promise<OrganiserWithEvents | null> {

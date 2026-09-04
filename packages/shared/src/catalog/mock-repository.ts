@@ -1,7 +1,13 @@
 import { draftSlug, type SubmitEventInput, type SubscribeInput } from '../schemas';
 import { isThisWeek, isThisWeekend } from '../datetime';
 import type { EventRepository, SubmitResult, SubscribeResult, CityCount } from './repository';
-import type { EventWithRelations, EventFilters, OrganiserWithEvents, Paginated } from './types';
+import type {
+  EventWithRelations,
+  EventFilters,
+  OrganiserSummary,
+  OrganiserWithEvents,
+  Paginated,
+} from './types';
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';
 import { applyFilters, paginate, cityCounts } from './filter';
 
@@ -66,6 +72,29 @@ export class MockEventRepository implements EventRepository {
       .filter((s) => s.score > 0)
       .sort((a, b) => b.score - a.score);
     return scored.slice(0, limit).map((s) => s.e);
+  }
+
+  async eventsByIds(ids: string[]): Promise<EventWithRelations[]> {
+    if (ids.length === 0) return [];
+    const wanted = new Set(ids);
+    // Past events included on purpose: a saved event that has happened should
+    // still appear in the account, marked as past, not silently vanish.
+    return this.events.filter((e) => wanted.has(e.id));
+  }
+
+  async organisersByIds(ids: string[]): Promise<OrganiserSummary[]> {
+    if (ids.length === 0) return [];
+    const wanted = new Set(ids);
+    return Object.values(MOCK_ORGANISERS)
+      .filter((o) => wanted.has(o.id))
+      .map((o) => ({
+        id: o.id,
+        name: o.name,
+        slug: o.slug,
+        verified: o.verified,
+        city: o.city as OrganiserSummary['city'],
+        logo_url: null,
+      }));
   }
 
   async getOrganiserBySlug(slug: string): Promise<OrganiserWithEvents | null> {

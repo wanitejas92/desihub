@@ -227,6 +227,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           )}
 
           <OrganiserCard
+            id={event.organiser.id}
             name={event.organiser.name}
             slug={event.organiser.slug}
             verified={event.organiser.verified}

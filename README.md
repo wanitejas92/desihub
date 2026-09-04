@@ -47,6 +47,21 @@ cp apps/mobile/.env.example apps/mobile/.env
 pnpm --filter @desihub/mobile start
 ```
 
+## Accounts
+
+Signing in is optional everywhere — browsing, saving an event and following an
+organiser all work signed out, stored per-device, and are merged into your
+account the first time you sign in.
+
+- **With Supabase configured**: email magic-link sign-in
+  (`/sign-in` → emailed link → `/auth/callback`). Profile, saved events and
+  follows live in Postgres behind the `user_id = auth.uid()` RLS policies.
+- **Without Supabase env** (the default for local dev and E2E): the app falls
+  back to an in-memory demo account — any email signs you straight in, no mail
+  is sent, and the data lives in the server's memory until it restarts. The
+  sign-in page and account page both say so. This branch is only ever taken
+  when Supabase env is absent, so it cannot bypass real auth in a deployment.
+
 ## Checks
 
 ```bash

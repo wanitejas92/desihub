@@ -3,6 +3,7 @@ import { FollowButton } from './follow-button';
 import { IconCheckCircle } from './ui/icons';
 
 interface OrganiserCardProps {
+  id: string;
   name: string;
   slug: string;
   verified: boolean;
@@ -11,7 +12,15 @@ interface OrganiserCardProps {
   showFollow?: boolean;
 }
 
-export function OrganiserCard({ name, slug, verified, city, bio, showFollow }: OrganiserCardProps) {
+export function OrganiserCard({
+  id,
+  name,
+  slug,
+  verified,
+  city,
+  bio,
+  showFollow,
+}: OrganiserCardProps) {
   return (
     <div className="border-border bg-surface shadow-elevation rounded-lg border p-4">
       <p className="text-fg-subtle text-xs font-semibold tracking-wide uppercase">Organised by</p>
@@ -41,7 +50,7 @@ export function OrganiserCard({ name, slug, verified, city, bio, showFollow }: O
       </div>
       {showFollow && (
         <div className="mt-3">
-          <FollowButton organiserSlug={slug} organiserName={name} />
+          <FollowButton organiserId={id} organiserName={name} />
         </div>
       )}
     </div>

@@ -78,7 +78,7 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
               </p>
             </div>
           </div>
-          <FollowButton organiserSlug={org.slug} organiserName={org.name} />
+          <FollowButton organiserId={org.id} organiserName={org.name} />
         </div>
 
         <div className="py-8">

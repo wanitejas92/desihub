@@ -12,6 +12,9 @@ export interface OrganiserWithEvents extends Organiser {
   events: EventWithRelations[];
 }
 
+/** The organiser fields a card needs — the same shape events carry inline. */
+export type OrganiserSummary = EventWithRelations['organiser'];
+
 /** URL-driven browse filters. Everything optional so the URL stays shareable. */
 export interface EventFilters {
   city?: City;

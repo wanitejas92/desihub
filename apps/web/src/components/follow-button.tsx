@@ -1,49 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useAccount } from './account-provider';
 import { Button } from './ui/button';
 import { IconCheckCircle } from './ui/icons';
 
 /**
- * Phase 1 follow: persisted per-device in localStorage so it works with no
- * account. Phase 2 migrates these into the `follows` table on sign-in.
+ * Follow an organiser. Persisted to the `follows` table when signed in, to
+ * this device when not — and the device's follows are folded into the
+ * account on sign-in, so following before you have an account is never
+ * wasted effort.
  */
 export function FollowButton({
-  organiserSlug,
+  organiserId,
   organiserName,
 }: {
-  organiserSlug: string;
+  organiserId: string;
   organiserName: string;
 }) {
-  const key = 'desihub-follows';
-  const [following, setFollowing] = useState(false);
-
-  useEffect(() => {
-    try {
-      const set = new Set<string>(JSON.parse(localStorage.getItem(key) || '[]'));
-      setFollowing(set.has(organiserSlug));
-    } catch {
-      /* storage blocked */
-    }
-  }, [organiserSlug]);
-
-  function toggle() {
-    const next = !following;
-    setFollowing(next);
-    try {
-      const set = new Set<string>(JSON.parse(localStorage.getItem(key) || '[]'));
-      if (next) set.add(organiserSlug);
-      else set.delete(organiserSlug);
-      localStorage.setItem(key, JSON.stringify([...set]));
-    } catch {
-      /* storage blocked */
-    }
-  }
+  const { isFollowing, toggleFollowing } = useAccount();
+  const following = isFollowing(organiserId);
 
   return (
     <Button
       type="button"
-      onClick={toggle}
+      onClick={() => toggleFollowing(organiserId)}
       aria-pressed={following}
       variant={following ? 'soft' : 'primary'}
       pill
