@@ -10,8 +10,8 @@ const TONE_BG = [
 
 export function CategoryTiles() {
   return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
-      <h2 className="font-display mb-4 text-lg font-semibold sm:text-xl">Browse by category</h2>
+    <section id="categories" className="max-w-content mx-auto px-4 py-8 sm:px-6">
+      <h2 className="font-display mb-4 text-lg font-semibold sm:text-xl">Explore events</h2>
       <ul role="list" className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {EVENT_CATEGORIES.map((c, i) => {
           const Icon = CATEGORY_ICON[c];

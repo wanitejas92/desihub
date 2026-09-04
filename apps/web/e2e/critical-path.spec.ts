@@ -9,7 +9,7 @@ import { test, expect } from './fixtures';
 test('home shows the season strip and event sections', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Trending now' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Trending events' })).toBeVisible();
   // At least one event card links to an event page, and carries the four
   // things a card is allowed to say: date, title, venue, price. (Cards no
   // longer repeat a "Trending" badge under a heading that already says it.)

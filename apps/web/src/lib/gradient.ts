@@ -20,13 +20,18 @@ const BANNER_GRADIENTS: [string, string][] = [
   ['#A876E0', '#FFC98C'],
 ];
 
+/**
+ * Saturated, not pastel. These tiles carry white type over them and sit in a
+ * grid alongside the event posters — a 10%-tint wash made a page of them
+ * read as unfinished placeholders rather than as designed cards.
+ */
 const CARD_WASH: [string, string][] = [
-  ['#FFF2E3', '#FFF0F3'],
-  ['#FFF0F3', '#F3EEFF'],
-  ['#F3EEFF', '#FFF2E3'],
-  ['#FFF7EC', '#FFF0F3'],
-  ['#FFF0F3', '#F8F1FD'],
-  ['#F3EEFF', '#FFF7EC'],
+  ['#FF8A00', '#F0446F'],
+  ['#F0446F', '#7B35D6'],
+  ['#7B35D6', '#4C6FE0'],
+  ['#E0345C', '#9B5CE0'],
+  ['#FFB05A', '#E0345C'],
+  ['#5D2AA8', '#F0446F'],
 ];
 
 export function deterministicGradient(seed: string): [string, string] {

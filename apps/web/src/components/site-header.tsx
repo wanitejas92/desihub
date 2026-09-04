@@ -1,13 +1,25 @@
 import Link from 'next/link';
-import { Suspense } from 'react';
 import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
-import { HeaderCategoryTabs } from './header-category-tabs';
 import { HeaderAccount } from './header-account';
 import { AnnouncementRibbon } from './announcement-ribbon';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { IconSearch } from './ui/icons';
+
+/**
+ * Every nav item points somewhere real: the three discovery links are
+ * homepage sections, so they scroll rather than 404. Nothing here is a
+ * placeholder link.
+ */
+const NAV = [
+  { href: '/browse', label: 'Events' },
+  { href: '/#categories', label: 'Categories' },
+  { href: '/#venues', label: 'Venues' },
+  { href: '/#artists', label: 'Artists' },
+  { href: '/about', label: 'About' },
+  { href: '/contact', label: 'Contact' },
+] as const;
 
 export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
@@ -23,19 +35,22 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
 
           <HeaderCitySelect />
 
-          <div className="flex flex-1 justify-center overflow-hidden">
-            <Suspense fallback={<div className="h-10 w-full" />}>
-              <HeaderCategoryTabs />
-            </Suspense>
-          </div>
+          <nav
+            className="hidden flex-1 items-center justify-center gap-1 lg:flex"
+            aria-label="Primary"
+          >
+            {NAV.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-fg-muted hover:bg-bg-subtle hover:text-fg rounded-md px-3 py-2 text-sm font-semibold transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
 
-          <nav className="flex shrink-0 items-center gap-1 sm:gap-2" aria-label="Primary">
-            <Link
-              href="/browse"
-              className="text-fg-muted hover:bg-bg-subtle hover:text-fg hidden rounded-md px-3 py-2 text-sm font-medium transition-colors sm:inline-block lg:hidden"
-            >
-              Browse
-            </Link>
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:ml-0">
             <Link
               href="/browse"
               aria-label="Search events"
@@ -44,10 +59,10 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
               <IconSearch />
             </Link>
             <Button href="/submit" size="sm">
-              Submit event
+              List Your Event
             </Button>
             <HeaderAccount user={user} />
-          </nav>
+          </div>
         </div>
       </div>
     </header>

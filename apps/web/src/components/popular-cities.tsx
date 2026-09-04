@@ -10,9 +10,9 @@ export function PopularCities({ cities }: { cities: CityCount[] }) {
   if (cities.length === 0) return null;
 
   return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
+    <section id="venues" className="max-w-content mx-auto px-4 py-8 sm:px-6">
       <div className="mb-4 flex items-baseline justify-between gap-4">
-        <h2 className="font-display text-lg font-semibold sm:text-xl">Popular cities</h2>
+        <h2 className="font-display text-lg font-semibold sm:text-xl">Events near you</h2>
         <Link
           href="/browse"
           className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"

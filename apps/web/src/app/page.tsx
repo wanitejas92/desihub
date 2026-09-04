@@ -4,6 +4,8 @@ import { EventGrid } from '@/components/event-grid';
 import { Hero } from '@/components/hero';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { CategoryTiles } from '@/components/browse-tiles';
+import { FeaturedArtists } from '@/components/featured-artists';
+import { CelebrateCulture } from '@/components/celebrate-culture';
 import { PopularCities } from '@/components/popular-cities';
 import { TopVenues } from '@/components/top-venues';
 import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
@@ -41,11 +43,11 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
-        <div className="mb-4 flex items-baseline justify-between gap-4">
+      <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
+        <div className="mb-5 flex items-baseline justify-between gap-4">
           <h2 className="font-display text-fg flex items-center gap-1.5 text-lg font-semibold sm:text-xl">
             <IconFlame className="text-accent" width={18} height={18} />
-            Trending now
+            Trending events
           </h2>
           {featured.length > 0 && (
             <Link
@@ -68,16 +70,19 @@ export default async function HomePage() {
         )}
       </section>
 
+      <CategoryTiles />
+
       <EventRail
-        title="Near you"
-        events={upcoming}
-        seeAllHref="/browse"
-        emptyTitle="No upcoming events listed"
+        title="This weekend"
+        events={thisWeekend.length > 0 ? thisWeekend : upcoming}
+        seeAllHref="/browse?when=weekend"
+        emptyTitle="Nothing listed for this weekend yet"
         emptyDescription="Be the first to add one for your city."
       />
 
       <PopularCities cities={cities} />
-      <CategoryTiles />
+      <FeaturedArtists />
+      <CelebrateCulture />
       <TopVenues venues={topVenues(venuePool.items)} />
       <OrganiserCtaBanner />
     </>

@@ -1,63 +1,97 @@
 import Link from 'next/link';
-import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS, CITIES } from '@desihub/shared';
 import { Logo } from './logo';
 import { EmailCapture } from './email-capture';
+import { IconInstagram, IconFacebook, IconYoutube, IconTiktok } from './ui/icons';
+
+/**
+ * Social handles are read from env rather than hard-coded: an icon that
+ * links nowhere is worse than no icon, so each one renders only when its
+ * URL is actually configured.
+ */
+const SOCIALS = [
+  { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, label: 'Instagram', Icon: IconInstagram },
+  { href: process.env.NEXT_PUBLIC_FACEBOOK_URL, label: 'Facebook', Icon: IconFacebook },
+  { href: process.env.NEXT_PUBLIC_YOUTUBE_URL, label: 'YouTube', Icon: IconYoutube },
+  { href: process.env.NEXT_PUBLIC_TIKTOK_URL, label: 'TikTok', Icon: IconTiktok },
+].filter((s): s is { href: string; label: string; Icon: typeof IconInstagram } => Boolean(s.href));
+
+const COLUMNS = [
+  {
+    heading: 'DesiHub',
+    links: [
+      { href: '/browse', label: 'Events' },
+      { href: '/#categories', label: 'Categories' },
+      { href: '/#venues', label: 'Venues' },
+      { href: '/#artists', label: 'Artists' },
+    ],
+  },
+  {
+    heading: 'Company',
+    links: [
+      { href: '/about', label: 'About us' },
+      { href: '/contact', label: 'Contact' },
+      { href: '/submit', label: 'List your event' },
+    ],
+  },
+  {
+    heading: 'Support',
+    links: [
+      { href: '/contact', label: 'Help centre' },
+      { href: '/account', label: 'Your account' },
+      { href: '/account/tickets', label: 'My tickets' },
+    ],
+  },
+] as const;
 
 export function SiteFooter() {
   return (
     <footer className="border-border bg-bg-subtle mt-16 border-t">
-      <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.3fr_1fr_0.8fr_0.8fr]">
+      <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_repeat(3,0.8fr)]">
         <div>
-          <h2 className="text-fg text-sm font-bold">Stay Updated</h2>
-          <div className="mt-3 max-w-sm">
+          <Logo />
+          <p className="text-fg-muted mt-3 max-w-xs text-sm">
+            Events. Concerts. Dance. Parties. Culture.
+            <br />
+            All in one place.
+          </p>
+
+          {SOCIALS.length > 0 && (
+            <ul role="list" className="mt-4 flex items-center gap-2">
+              {SOCIALS.map(({ href, label, Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="border-border text-fg-muted hover:border-accent hover:text-accent flex h-9 w-9 items-center justify-center rounded-full border transition-colors"
+                  >
+                    <Icon width={17} height={17} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="mt-6 max-w-sm">
             <EmailCapture />
           </div>
         </div>
 
-        <div>
-          <Logo />
-          <p className="text-fg-muted mt-3 max-w-xs text-sm">
-            Events. Concerts. Dance. Parties.
-            <br />
-            All in One Place.
-          </p>
-        </div>
-
-        <nav aria-label="Quick links">
-          <h2 className="text-fg text-sm font-bold">Quick Links</h2>
-          <ul className="text-fg-muted mt-3 space-y-2 text-sm">
-            <li>
-              <Link href="/browse" className="hover:text-fg">
-                Events
-              </Link>
-            </li>
-            <li>
-              <Link href="/submit" className="hover:text-fg">
-                List your event
-              </Link>
-            </li>
-            {EVENT_CATEGORIES.slice(0, 3).map((c) => (
-              <li key={c}>
-                <Link href={`/browse?category=${c}`} className="hover:text-fg">
-                  {EVENT_CATEGORY_LABELS[c]}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav aria-label="Browse by city">
-          <h2 className="text-fg text-sm font-bold">Cities</h2>
-          <ul className="text-fg-muted mt-3 space-y-2 text-sm">
-            {CITIES.slice(0, 5).map((c) => (
-              <li key={c}>
-                <Link href={`/browse?city=${encodeURIComponent(c)}`} className="hover:text-fg">
-                  {c}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        {COLUMNS.map(({ heading, links }) => (
+          <nav key={heading} aria-label={heading}>
+            <h2 className="text-fg text-sm font-bold">{heading}</h2>
+            <ul className="text-fg-muted mt-3 space-y-2 text-sm">
+              {links.map(({ href, label }) => (
+                <li key={label}>
+                  <Link href={href} className="hover:text-fg">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
       </div>
 
       <div className="border-border border-t">
