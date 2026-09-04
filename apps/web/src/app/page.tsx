@@ -41,7 +41,7 @@ export default async function HomePage() {
         screen: banners, search, and buttons together.
       */}
       {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 py-3 sm:px-6 lg:py-4">
+        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
           <PromoCarousel banners={banners} />
         </div>
       )}

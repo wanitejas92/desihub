@@ -16,12 +16,12 @@ const TRUST_BADGES = [
 export function Hero() {
   return (
     <section className="bg-bg relative overflow-hidden" aria-label="DesiHub">
-      <div className="max-w-content relative mx-auto px-4 py-4 sm:px-6 lg:py-5">
+      <div className="max-w-content relative mx-auto px-4 py-2 sm:px-6 lg:py-3">
         <div className="hero-enter hero-enter-delay mx-auto max-w-4xl">
           <HeroSearchBar />
         </div>
 
-        <div className="hero-enter hero-enter-delay mt-3 flex flex-wrap justify-center gap-2">
+        <div className="hero-enter hero-enter-delay mt-2 flex flex-wrap justify-center gap-2">
           <Button href="/browse">Explore Events</Button>
           <Button href="/submit" variant="outline">
             List Your Event
@@ -41,7 +41,7 @@ export function HeroTrustBadges() {
   return (
     <ul
       role="list"
-      className="max-w-content mx-auto grid grid-cols-2 gap-x-6 gap-y-5 px-4 pt-8 sm:grid-cols-4 sm:px-6 lg:justify-items-center"
+      className="max-w-content mx-auto grid grid-cols-2 gap-x-6 gap-y-3 px-4 pt-3 pb-3 sm:grid-cols-4 sm:px-6 lg:justify-items-center"
     >
       {TRUST_BADGES.map(({ Icon, lines }) => (
         <li key={lines.join(' ')} className="flex items-center gap-2.5">
