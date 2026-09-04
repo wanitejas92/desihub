@@ -1,7 +1,7 @@
 import { EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import type { EventWithRelations } from '@/lib/data';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://desihub.nl';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl';
 
 /**
  * Schema.org Event JSON-LD. People Google "dandiya Amsterdam 2026" — rich

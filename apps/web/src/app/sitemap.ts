@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { getRepository } from '@/lib/data';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://desihub.nl';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const repo = await getRepository();

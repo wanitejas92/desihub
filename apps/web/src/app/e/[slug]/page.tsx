@@ -77,7 +77,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     location: event.venue ? `${event.venue.name}, ${event.venue.city}` : undefined,
     startsAt: event.starts_at,
     endsAt: event.ends_at,
-    url: `${process.env.NEXT_PUBLIC_SITE_URL ?? 'https://desihub.nl'}/e/${event.slug}`,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl'}/e/${event.slug}`,
   };
 
   return (

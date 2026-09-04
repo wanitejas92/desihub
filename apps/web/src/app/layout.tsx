@@ -6,7 +6,7 @@ import { AccountProvider } from '@/components/account-provider';
 import { getAccountSnapshot } from '@/lib/account/session';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://desihub.nl'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://desihub.nl'),
   title: {
     default: 'DesiHub — Desi events in the Netherlands',
     template: '%s · DesiHub',
