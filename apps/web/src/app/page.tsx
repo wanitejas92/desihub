@@ -40,8 +40,10 @@ export default async function HomePage() {
         Banners, search, and buttons fill the full screen below the header
         (min-h forces it even when content is short) so the quick filter
         rail below always starts past the fold, regardless of viewport size.
+        Centered vertically so any leftover space splits evenly instead of
+        dumping into one gap before the filter rail.
       */}
-      <div className="min-h-[calc(100vh-4rem)]">
+      <div className="flex min-h-[calc(100vh-4rem)] flex-col justify-center">
         {banners.length > 0 && (
           <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
             <PromoCarousel banners={banners} />
