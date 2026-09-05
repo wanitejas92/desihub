@@ -75,7 +75,7 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
           for the three-up layout below. */}
       <div
         className={cn(
-          'bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9]',
+          'bg-bg-subtle relative aspect-[5/3] overflow-hidden rounded-2xl sm:aspect-[16/9]',
           showPeek && 'lg:hidden',
         )}
       >
@@ -261,7 +261,7 @@ function Tile({
     </span>
   );
 
-  const wrapperClass = size === 'main' ? 'aspect-[21/9]' : 'aspect-[21/9]';
+  const wrapperClass = size === 'main' ? 'aspect-[16/9]' : 'aspect-[16/9]';
 
   if (size === 'side') {
     return (
