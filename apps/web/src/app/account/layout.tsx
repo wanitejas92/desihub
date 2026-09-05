@@ -1,12 +1,20 @@
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 import { getCurrentUser } from '@/lib/account/session';
+import { signInUrl } from '@/lib/account/guards';
 import { AccountTabs } from '@/components/account-tabs';
 import { SignOutButton } from '@/components/sign-out-button';
 
 export default async function AccountLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
-  if (!user) redirect('/sign-in?next=/account');
+  if (!user) {
+    // A layout has no route params of its own — `x-pathname` (set by
+    // middleware) is how it knows whether this request was actually for
+    // /account/tickets or /account/saved, not just /account.
+    const pathname = (await headers()).get('x-pathname') ?? '/account';
+    redirect(signInUrl(pathname));
+  }
 
   return (
     <div className="max-w-content mx-auto px-4 py-8 sm:px-6">

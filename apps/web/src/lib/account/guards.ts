@@ -23,7 +23,7 @@ import { getCurrentUser } from './session';
  */
 
 /** Where an unauthenticated visitor is sent, preserving their destination. */
-function signInUrl(returnTo: string): string {
+export function signInUrl(returnTo: string): string {
   return `/sign-in?next=${encodeURIComponent(returnTo)}`;
 }
 
