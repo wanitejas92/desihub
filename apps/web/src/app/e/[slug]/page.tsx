@@ -241,12 +241,18 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       {/*
         Persistent price/booking bar, visible on every screen size — the
         primary call to action lives here, matching how the reference design
-        keeps price and "Book now" pinned regardless of scroll position.
+        keeps price and "Book now" pinned regardless of scroll position. The
+        brand gradient (same as the primary Button and the organiser CTA
+        banner) makes this read as *the* confident action, not a quiet echo
+        of the booking card above it.
       */}
-      <div className="border-border bg-bg/95 fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 border-t px-4 py-3 backdrop-blur sm:px-6">
+      <div
+        className="shadow-elevation-lg fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 px-4 py-3 sm:px-6"
+        style={{ backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)' }}
+      >
         <div className="min-w-0">
-          <p className="text-fg-subtle text-xs">{booking.label}</p>
-          <p className="font-display text-fg truncate text-lg font-semibold">
+          <p className="text-xs text-white/80">{booking.label}</p>
+          <p className="font-display truncate text-lg font-semibold text-white">
             {booking.priceLine || booking.compactLabel}
           </p>
         </div>

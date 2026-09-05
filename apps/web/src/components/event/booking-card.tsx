@@ -89,7 +89,14 @@ export function BookingCta({
 
     case 'internal':
       return (
-        <Button href={cta.href} className={compact ? 'h-11' : 'w-full'}>
+        <Button
+          href={cta.href}
+          // Compact lives on the gradient sticky bar — the default gradient
+          // button would disappear into it, so it switches to the white
+          // "secondary" treatment the calendar CTA already uses there.
+          variant={compact ? 'secondary' : 'primary'}
+          className={compact ? 'h-11' : 'w-full'}
+        >
           {cta.label}
         </Button>
       );
