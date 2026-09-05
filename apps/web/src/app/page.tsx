@@ -11,21 +11,28 @@ import { EmptyState } from '@/components/empty-state';
 import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
 import { getBannerRepository } from '@/lib/banners';
+import { getCityImageRepository } from '@/lib/city-images';
 
 // Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
 
 export default async function HomePage() {
-  const [repo, bannerRepo] = await Promise.all([getRepository(), getBannerRepository()]);
-  const banners = await bannerRepo.listActive();
-  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities] = await Promise.all([
-    repo.listEvents({ limit: 12 }),
-    repo.thisWeek(12),
-    repo.thisWeekend(12),
-    repo.listEvents({ price: 'free', limit: 12 }),
-    repo.featured(8),
-    repo.popularCities(6),
+  const [repo, bannerRepo, cityImageRepo] = await Promise.all([
+    getRepository(),
+    getBannerRepository(),
+    getCityImageRepository(),
   ]);
+  const banners = await bannerRepo.listActive();
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities, cityImages] =
+    await Promise.all([
+      repo.listEvents({ limit: 12 }),
+      repo.thisWeek(12),
+      repo.thisWeekend(12),
+      repo.listEvents({ price: 'free', limit: 12 }),
+      repo.featured(8),
+      repo.popularCities(6),
+      cityImageRepo.listAll(),
+    ]);
 
   return (
     <>
@@ -75,7 +82,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      <PopularCities cities={cities} />
+      <PopularCities cities={cities} cityImages={cityImages} />
       <FeaturedOrganisers />
       <OrganiserCtaBanner />
     </>

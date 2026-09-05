@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { CITIES, EVENT_CATEGORIES, PROFILE_ROLES } from '@desihub/shared';
+import { CITIES, EVENT_CATEGORIES, PROFILE_ROLES, type City } from '@desihub/shared';
 import { requireAdmin } from '@/lib/account/guards';
 import { getAdminRepository } from './index';
 
@@ -215,4 +215,65 @@ export async function createBannerAction(
       message: err instanceof Error ? err.message : 'Could not create the banner.',
     };
   }
+}
+
+const cityImageSchema = z.object({
+  city: z.enum(CITIES as unknown as [City, ...City[]]),
+  image_url: z.string().url('Must be a valid image URL'),
+});
+
+/** Upsert, not insert — a city's cover photo is a single row set once and replaced, not a list. */
+export async function setCityImageAction(
+  _prev: AdminActionState,
+  formData: FormData,
+): Promise<AdminActionState> {
+  const { repo } = await adminContext();
+  if (!repo) return notConfigured;
+
+  const parsed = cityImageSchema.safeParse({
+    city: formData.get('city'),
+    image_url: (formData.get('image_url') as string)?.trim(),
+  });
+  if (!parsed.success) {
+    return { status: 'error', message: 'Please pick a city and provide a valid image.' };
+  }
+
+  try {
+    const { createClient } = await import('@/lib/supabase/server');
+    const db = await createClient();
+    const { error } = await db
+      .from('city_images')
+      .upsert(
+        {
+          city: parsed.data.city,
+          image_url: parsed.data.image_url,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'city' },
+      );
+    if (error) throw error;
+    revalidatePath('/');
+    revalidatePath('/admin/cities');
+    return { status: 'success', message: `Cover photo set for ${parsed.data.city}.` };
+  } catch (err) {
+    return {
+      status: 'error',
+      message: err instanceof Error ? err.message : 'Could not save the cover photo.',
+    };
+  }
+}
+
+/** Back to the gradient tile — clears a city's row rather than leaving a stale/broken URL behind. */
+export async function clearCityImageAction(formData: FormData): Promise<void> {
+  const { repo } = await adminContext();
+  if (!repo) return;
+
+  const city = formData.get('city') as string;
+  if (!city) return;
+
+  const { createClient } = await import('@/lib/supabase/server');
+  const db = await createClient();
+  await db.from('city_images').delete().eq('city', city);
+  revalidatePath('/');
+  revalidatePath('/admin/cities');
 }

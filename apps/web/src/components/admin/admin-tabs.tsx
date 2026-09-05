@@ -9,6 +9,7 @@ import {
   IconUsers,
   IconSparkle,
   IconPalette,
+  IconMapPin,
 } from '../ui/icons';
 import { cn } from '@/lib/cn';
 
@@ -18,6 +19,7 @@ const TABS = [
   { href: '/admin/events/new', label: 'Add event', Icon: IconCalendarPlus },
   { href: '/admin/users', label: 'People', Icon: IconUsers },
   { href: '/admin/banners', label: 'Banners', Icon: IconPalette },
+  { href: '/admin/cities', label: 'Cities', Icon: IconMapPin },
   { href: '/admin/import', label: 'Import', Icon: IconSparkle },
 ] as const;
 

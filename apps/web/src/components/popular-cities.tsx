@@ -2,11 +2,16 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { City, CityCount } from '@desihub/shared';
 import { gradientByIndex } from '@/lib/gradient';
-import { CITY_IMAGES } from '@/lib/city-images';
 import { IconChevronRight } from './ui/icons';
 
 /** "Popular Cities" tiles — real event counts, photo-or-gradient tile. */
-export function PopularCities({ cities }: { cities: CityCount[] }) {
+export function PopularCities({
+  cities,
+  cityImages,
+}: {
+  cities: CityCount[];
+  cityImages: Partial<Record<City, string>>;
+}) {
   if (cities.length === 0) return null;
 
   return (
@@ -28,7 +33,7 @@ export function PopularCities({ cities }: { cities: CityCount[] }) {
       >
         {cities.map(({ city, count }, i) => (
           <li key={city}>
-            <CityTile city={city} count={count} index={i} />
+            <CityTile city={city} count={count} index={i} image={cityImages[city]} />
           </li>
         ))}
       </ul>
@@ -36,8 +41,17 @@ export function PopularCities({ cities }: { cities: CityCount[] }) {
   );
 }
 
-function CityTile({ city, count, index }: { city: City; count: number; index: number }) {
-  const image = CITY_IMAGES[city];
+function CityTile({
+  city,
+  count,
+  index,
+  image,
+}: {
+  city: City;
+  count: number;
+  index: number;
+  image?: string;
+}) {
   const [from, to] = gradientByIndex(index);
 
   return (
