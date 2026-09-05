@@ -1,4 +1,4 @@
-import { Button } from './ui/button';
+import Link from 'next/link';
 import { HeroSearchBar } from './hero-search-bar';
 import { IconCalendar, IconShieldCheck, IconHeadset, IconUsers } from './ui/icons';
 
@@ -10,8 +10,12 @@ const TRUST_BADGES = [
 ] as const;
 
 /**
- * Homepage hero: search bar and action buttons.
- * Compact so banners, search, and buttons all fit on one screen.
+ * Homepage hero: search is the one primary action. "Explore Events" used to
+ * sit right below it as a second button doing the same job the Search
+ * button already does, and "List Your Event" repeated a CTA that also
+ * appears in the header, the mid-page organiser banner, and the footer —
+ * both were competing with search rather than supporting it. Organisers get
+ * a quiet text link instead, still one tap away, not shouting.
  */
 export function Hero() {
   return (
@@ -21,12 +25,12 @@ export function Hero() {
           <HeroSearchBar />
         </div>
 
-        <div className="hero-enter hero-enter-delay mt-2 flex flex-wrap justify-center gap-2">
-          <Button href="/browse">Explore Events</Button>
-          <Button href="/submit" variant="outline">
-            List Your Event
-          </Button>
-        </div>
+        <p className="hero-enter hero-enter-delay text-fg-muted mt-3 text-center text-sm">
+          Organising an event?{' '}
+          <Link href="/submit" className="text-accent font-semibold hover:underline">
+            List it on DesiHub
+          </Link>
+        </p>
       </div>
     </section>
   );

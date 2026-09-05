@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderAccount } from './header-account';
+import { MobileNav } from './mobile-nav';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { IconSearch } from './ui/icons';
@@ -58,6 +59,7 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
               List Your Event
             </Button>
             <HeaderAccount user={user} />
+            <MobileNav navItems={NAV} />
           </div>
         </div>
       </div>

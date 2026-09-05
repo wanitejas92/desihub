@@ -7,7 +7,12 @@
 
 @layer base {
   :root {
-    --font-display: 'Inter', system-ui, sans-serif;
+    /* Fraunces carries headlines and event titles — a warm, characterful
+       serif at large optical sizes gives the page an editorial, premium
+       identity distinct from the Inter-everywhere look most ticketing
+       sites default to. Inter stays for anything read at UI density
+       (nav, buttons, forms, prices, dates) where a serif hurts legibility. */
+    --font-display: 'Fraunces', 'Georgia', serif;
     --font-sans: 'Inter', system-ui, sans-serif;
   }
 
@@ -185,6 +190,30 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .hero-enter {
+      animation: none;
+    }
+  }
+
+  .animate-nav-scrim {
+    animation: nav-scrim-in 200ms ease-out both;
+  }
+  @keyframes nav-scrim-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .animate-nav-sheet {
+    animation: nav-sheet-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes nav-sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-nav-scrim,
+    .animate-nav-sheet {
       animation: none;
     }
   }

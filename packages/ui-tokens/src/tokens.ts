@@ -113,9 +113,14 @@ export const lineHeight = {
   '3xl': '3.75rem',
 } as const;
 
-/** One geometric sans family for everything — no decorative/serif display face. */
+/**
+ * Two-family pairing: Fraunces (warm, characterful serif) carries headlines
+ * and event titles; Inter carries everything read at UI density — nav,
+ * buttons, forms, prices, dates. The pairing is the product's editorial
+ * signature, not a neutral default.
+ */
 export const fontFamily = {
-  display: ['Inter', 'system-ui', 'sans-serif'],
+  display: ['Fraunces', 'Georgia', 'serif'],
   sans: ['Inter', 'system-ui', 'sans-serif'],
   mono: ['ui-monospace', 'monospace'],
 } as const;
