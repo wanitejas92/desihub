@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { WhatsAppFloat } from '@/components/whatsapp-float';
 import { AccountProvider } from '@/components/account-provider';
 import { getAccountSnapshot } from '@/lib/account/session';
 
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteHeader user={user} />
           <main id="main">{children}</main>
           <SiteFooter />
+          <WhatsAppFloat />
         </AccountProvider>
       </body>
     </html>
