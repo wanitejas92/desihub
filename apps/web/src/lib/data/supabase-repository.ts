@@ -35,8 +35,23 @@ export class SupabaseEventRepository implements EventRepository {
   constructor(private readonly db: SupabaseClient) {}
 
   async listEvents(filters: EventFilters): Promise<Paginated<EventWithRelations>> {
-    let q = this.db.from('events').select(EVENT_SELECT, { count: 'exact' }).in('status', VISIBLE);
+    /*
+     * A city filter needs `venues` inner-joined: PostgREST only lets a query
+     * filter on an embedded resource's column (`venue.city`) when that embed
+     * is `!inner`, and an inner join is the right semantics anyway — an
+     * event with no venue can never match a city filter. Doing this in SQL
+     * (rather than fetching everything and filtering city in JS afterwards)
+     * matters because `count: 'exact'` and `.range()` are both computed by
+     * Postgres from the query as sent — a JS-only city filter would leave
+     * the reported total, and any future pagination, describing the
+     * *unfiltered* set instead of the city the visitor actually picked.
+     */
+    const select = filters.city
+      ? EVENT_SELECT.replace('venue:venues(', 'venue:venues!inner(')
+      : EVENT_SELECT;
+    let q = this.db.from('events').select(select, { count: 'exact' }).in('status', VISIBLE);
 
+    if (filters.city) q = q.eq('venue.city', filters.city);
     if (filters.category) q = q.eq('category', filters.category);
     if (filters.familyFriendly) q = q.eq('family_friendly', true);
     if (filters.price === 'free') q = q.eq('is_free', true);
@@ -54,8 +69,10 @@ export class SupabaseEventRepository implements EventRepository {
 
     const { data, count, error } = await q;
     if (error) throw error;
-    let items = (data ?? []).map(normaliseEvent);
-    if (filters.city) items = items.filter((e) => e.venue?.city === filters.city);
+    // `select` is a computed string (not the `EVENT_SELECT` literal), so
+    // supabase-js can't infer a precise row type for it the way it does for
+    // every other call below — cast back to the shape `normaliseEvent` expects.
+    const items = ((data ?? []) as unknown as Record<string, unknown>[]).map(normaliseEvent);
     return { items, total: count ?? items.length };
   }
 
