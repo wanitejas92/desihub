@@ -5,7 +5,6 @@ import {
   formatEventDateBadge,
   formatEventTime,
   getBookingOptions,
-  eventHighlights,
   isSameLocalDay,
   formatEventDate,
   formatEventDateShort,
@@ -26,6 +25,7 @@ import {
   EventHighlights,
   EventInfoGrid,
   EventLineup,
+  EventTerms,
   SectionHeading,
 } from '@/components/event/event-sections';
 import { IconMapPin, IconExternalLink } from '@/components/ui/icons';
@@ -152,13 +152,18 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           />
 
           {event.venue && (
-            <VenueMap
-              name={event.venue.name}
-              address={event.venue.address}
-              city={event.venue.city}
-              lat={event.venue.lat}
-              lng={event.venue.lng}
-            />
+            // Desktop only — the venue address just above already links out
+            // to Google Maps, so an embedded map on mobile is a second, more
+            // expensive way to do the same thing on a screen with less room.
+            <div className="hidden sm:block">
+              <VenueMap
+                name={event.venue.name}
+                address={event.venue.address}
+                city={event.venue.city}
+                lat={event.venue.lat}
+                lng={event.venue.lng}
+              />
+            </div>
           )}
         </aside>
 
@@ -230,10 +235,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             </section>
           )}
 
-          <EventHighlights highlights={eventHighlights(event.category)} />
+          <EventHighlights highlights={event.highlights} />
           <EventLineup lineup={event.lineup} />
           <EventInfoGrid rows={infoRows} />
           <EventGallery images={event.gallery} title={event.title} />
+          <EventTerms terms={event.terms} />
         </div>
       </div>
 

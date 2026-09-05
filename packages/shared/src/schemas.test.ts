@@ -1,29 +1,43 @@
 import { describe, it, expect } from 'vitest';
 import { submitEventSchema, ticketTypeSchema, subscribeSchema, draftSlug } from './schemas';
 
+const validSubmission = {
+  title: 'Garba Night',
+  starts_at: '2026-10-10T18:00:00Z',
+  city: 'Amsterdam',
+  organiser_name: 'Desi Nights Amsterdam',
+  description: 'A night of Garba and Dandiya for everyone.',
+  highlights: 'Live DJ\nFree entry before 10pm',
+  terms: 'No refunds after purchase.',
+};
+
 describe('submitEventSchema', () => {
-  it('accepts the three required fields', () => {
-    const parsed = submitEventSchema.safeParse({
-      title: 'Garba Night',
-      starts_at: '2026-10-10T18:00:00Z',
-      city: 'Amsterdam',
-    });
+  it('accepts a submission with every required field', () => {
+    const parsed = submitEventSchema.safeParse(validSubmission);
     expect(parsed.success).toBe(true);
   });
   it('rejects a too-short title', () => {
-    const parsed = submitEventSchema.safeParse({
-      title: 'Hi',
-      starts_at: '2026-10-10T18:00:00Z',
-      city: 'Amsterdam',
-    });
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, title: 'Hi' });
     expect(parsed.success).toBe(false);
   });
-  it('rejects an unknown city', () => {
-    const parsed = submitEventSchema.safeParse({
-      title: 'Garba Night',
-      starts_at: '2026-10-10T18:00:00Z',
-      city: 'Paris',
-    });
+  it('accepts a city outside the fixed list — the "Other" option', () => {
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, city: 'Groningen' });
+    expect(parsed.success).toBe(true);
+  });
+  it('rejects a missing organiser name', () => {
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, organiser_name: '' });
+    expect(parsed.success).toBe(false);
+  });
+  it('rejects a missing description', () => {
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, description: '' });
+    expect(parsed.success).toBe(false);
+  });
+  it('rejects missing highlights', () => {
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, highlights: '' });
+    expect(parsed.success).toBe(false);
+  });
+  it('rejects missing terms', () => {
+    const parsed = submitEventSchema.safeParse({ ...validSubmission, terms: '' });
     expect(parsed.success).toBe(false);
   });
 });

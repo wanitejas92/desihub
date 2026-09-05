@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { EventHighlight } from '@desihub/shared';
 import { monogramAvatar } from '@/lib/artist-avatar';
 
 /**
@@ -19,27 +18,44 @@ export function SectionHeading({ children }: { children: React.ReactNode }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Highlights — what the evening is actually like                      */
+/* Highlights — what the organiser says the evening is actually like   */
 /* ------------------------------------------------------------------ */
 
-export function EventHighlights({ highlights }: { highlights: EventHighlight[] }) {
-  if (highlights.length === 0) return null;
+/** One line per highlight, as the organiser wrote it — nothing inferred. */
+export function EventHighlights({ highlights }: { highlights: string | null }) {
+  const lines =
+    highlights
+      ?.split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean) ?? [];
+  if (lines.length === 0) return null;
   return (
     <section>
       <SectionHeading>Highlights</SectionHeading>
       <ul role="list" className="mt-4 grid gap-3 sm:grid-cols-3">
-        {highlights.map((h) => (
+        {lines.map((line) => (
           <li
-            key={h.label}
+            key={line}
             className="border-border/70 bg-surface flex items-center gap-3 rounded-xl border px-4 py-3.5"
           >
-            <span aria-hidden className="text-xl leading-none">
-              {h.icon}
-            </span>
-            <span className="text-fg text-sm font-semibold">{h.label}</span>
+            <span className="text-fg text-sm font-semibold">{line}</span>
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Terms and conditions — organiser-authored, verbatim                 */
+/* ------------------------------------------------------------------ */
+
+export function EventTerms({ terms }: { terms: string | null }) {
+  if (!terms?.trim()) return null;
+  return (
+    <section>
+      <SectionHeading>Terms and conditions</SectionHeading>
+      <p className="text-fg-muted mt-4 text-sm whitespace-pre-line">{terms}</p>
     </section>
   );
 }

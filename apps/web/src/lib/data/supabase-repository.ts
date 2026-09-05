@@ -308,6 +308,8 @@ export class SupabaseEventRepository implements EventRepository {
       title: input.title,
       slug,
       description: input.description ?? null,
+      highlights: input.highlights ?? null,
+      terms: input.terms ?? null,
       category: input.category ?? 'community',
       image_url: input.image_url || null,
       starts_at: input.starts_at,

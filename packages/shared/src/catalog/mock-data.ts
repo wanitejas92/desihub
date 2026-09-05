@@ -942,6 +942,8 @@ function buildEvent(r: Raw): EventWithRelations {
     tags: r.tags,
     seo_title: null,
     seo_description: null,
+    highlights: null,
+    terms: null,
     created_at: '2026-06-01T00:00:00Z',
     organiser: {
       id: o.id,

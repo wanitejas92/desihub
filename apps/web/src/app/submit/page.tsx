@@ -5,8 +5,7 @@ import { hasSupabase } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Submit an event',
-  description:
-    'List your Desi event on DesiHub — free. Three fields to get started, no account needed.',
+  description: 'List your Desi event on DesiHub — free, no account needed.',
 };
 
 export default async function SubmitPage() {
@@ -18,8 +17,8 @@ export default async function SubmitPage() {
     <div className="mx-auto max-w-xl px-4 py-10 sm:px-6">
       <h1 className="font-display text-2xl font-semibold sm:text-3xl">List your event</h1>
       <p className="text-fg-muted mt-2">
-        Reach the Desi community across the Netherlands. It&apos;s free, and you only need three
-        fields to start.
+        Reach the Desi community across the Netherlands. It&apos;s free — tell us what people can
+        expect and we&apos;ll review it within a day.
       </p>
       <div className="mt-8">
         <SubmitForm canUpload={Boolean(user)} />

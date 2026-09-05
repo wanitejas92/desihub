@@ -136,6 +136,9 @@ export const eventSchema = z.object({
   tags: z.array(z.string().max(40)).default([]),
   seo_title: z.string().max(160).nullable(),
   seo_description: z.string().max(320).nullable(),
+  /** Organiser-authored, free text — never inferred from category or anything else. */
+  highlights: z.string().max(2000).nullable().default(null),
+  terms: z.string().max(4000).nullable().default(null),
   created_at: isoDate,
 });
 export type Event = z.infer<typeof eventSchema>;
@@ -243,15 +246,22 @@ export type EventSource = z.infer<typeof eventSourceSchema>;
  */
 export const submitEventSchema = z
   .object({
-    // Required (the three visible fields).
+    // Required.
     title: z.string().trim().min(3, 'Give your event a title').max(200),
     starts_at: isoDate,
-    city: cityEnum,
+    /**
+     * Free text, not `cityEnum` — the picker offers an "Other" option for a
+     * city outside the fixed list, and the `city` column is plain text, so
+     * there is nothing downstream that needs the value constrained.
+     */
+    city: z.string().trim().min(1, 'City is required').max(100),
+    organiser_name: z.string().trim().min(1, 'Organiser name is required').max(160),
+    description: z.string().trim().min(1, 'Tell people what to expect').max(8000),
+    highlights: z.string().trim().min(1, 'Add at least one highlight').max(2000),
+    terms: z.string().trim().min(1, 'Add your terms and conditions').max(4000),
     // Optional.
     category: categoryEnum.optional(),
     venue_name: z.string().max(160).optional(),
-    description: z.string().max(8000).optional(),
-    organiser_name: z.string().max(160).optional(),
     contact_email: z.string().email('Enter a valid email').optional().or(z.literal('')),
     /** Poster/artwork, uploaded to Storage by the form before it submits. */
     image_url: z.string().url('Enter a valid image link').optional().or(z.literal('')),

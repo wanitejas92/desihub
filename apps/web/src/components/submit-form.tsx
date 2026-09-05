@@ -10,13 +10,19 @@ import { IconSparkle, IconChevronDown, IconChevronRight } from './ui/icons';
 
 const initial: ActionState = { status: 'idle' };
 
+/** Sentinel `<option>` value that swaps the city picker for a free-text input. */
+const OTHER_CITY = '__other__';
+
 /**
- * Dead-simple event submission: three visible fields (title, date, city).
- * Everything else lives behind "Add more details". No login required.
+ * Event submission, no login required. Everything the event page actually
+ * shows — title, date, city, organiser, description, highlights, terms — is
+ * required up front; only venue/artwork/category/contact sit behind "Add
+ * more details".
  */
 export function SubmitForm({ canUpload = false }: { canUpload?: boolean }) {
   const [state, action, pending] = useActionState(submitEventAction, initial);
   const [showMore, setShowMore] = useState(false);
+  const [city, setCity] = useState('');
 
   if (state.status === 'success') {
     return (
@@ -58,7 +64,14 @@ export function SubmitForm({ canUpload = false }: { canUpload?: boolean }) {
       </Field>
 
       <Field label="City" htmlFor="city" required error={err('city')}>
-        <select id="city" name="city" required className="input" defaultValue="">
+        <select
+          id="city"
+          name={city === OTHER_CITY ? undefined : 'city'}
+          required
+          className="input"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+        >
           <option value="" disabled>
             Choose a city…
           </option>
@@ -67,7 +80,62 @@ export function SubmitForm({ canUpload = false }: { canUpload?: boolean }) {
               {c}
             </option>
           ))}
+          <option value={OTHER_CITY}>Other</option>
         </select>
+        {city === OTHER_CITY && (
+          <input
+            name="city"
+            required
+            maxLength={100}
+            placeholder="Enter your city"
+            className="input mt-2"
+            aria-label="City name"
+          />
+        )}
+      </Field>
+
+      <Field
+        label="Your / organiser name"
+        htmlFor="organiser_name"
+        required
+        error={err('organiser_name')}
+      >
+        <input id="organiser_name" name="organiser_name" required className="input" />
+      </Field>
+
+      <Field label="About event" htmlFor="description" required error={err('description')}>
+        <textarea
+          id="description"
+          name="description"
+          rows={4}
+          required
+          className="input"
+          placeholder="What can people expect?"
+        />
+      </Field>
+
+      <Field label="Highlights" htmlFor="highlights" required error={err('highlights')}>
+        <textarea
+          id="highlights"
+          name="highlights"
+          rows={3}
+          required
+          className="input"
+          placeholder={
+            'One per line, e.g.\nLive DJ all night\nFree entry before 10pm\nDress code: festive'
+          }
+        />
+      </Field>
+
+      <Field label="Terms and conditions" htmlFor="terms" required error={err('terms')}>
+        <textarea
+          id="terms"
+          name="terms"
+          rows={3}
+          required
+          className="input"
+          placeholder="Entry rules, refund policy, age restrictions, etc."
+        />
       </Field>
 
       <EntryFields errors={err} />
@@ -103,18 +171,6 @@ export function SubmitForm({ canUpload = false }: { canUpload?: boolean }) {
           </Field>
           <Field label="Event artwork" htmlFor="image_url">
             <ImageUpload canUpload={canUpload} />
-          </Field>
-          <Field label="Description" htmlFor="description">
-            <textarea
-              id="description"
-              name="description"
-              rows={4}
-              className="input"
-              placeholder="What can people expect?"
-            />
-          </Field>
-          <Field label="Your / organiser name" htmlFor="organiser_name">
-            <input id="organiser_name" name="organiser_name" className="input" />
           </Field>
           <Field label="Contact email" htmlFor="contact_email" error={err('contact_email')}>
             <input
