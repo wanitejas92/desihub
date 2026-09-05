@@ -23,7 +23,16 @@ type PasswordIntent = 'signin' | 'signup';
  * the card, rather than a same-height tab strip. Fewer top-level choices,
  * and a returning password user is one click away instead of three.
  */
-export function SignInForm({ demoMode, next }: { demoMode: boolean; next: string }) {
+export function SignInForm({
+  demoMode,
+  next,
+  onSuccess,
+}: {
+  demoMode: boolean;
+  next: string;
+  /** Called right before navigating away on a successful sign-in — lets a modal close itself. */
+  onSuccess?: () => void;
+}) {
   const [mode, setMode] = useState<Mode>('magic-link');
   const [passwordIntent, setPasswordIntent] = useState<PasswordIntent>('signin');
   const [state, action, pending] = useActionState(
@@ -38,10 +47,11 @@ export function SignInForm({ demoMode, next }: { demoMode: boolean; next: string
 
   useEffect(() => {
     if (state.status === 'signed_in') {
+      onSuccess?.();
       router.replace(next as never);
       router.refresh();
     }
-  }, [state.status, next, router]);
+  }, [state.status, next, router, onSuccess]);
 
   if (state.status === 'sent') {
     return (

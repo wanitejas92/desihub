@@ -1,26 +1,17 @@
 import Link from 'next/link';
 import type { AccountUser } from '@desihub/shared';
-import { IconHeart, IconUsers, IconShieldCheck } from './ui/icons';
+import { IconHeart, IconShieldCheck, IconUsers } from './ui/icons';
+import { SignInModal } from './sign-in-modal';
 
 /**
- * The account corner of the header. Signed out it's a plain "Sign in" link
- * — no modal, no interstitial — because everything on DesiHub works without
- * an account and signing in should feel optional, not demanded.
+ * The account corner of the header. Signed out, it opens a sign-in modal
+ * over the current page rather than navigating to /sign-in — everything on
+ * DesiHub works without an account, so signing in should feel like a quick
+ * detour, not a trip away from what you were doing.
  */
 export function HeaderAccount({ user }: { user: AccountUser | null }) {
   if (!user) {
-    return (
-      <Link
-        href="/sign-in"
-        aria-label="Sign in"
-        className="text-fg-muted hover:bg-bg-subtle hover:text-fg inline-flex h-10 shrink-0 items-center justify-center rounded-md px-2 text-sm font-semibold transition-colors sm:px-3"
-      >
-        {/* Icon-only on phones, where the header row has no width to spare —
-            but never hidden: sign-in has to be reachable on mobile too. */}
-        <IconUsers width={18} height={18} className="sm:hidden" />
-        <span className="hidden sm:inline">Sign in</span>
-      </Link>
-    );
+    return <SignInModal />;
   }
 
   const initial = (user.name ?? user.email).charAt(0).toUpperCase();

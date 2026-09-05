@@ -34,6 +34,14 @@ export function IconSearch(props: IconProps) {
   );
 }
 
+export function IconX(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 5l10 10M15 5L5 15" />
+    </svg>
+  );
+}
+
 export function IconMapPin(props: IconProps) {
   return (
     <svg {...base(props)}>

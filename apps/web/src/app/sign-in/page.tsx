@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { SignInForm } from '@/components/sign-in-form';
+import { GoogleSignInButton } from '@/components/google-sign-in-button';
 import { getCurrentUser } from '@/lib/account/session';
 import { hasSupabase } from '@/lib/data';
 import { IconHeart, IconUsers, IconCalendarPlus } from '@/components/ui/icons';
@@ -61,6 +62,16 @@ export default async function SignInPage({
           <p className="bg-error-bg text-error mb-3 rounded-md px-4 py-3 text-sm">
             That sign-in link didn’t work — it may have expired. Request a new one below.
           </p>
+        )}
+        <div className="mb-4">
+          <GoogleSignInButton next={target} />
+        </div>
+        {hasSupabase() && (
+          <div className="mb-4 flex items-center gap-3">
+            <div className="border-border flex-1 border-t" />
+            <span className="text-fg-subtle text-xs font-semibold uppercase">or</span>
+            <div className="border-border flex-1 border-t" />
+          </div>
         )}
         <SignInForm demoMode={!hasSupabase()} next={target} />
       </div>
