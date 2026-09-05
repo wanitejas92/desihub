@@ -3,46 +3,56 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
 /**
- * The button system, per brief: primary (brand gradient), secondary (white
- * + border), outline (transparent + orange), soft (tinted bg + matching
- * text, orange/pink/purple), text (no background). Renders a <Link> when
- * `href` is given, a native <button> otherwise — one component either way,
- * so every call site gets the same variant/size rules.
+ * Two button styles, and only two: `primary` (solid accent) and `secondary`
+ * (outline on surface). Plus `text`, which is an inline text link wearing a
+ * button's tap target rather than a third style.
+ *
+ * There used to be five variants across three tones, which is eleven
+ * combinations for a decision that only ever has one answer per context —
+ * so the same action appeared as a gradient in one place and a tinted pill
+ * in another, and nothing read as canonically "the button".
+ *
+ * The bigger fix is the primary itself. It was the orange→pink→purple brand
+ * gradient with white text, and the middle of that gradient is light enough
+ * that white on it measured around 2:1 — the "Select tickets" button on the
+ * event page read as *disabled*, which is close to the worst thing a
+ * checkout CTA can do. Solid saffron carries white text at 5.3:1.
+ *
+ * `outline` and `soft` are kept as aliases of `secondary` so existing call
+ * sites keep compiling and, more usefully, all render the same thing.
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'soft' | 'text';
-export type ButtonTone = 'orange' | 'pink' | 'purple';
 export type ButtonSize = 'md' | 'sm';
 
 const SIZE = {
-  md: 'h-12 text-sm gap-2',
-  sm: 'h-10 text-sm gap-1.5',
+  // 48/40px: both clear the 44px target once the tap area is counted, and a
+  // taller default is most of what separates a premium form from a dense one.
+  md: 'h-12 px-5 text-sm gap-2',
+  sm: 'h-10 px-4 text-sm gap-1.5',
 } satisfies Record<ButtonSize, string>;
 
-const PADDING_X = {
-  md: 'px-5',
-  sm: 'px-4',
-} satisfies Record<ButtonSize, string>;
+/**
+ * Disabled is a *neutral* state, not a faded accent.
+ *
+ * `opacity-50` on a solid saffron fill lands on a pale salmon, and on the
+ * event page — where "Select tickets" is disabled until a quantity is
+ * picked — that made the single largest control on the screen look like a
+ * broken primary button rather than one politely waiting for input. A muted
+ * surface reads as "not yet", which is what it means.
+ */
+const DISABLED =
+  'disabled:cursor-not-allowed disabled:bg-bg-sunken disabled:text-fg-subtle ' +
+  'disabled:border-border disabled:shadow-none disabled:active:scale-100';
 
-const SOFT_TONE = {
-  orange: 'bg-accent-subtle text-accent-hover',
-  pink: 'bg-accent-pink-subtle text-accent-pink-hover',
-  purple: 'bg-accent-purple-subtle text-accent-purple-hover',
-} satisfies Record<ButtonTone, string>;
-
-function variantClasses(variant: ButtonVariant, tone: ButtonTone, size: ButtonSize): string {
+function variantClasses(variant: ButtonVariant): string {
   switch (variant) {
     case 'primary':
-      return cn(PADDING_X[size], 'text-white shadow-elevation hover:shadow-elevation-lg');
+      return 'bg-accent text-accent-fg hover:bg-accent-hover';
     case 'secondary':
-      return cn(PADDING_X[size], 'bg-surface border border-border text-fg hover:bg-bg-subtle');
     case 'outline':
-      return cn(
-        PADDING_X[size],
-        'bg-transparent border border-accent text-accent hover:bg-accent-subtle',
-      );
     case 'soft':
-      return cn(PADDING_X[size], SOFT_TONE[tone]);
+      return 'bg-surface border border-border text-fg hover:bg-surface-hover hover:border-border-strong';
     case 'text':
       return 'bg-transparent text-fg hover:text-accent px-2';
   }
@@ -50,9 +60,8 @@ function variantClasses(variant: ButtonVariant, tone: ButtonTone, size: ButtonSi
 
 interface ButtonOwnProps {
   variant?: ButtonVariant;
-  tone?: ButtonTone;
   size?: ButtonSize;
-  /** Pill (999px) instead of the default 12px radius — per brief, reserved for tags/filters/compact actions. */
+  /** Pill instead of the standard radius — for filter chips and tags only. */
   pill?: boolean;
   className?: string;
   children: ReactNode;
@@ -71,28 +80,24 @@ type ButtonAsButton = ButtonOwnProps &
 
 export type ButtonProps = ButtonAsLink | ButtonAsButton;
 
-const PRIMARY_GRADIENT = {
-  backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)',
-};
-
 export function Button(props: ButtonProps) {
-  const { variant = 'primary', tone = 'orange', size = 'md', pill, className, children } = props;
+  const { variant = 'primary', size = 'md', pill, className, children } = props;
   const base = cn(
-    'inline-flex shrink-0 items-center justify-center font-semibold transition-all duration-150 ease-out',
+    'inline-flex shrink-0 items-center justify-center font-semibold',
+    'transition-[background-color,border-color,color,transform] duration-150 ease-out',
     pill ? 'rounded-pill' : 'rounded-md',
-    'active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100',
+    'active:scale-[0.98]',
+    DISABLED,
     SIZE[size],
-    variantClasses(variant, tone, size),
+    variantClasses(variant),
     className,
   );
-  const style = variant === 'primary' ? PRIMARY_GRADIENT : undefined;
 
   if ('href' in props && props.href) {
     const {
       href,
       external,
       variant: _v,
-      tone: _t,
       size: _s,
       pill: _p,
       className: _c,
@@ -102,7 +107,6 @@ export function Button(props: ButtonProps) {
     return (
       <Link
         href={href}
-        style={style}
         className={base}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         {...rest}
@@ -114,7 +118,6 @@ export function Button(props: ButtonProps) {
 
   const {
     variant: _v,
-    tone: _t,
     size: _s,
     pill: _p,
     className: _c,
@@ -122,7 +125,7 @@ export function Button(props: ButtonProps) {
     ...rest
   } = props as ButtonAsButton;
   return (
-    <button style={style} className={base} {...rest}>
+    <button className={base} {...rest}>
       {children}
     </button>
   );

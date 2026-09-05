@@ -6,6 +6,127 @@ section.
 
 ---
 
+## Design — one accent, warm paper, a real dark mode
+
+A pass against Dice, Resident Advisor, Luma, Airbnb and Linear. What was
+taken from each, and why it fits a Desi events platform rather than being
+generic SaaS polish:
+
+- **Dice** — the poster *is* the card, with the date as a crisp overlaid
+  chip. Organisers upload real artwork, so the artwork should carry the
+  page; chrome around it only competes.
+- **Resident Advisor** — density through a strict grid and hairline rules
+  instead of boxes. A Garba weekend is a dozen events across five cities,
+  and a bordered tile per event sprawls.
+- **Luma** — an event page whose facts read as a summary, not a form, with
+  the action always reachable.
+- **Airbnb** — one card system, one aspect ratio, disciplined gutters.
+- **Linear** — restraint: one accent, near-monochrome everything else,
+  typography doing the work.
+
+The warmth is the part none of those references supply, and it is where the
+cultural identity lives: warm paper rather than SaaS white, a deep saffron
+accent rather than a tech blue, and a festival-calendar season strip that no
+generic ticketing template would have.
+
+### The audit that set the brief
+
+Screenshots at 390px and 1440px, before anything was changed:
+
+- **The homepage scrolled sideways** — 2238px of content in a 1440px
+  viewport. The carousel's peek tiles set an `aspect-ratio` as grid items,
+  and since grid items default to `min-width: auto`, a height-derived width
+  pushed straight through the track. This is also why the page read as
+  "left-aligned in a narrow column with empty gutters": it wasn't, it was
+  overflowing.
+- **Three co-equal accents.** Orange, pink and purple appeared as brand
+  accents, category colours, fallback poster art, the announcement strip,
+  the CTA banner and the active filter chip — so nothing read as *the*
+  action, and a full grid of fallback posters was a swatch chart.
+- **The primary button failed contrast.** It was the brand gradient with
+  white text; through the middle of that gradient white measures around
+  2:1. "Select tickets" on the event page read as disabled.
+- **No `<h1>` on the homepage**, and nothing set at display size.
+- **Cramped cards**: a bordered, shadowed panel with 11px metadata, two per
+  row at 390px.
+
+### Decisions
+
+- **One accent: deep saffron `#C2410C`.** Dark enough to carry white text at
+  5.3:1 on the paper ground, which a bright marigold cannot. Lifted to
+  `#FB923C` in dark mode, where it takes *dark* text. The
+  orange→pink→purple gradient survives in exactly one place — the logo.
+- **Warm paper `#FAF7F2` and warm ink `#141210`.** A pure white/black pair
+  is most of what makes an interface read as generic; a few degrees of
+  warmth in both is most of what fixes it.
+- **Dark mode is its own palette, not an inversion** — warm charcoal
+  `#12100E`, warm off-white `#F5EFE7`. Emitted for all three viewer states
+  (no choice + light OS, no choice + dark OS, explicit choice), with the
+  media query guarded by `:not([data-theme='light'])` so an explicit light
+  choice beats a dark OS. Because every colour is a CSS variable, this
+  needed no `dark:` variants in the app. The footer's hardcoded navy was
+  restated as the dark theme's own values — once dark mode existed it was a
+  second, unrelated dark stacked under the first.
+- **Category colours are a designed six-hue set**, deliberately avoiding the
+  orange band so a category mark can never be mistaken for the accent.
+  Categories identify; the accent acts. Fallback poster art derives its
+  duotone from the category hue pulled 82% toward near-black, so a grid of
+  posters is calm and the accent stays the brightest thing on the page.
+- **Two button styles, not eleven.** `outline` and `soft` are aliases of
+  `secondary` so old call sites render consistently rather than breaking.
+  Disabled is a neutral surface, not a faded accent — `opacity-50` on solid
+  saffron lands on a pale salmon that reads as broken.
+- **One radius, 16px**, on cards, buttons, inputs and modals. `sm` (8px)
+  survives only for elements under ~28px, where 16px rounds into a pill.
+- **Type scale 12/14/16/18/24/32/48/64** with leading and tracking travelling
+  with the size, so a 64px headline can't be set at body leading.
+- **The season strip** finally renders `packages/shared/src/season.ts`, which
+  has carried the NL festival calendar since Phase 0 and whose own doc
+  comment says it exists to power this — nothing ever used it.
+
+### Reversed on evidence
+
+- **Single-column cards on mobile** made the homepage 16,700px tall. The
+  cramping came from the border and 11px metadata, not the column count;
+  two-up with the poster-first card is right.
+- **Hiding the sticky booking bar above `lg`** looked correct — a sticky
+  action bar is a phone pattern — but the inline booking card had been
+  removed when that bar was introduced, so it is the *only* booking CTA on
+  the page. Hiding it took booking off the desktop page entirely. Caught by
+  `critical-path.spec.ts:139`. The apparent overlap that prompted it was a
+  `position: fixed` artifact of full-page screenshots; the page already
+  reserves `pb-28`.
+
+### Verification
+
+Screenshots at 390px and 1440px in both themes at each step, plus
+typecheck, lint, 108 unit tests (8 of them new, pinning the three-state
+theme contract and the single-accent rule) and a full build.
+
+E2E went from 30 to 31 passing: the homepage test was failing on the
+missing `<h1>` and now passes. The remaining 6 desktop failures are the
+pre-existing set from the earlier design pass — the header opens a sign-in
+*modal* rather than linking to `/sign-in`, stranding every test that starts
+with `page.goto('/sign-in')`.
+
+### Not done in this pass
+
+The order was tokens → homepage → browse → event detail → submit → admin →
+empty/loading/error states → dark mode. **Tokens and the homepage are done;
+the event detail page got the CTA, sticky-bar and organiser-card fixes but
+not a full pass.** Browse, submit and admin inherit the token layer (warm
+paper, one accent, 48px inputs with labels above, 16px radius, working dark
+mode) but have not been individually audited and critiqued. Empty, loading
+and error states have not been designed. Those remain.
+
+Two things I would fix first next time: **Popular cities** still renders as
+near-empty outlined tiles with ghost type — it reads as unfinished, and
+wants either real photography or a much more compact treatment; and the
+**desktop header** still has a large dead zone between the search box and
+the account corner.
+
+---
+
 ## Fix — Event creation was impossible from `/submit`, and fragile from `/admin`
 
 Submitting an event failed. The form said "Something went wrong. Please try

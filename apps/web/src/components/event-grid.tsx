@@ -21,10 +21,20 @@ export function EventGrid({
   return (
     <ul
       role="list"
+      // Gutters grow with the viewport rather than staying at a fixed 16px:
+      // a 4-across desktop grid with phone-sized gaps is the classic
+      // "content squeezed together" look, and generous gutters are most of
+      // what makes a grid read as considered.
+      //
+      // Two columns on a phone. Single-column was tried and is worse: the
+      // homepage ran to 16,700px, which is not a page anyone reaches the
+      // bottom of. The cramping in the audit came from the bordered card and
+      // 11px metadata, not from the column count — with the border gone and
+      // the title at 18px, a 2-up poster wall reads the way Dice's does.
       className={
         sidebar
-          ? 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3'
-          : 'grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4'
+          ? 'grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-6'
+          : 'grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-12'
       }
       data-testid="event-grid"
     >

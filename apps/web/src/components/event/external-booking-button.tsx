@@ -66,10 +66,9 @@ export function ExternalBookingButton({
         }}
         className={
           compact
-            ? 'shadow-elevation inline-flex h-11 shrink-0 items-center justify-center rounded-md px-5 text-sm font-semibold whitespace-nowrap text-white transition-all duration-150 ease-out active:scale-[0.98]'
-            : 'shadow-elevation hover:shadow-elevation-lg flex h-12 w-full items-center justify-center gap-2 rounded-md font-semibold text-white transition-all duration-150 ease-out active:scale-[0.98]'
+            ? 'bg-accent text-accent-fg hover:bg-accent-hover inline-flex h-11 shrink-0 items-center justify-center rounded-md px-5 text-sm font-semibold whitespace-nowrap transition-colors duration-150 ease-out active:scale-[0.98]'
+            : 'bg-accent text-accent-fg hover:bg-accent-hover flex h-12 w-full items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-150 ease-out active:scale-[0.98]'
         }
-        style={{ backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)' }}
       >
         {label}
         {!compact && <IconArrowRight width={16} height={16} />}
@@ -115,8 +114,7 @@ export function ExternalBookingButton({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setOpen(false)}
-                className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-md font-semibold text-white transition-all duration-150 active:scale-[0.98]"
-                style={{ backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)' }}
+                className="text-accent-fg flex h-12 flex-1 items-center justify-center gap-1.5 rounded-md font-semibold transition-all duration-150 active:scale-[0.98]"
               >
                 Continue to booking
                 <IconArrowRight width={16} height={16} />

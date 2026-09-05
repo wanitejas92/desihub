@@ -53,17 +53,12 @@ export function QuickFilterRail({
                   className={cn(
                     'rounded-pill inline-flex items-center gap-2 border px-4 py-2 text-sm font-semibold transition-all duration-200',
                     isActive
-                      ? 'shadow-elevation border-transparent text-white'
-                      : 'border-border bg-surface text-fg hover:border-accent hover:bg-bg-subtle',
+                      ? 'bg-accent text-accent-fg border-transparent'
+                      : 'border-border bg-surface text-fg-muted hover:border-border-strong hover:text-fg',
                   )}
-                  style={
-                    isActive
-                      ? { backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)' }
-                      : undefined
-                  }
                 >
                   <Icon
-                    className={isActive ? 'text-white' : 'text-fg-muted'}
+                    className={isActive ? 'text-accent-fg' : 'text-fg-subtle'}
                     width={16}
                     height={16}
                   />

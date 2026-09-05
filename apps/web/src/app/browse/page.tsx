@@ -7,7 +7,7 @@ import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
 import { getRepository, type EventFilters } from '@/lib/data';
 import { CATEGORY_ICON } from '@/lib/category-icons';
-import { CATEGORY_TONE, TONE_ACCENT, TONE_SOFT } from '@/lib/category-tone';
+import { categoryColorVar } from '@/lib/category-tone';
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -58,7 +58,6 @@ export default async function BrowsePage({
   const category = typeof sp.category === 'string' ? (sp.category as EventCategory) : undefined;
   const categoryLabel = category ? EVENT_CATEGORY_LABELS[category] : undefined;
   const CategoryIcon = category ? CATEGORY_ICON[category] : null;
-  const tone = category ? CATEGORY_TONE[category] : undefined;
   const city = filters.city;
 
   // The heading is the one place a visitor checks "did my filter actually
@@ -78,11 +77,14 @@ export default async function BrowsePage({
   return (
     <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
       <div className="flex items-center gap-3">
-        {CategoryIcon && tone && (
+        {CategoryIcon && category && (
           <span
             aria-hidden
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: TONE_SOFT[tone], color: TONE_ACCENT[tone] }}
+            className="border-border flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border"
+            // The hue identifies the category; it stays a thin mark on a
+            // neutral chip rather than a filled tile, so it cannot compete
+            // with the accent for "this is the thing to press".
+            style={{ color: categoryColorVar(category) }}
           >
             <CategoryIcon width={22} height={22} />
           </span>

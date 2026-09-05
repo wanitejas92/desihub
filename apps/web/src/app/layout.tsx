@@ -22,9 +22,16 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-// Light-only, deliberately — the product brief rules out a dark theme.
+/**
+ * Two theme colours, so the browser chrome matches the page rather than
+ * sitting as a light strip above a dark one. These are the `bg` token in
+ * each theme — keep them in step with packages/ui-tokens/src/tokens.ts.
+ */
 export const viewport: Viewport = {
-  themeColor: '#FAFAF7',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAF7F2' },
+    { media: '(prefers-color-scheme: dark)', color: '#12100E' },
+  ],
   width: 'device-width',
   initialScale: 1,
 };

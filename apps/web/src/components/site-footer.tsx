@@ -77,22 +77,38 @@ const LINKS = [
  * from. Every child (including `EmailCapture`, built with zero knowledge of
  * this) repaints correctly with no changes of its own.
  */
+/**
+ * The footer is always dark, in both themes — it is the page's base, and a
+ * light footer under a light page has nothing to sit on.
+ *
+ * These are the *dark theme's own* role values, restated locally rather than
+ * invented. They used to be a navy set (#12142A) chosen before there was a
+ * dark theme, which meant that once dark mode existed the page had two
+ * unrelated darks stacked on each other — warm charcoal above, cool navy
+ * below, with a visible seam between them. Keep these in step with
+ * `colorRoles.dark` in packages/ui-tokens/src/tokens.ts.
+ */
 const DARK_FOOTER_VARS = {
-  '--color-bg': '#12142A',
-  '--color-bg-subtle': '#1B1E3D',
-  '--color-surface': '#20234A',
-  '--color-border': 'rgba(255,255,255,0.16)',
-  '--color-border-strong': 'rgba(255,255,255,0.28)',
-  '--color-fg': '#FFFFFF',
-  '--color-fg-muted': '#A6A9C4',
-  '--color-fg-subtle': '#7D80A0',
-  '--color-accent-subtle': 'rgba(255,138,0,0.22)',
+  '--color-bg': '#12100E',
+  '--color-bg-subtle': '#1A1715',
+  '--color-bg-sunken': '#0D0B0A',
+  '--color-surface': '#211D19',
+  '--color-surface-hover': '#2A2521',
+  '--color-border': 'rgba(245, 239, 231, 0.12)',
+  '--color-border-strong': 'rgba(245, 239, 231, 0.22)',
+  '--color-fg': '#F5EFE7',
+  '--color-fg-muted': '#A9A099',
+  '--color-fg-subtle': '#7C736C',
+  '--color-accent': '#FB923C',
+  '--color-accent-hover': '#FDBA74',
+  '--color-accent-fg': '#1A0F08',
+  '--color-accent-subtle': '#2A1A12',
 } as CSSProperties;
 
 export function SiteFooter() {
   return (
-    <footer className="bg-bg text-fg mt-16" style={DARK_FOOTER_VARS}>
-      <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
+    <footer className="bg-bg text-fg mt-24" style={DARK_FOOTER_VARS}>
+      <div className="max-w-content mx-auto px-4 py-12 sm:px-6 lg:py-16">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Logo inverted />
 

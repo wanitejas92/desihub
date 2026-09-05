@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { SectionHeader } from './section-header';
 import { getRepository } from '@/lib/data';
 import { monogramAvatar } from '@/lib/artist-avatar';
 
@@ -15,10 +16,11 @@ export async function FeaturedOrganisers() {
   if (!organisers || organisers.length === 0) return null;
 
   return (
-    <section id="organisers" className="max-w-content mx-auto scroll-mt-20 px-4 py-8 sm:px-6">
-      <h2 className="font-display text-fg mb-5 text-lg font-semibold sm:text-xl">
-        Featured organisers
-      </h2>
+    <section
+      id="organisers"
+      className="max-w-content mx-auto scroll-mt-20 px-4 py-12 sm:px-6 lg:py-16"
+    >
+      <SectionHeader eyebrow="Who's putting them on" title="Featured organisers" />
 
       <ul role="list" className="grid grid-cols-3 gap-5 sm:grid-cols-6">
         {organisers.map((org) => (

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isPast } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
-import { deterministicGradient } from '@/lib/gradient';
 import { EventGrid } from '@/components/event-grid';
 import { EmptyState } from '@/components/empty-state';
 import { FollowButton } from '@/components/follow-button';
@@ -40,13 +39,14 @@ export default async function OrganiserPage({ params }: { params: Promise<{ slug
 
   const upcoming = org.events.filter((e) => !isPast(e.ends_at ?? e.starts_at));
   const past = org.events.filter((e) => isPast(e.ends_at ?? e.starts_at));
-  const [from, to] = deterministicGradient(org.id);
 
   return (
     <div>
+      {/* A calm textured band, not a per-organiser colour wash: the
+          organiser's own logo and events carry the identity, and a
+          full-bleed gradient behind them just competed. */}
       <div
-        className="paper-texture relative h-40 sm:h-56"
-        style={{ background: `linear-gradient(120deg, ${from}, ${to})` }}
+        className="bg-bg-subtle border-border paper-texture relative h-40 border-b sm:h-56"
         aria-hidden
       />
 

@@ -1,12 +1,21 @@
-import { TONE_ACCENT } from './category-tone';
+import { categoryPalette, type CategoryHue } from '@desihub/ui-tokens';
 
-const TONES = ['orange', 'pink', 'purple'] as const;
+/**
+ * Cycles the six category hues rather than the three brand accents, so a
+ * line-up reads as a set and never repeats a colour across a typical
+ * two-to-four-artist bill. Deep end derived from the same hue, so adding a
+ * hue needs no second table.
+ */
+const TONES = Object.keys(categoryPalette) as CategoryHue[];
 
-const DEEP: Record<(typeof TONES)[number], string> = {
-  orange: '#7A2A05',
-  pink: '#6B0E30',
-  purple: '#33106B',
-};
+function darken(hex: string, amount: number): string {
+  const ch = (i: number) => parseInt(hex.slice(i, i + 2), 16);
+  const c = (v: number) =>
+    Math.round(v * (1 - amount))
+      .toString(16)
+      .padStart(2, '0');
+  return `#${c(ch(1))}${c(ch(3))}${c(ch(5))}`;
+}
 
 function initials(name: string): string {
   return name
@@ -24,8 +33,8 @@ function initials(name: string): string {
  */
 export function artistAvatarDataUri(name: string, index: number): string {
   const tone = TONES[index % TONES.length]!;
-  const bright = TONE_ACCENT[tone];
-  const deep = DEEP[tone];
+  const bright = categoryPalette[tone].base;
+  const deep = darken(bright, 0.55);
   const id = index.toString(36);
 
   const svg =

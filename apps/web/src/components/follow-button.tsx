@@ -14,10 +14,17 @@ export function FollowButton({
   organiserId,
   organiserName,
   size,
+  compact,
 }: {
   organiserId: string;
   organiserName: string;
   size?: ButtonSize;
+  /**
+   * Just "Follow", without the organiser's name. In a narrow column
+   * "Follow DesiBeats" is wider than the space it has, and it pushed the
+   * organiser's own name and follower count into two wrapped lines each.
+   */
+  compact?: boolean;
 }) {
   const { isFollowing, toggleFollowing } = useAccount();
   const following = isFollowing(organiserId);
@@ -27,7 +34,7 @@ export function FollowButton({
       type="button"
       onClick={() => toggleFollowing(organiserId)}
       aria-pressed={following}
-      variant={following ? 'soft' : 'primary'}
+      variant={following ? 'secondary' : 'primary'}
       size={size}
       pill
     >
@@ -37,7 +44,7 @@ export function FollowButton({
           Following
         </>
       ) : (
-        `Follow ${organiserName.split(' ')[0]}`
+        `Follow${compact ? '' : ` ${organiserName.split(' ')[0]}`}`
       )}
     </Button>
   );

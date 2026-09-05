@@ -84,8 +84,18 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
         ))}
       </div>
 
+      {/* The row sets one explicit height and the tiles fill it.
+          
+          Aspect-ratio on the tiles themselves is what broke this twice: as
+          grid items they default to `min-width: auto`, so a height-derived
+          width pushed straight through the track and the homepage scrolled
+          sideways to 2238px on a 1440px viewport. Sizing the row instead
+          means the three tiles are equal-height by construction, the banner
+          can never drive the page wider than its container, and the strip
+          keeps a sensible height on a very wide monitor rather than growing
+          to half the screen. */}
       {showPeek && (
-        <div className="hidden lg:grid lg:grid-cols-[1fr_2.3fr_1fr] lg:items-stretch lg:gap-4">
+        <div className="hidden lg:grid lg:h-[340px] lg:grid-cols-[0.85fr_2.6fr_0.85fr] lg:gap-4 xl:h-[380px]">
           <Tile
             banner={banners[(index - 1 + count) % count]!}
             size="side"
@@ -261,7 +271,7 @@ function Tile({
     </span>
   );
 
-  const wrapperClass = size === 'main' ? 'aspect-[16/9]' : 'aspect-[16/9]';
+  const wrapperClass = 'h-full min-w-0';
 
   if (size === 'side') {
     return (

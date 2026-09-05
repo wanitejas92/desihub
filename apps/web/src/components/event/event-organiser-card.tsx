@@ -31,7 +31,10 @@ export function EventOrganiserCard({
       </span>
 
       <div className="min-w-0 flex-1">
-        <Link href={`/o/${slug}`} className="text-fg hover:text-accent font-semibold">
+        <Link
+          href={`/o/${slug}`}
+          className="text-fg hover:text-accent block truncate font-semibold"
+        >
           {name}
           {verified && (
             <span
@@ -48,7 +51,7 @@ export function EventOrganiserCard({
         </p>
       </div>
 
-      <FollowButton organiserId={id} organiserName={name} size="sm" />
+      <FollowButton organiserId={id} organiserName={name} size="sm" compact />
     </div>
   );
 }

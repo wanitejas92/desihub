@@ -31,7 +31,7 @@ export function HeaderAccount({ user }: { user: AccountUser | null }) {
       <Link
         href="/account/saved"
         aria-label="Saved events"
-        className="text-fg-muted hover:bg-bg-subtle hover:text-accent-pink hidden h-10 w-10 items-center justify-center rounded-full transition-colors sm:inline-flex"
+        className="text-fg-muted hover:bg-bg-subtle hover:text-like hidden h-10 w-10 items-center justify-center rounded-full transition-colors sm:inline-flex"
       >
         <IconHeart width={18} height={18} />
       </Link>

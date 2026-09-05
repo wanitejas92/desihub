@@ -178,7 +178,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="border-border flex w-14 shrink-0 flex-col items-center rounded-lg border py-1.5">
-                <span className="text-accent-pink text-[10px] font-bold tracking-wider">
+                <span className="text-like text-[10px] font-bold tracking-wider">
                   {dateBadge.month}
                 </span>
                 <span className="text-fg text-lg leading-none font-bold">{dateBadge.day}</span>
@@ -228,7 +228,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
           {event.description && (
             <section>
-              <SectionHeading>About Event</SectionHeading>
+              <SectionHeading>About this event</SectionHeading>
               <div className="mt-4">
                 <EventDescription text={event.description} />
               </div>

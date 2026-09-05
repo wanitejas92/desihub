@@ -42,7 +42,7 @@ export function FavouriteButton({ eventId, variant = 'overlay', className }: Fav
         <IconHeart
           width={16}
           height={16}
-          className={active ? 'text-accent-pink' : undefined}
+          className={active ? 'text-like' : undefined}
           fill={active ? 'currentColor' : 'none'}
         />
         {active ? 'Saved' : 'Save'}
@@ -58,7 +58,7 @@ export function FavouriteButton({ eventId, variant = 'overlay', className }: Fav
       onClick={handleClick}
       className={cn(
         'bg-surface/95 shadow-elevation inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full backdrop-blur transition-colors',
-        active ? 'text-accent-pink' : 'text-fg-muted hover:text-accent-pink',
+        active ? 'text-like' : 'text-fg-muted hover:text-like',
         className,
       )}
     >

@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { EventGrid } from '@/components/event-grid';
 import { Hero } from '@/components/hero';
 import { CategoryQuickNav } from '@/components/category-quick-nav';
@@ -9,10 +8,12 @@ import { FeaturedOrganisers } from '@/components/featured-organisers';
 import { PopularCities } from '@/components/popular-cities';
 import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
 import { EmptyState } from '@/components/empty-state';
-import { IconFlame, IconCalendar, IconChevronRight } from '@/components/ui/icons';
+import { SectionHeader } from '@/components/section-header';
+import { SeasonStrip } from '@/components/season-strip';
 import { getRepository } from '@/lib/data';
 import { getBannerRepository } from '@/lib/banners';
 import { getCityImageRepository } from '@/lib/city-images';
+import { currentSeason } from '@desihub/shared';
 
 // Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
@@ -40,13 +41,34 @@ export default async function HomePage() {
       repo.listEvents({ includePast: true, dateTo: today, limit: 8 }),
     ]);
 
+  // The season strip leads with whatever the festival calendar says is on.
+  const season = currentSeason();
+  const seasonEvents =
+    season.key === 'offseason'
+      ? []
+      : allUpcoming.items.filter((e) => season.featuredCategories.includes(e.category)).slice(0, 4);
+
   return (
     <>
       <CategoryQuickNav />
       <CreateEventStrip />
 
+      {/* A real <h1>. The page had none at all — the hero had been reduced
+          to a one-line text link during an earlier pass, which left the
+          homepage with no top-level heading for search engines or screen
+          readers, and nothing on the page set at display size. */}
+      <section className="max-w-content mx-auto px-4 pt-10 pb-6 sm:px-6 lg:pt-16 lg:pb-10">
+        <h1 className="font-display text-fg max-w-[16ch] text-3xl font-bold lg:max-w-[20ch] lg:text-4xl">
+          Every Desi night out in the Netherlands.
+        </h1>
+        <p className="text-fg-muted mt-5 max-w-prose text-base sm:text-lg">
+          Concerts, Garba, Diwali, comedy and community nights — found, saved and booked in one
+          place.
+        </p>
+      </section>
+
       {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
+        <div className="max-w-content mx-auto px-4 pb-4 sm:px-6">
           <PromoCarousel banners={banners} />
         </div>
       )}
@@ -62,22 +84,12 @@ export default async function HomePage() {
         }}
       />
 
-      <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
-        <div className="mb-5 flex items-baseline justify-between gap-4">
-          <h2 className="font-display text-fg flex items-center gap-1.5 text-lg font-semibold sm:text-xl">
-            <IconFlame className="text-accent" width={18} height={18} />
-            Trending events
-          </h2>
-          {featured.length > 0 && (
-            <Link
-              href="/browse"
-              className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
-            >
-              See all
-              <IconChevronRight width={14} height={14} />
-            </Link>
-          )}
-        </div>
+      <section className="max-w-content mx-auto px-4 py-12 sm:px-6 lg:py-16">
+        <SectionHeader
+          eyebrow="Selling fast"
+          title="Trending events"
+          href={featured.length > 0 ? '/browse' : undefined}
+        />
         {featured.length > 0 ? (
           <EventGrid events={featured} />
         ) : (
@@ -89,24 +101,18 @@ export default async function HomePage() {
         )}
       </section>
 
+      <SeasonStrip events={seasonEvents} />
+
       <PopularCities cities={cities} cityImages={cityImages} />
       <FeaturedOrganisers />
 
       {past.items.length > 0 && (
-        <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
-          <div className="mb-5 flex items-baseline justify-between gap-4">
-            <h2 className="font-display text-fg flex items-center gap-1.5 text-lg font-semibold sm:text-xl">
-              <IconCalendar className="text-fg-muted" width={18} height={18} />
-              Past events
-            </h2>
-            <Link
-              href={`/browse?past=1&to=${today}`}
-              className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
-            >
-              See all
-              <IconChevronRight width={14} height={14} />
-            </Link>
-          </div>
+        <section className="max-w-content mx-auto px-4 py-12 sm:px-6 lg:py-16">
+          <SectionHeader
+            eyebrow="Recently"
+            title="Past events"
+            href={`/browse?past=1&to=${today}`}
+          />
           <EventGrid events={past.items} />
         </section>
       )}

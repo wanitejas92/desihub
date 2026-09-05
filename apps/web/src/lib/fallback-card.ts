@@ -1,5 +1,5 @@
 import type { EventCategory } from '@desihub/shared';
-import { CATEGORY_TONE } from './category-tone';
+import { categoryHex } from './category-tone';
 
 /**
  * Generates branded poster art for events with no uploaded photo. We never
@@ -10,9 +10,17 @@ import { CATEGORY_TONE } from './category-tone';
  *
  * The cards are photography-first: the image fills the card and the event's
  * text sits on top of it under a scrim. That makes this art the backdrop for
- * white type, so it is deep and saturated rather than the pale wash it used
- * to be — a page of twenty pale washes read as broken placeholders, which is
- * exactly the wrong signal for a ticketing site.
+ * white type, so it has to be deep — a pale wash reads as a broken
+ * placeholder, exactly the wrong signal for a ticketing site.
+ *
+ * But it also has to be *quiet*. The previous ramp was fully saturated
+ * orange/pink/purple, and since most seeded events have no photo, the
+ * homepage rendered as twenty fluorescent gradients competing with each
+ * other and with the accent. These tones are now derived from the category
+ * hue and pulled a long way toward near-black, so a full grid reads as a
+ * set of posters rather than a swatch chart, and the saffron accent is the
+ * brightest thing on the page again — which is the whole point of having
+ * one accent.
  *
  * Deterministic per event: the same title always produces the same art, so
  * the grid doesn't reshuffle between renders.
@@ -36,12 +44,34 @@ function hash(s: string): number {
   return h;
 }
 
-/** Deep, saturated duotones — dark enough for white type to sit on directly. */
-const TONE_RAMP: Record<string, [string, string, string]> = {
-  orange: ['#3A1206', '#B03A0A', '#FF8A00'],
-  pink: ['#2E0718', '#9C1246', '#F0446F'],
-  purple: ['#1B0733', '#4A1596', '#9B5CE0'],
-};
+/** Warm near-black the duotones are pulled toward — matches the dark ground. */
+const SHADE = { r: 0x0e, g: 0x0c, b: 0x0b };
+
+function mix(hex: string, target: { r: number; g: number; b: number }, amount: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const c = (from: number, to: number) =>
+    Math.round(from + (to - from) * amount)
+      .toString(16)
+      .padStart(2, '0');
+  return `#${c(r, target.r)}${c(g, target.g)}${c(b, target.b)}`;
+}
+
+/**
+ * Three steps from one category hue: a near-black ground, a mid body, and a
+ * lifted highlight for the light source. Derived rather than hand-picked so
+ * adding a category means adding a hue, not inventing three more hex values
+ * that may or may not sit at the same depth as the rest.
+ */
+function toneRamp(category: EventCategory): [string, string, string] {
+  const base = categoryHex(category);
+  return [
+    mix(base, SHADE, 0.82), // ground
+    mix(base, SHADE, 0.42), // body
+    mix(base, { r: 255, g: 255, b: 255 }, 0.24), // highlight
+  ];
+}
 
 export interface FallbackCardInput {
   title: string;
@@ -55,8 +85,7 @@ export interface FallbackCardInput {
 export function fallbackCardSvg(input: FallbackCardInput): string {
   const w = input.width ?? 800;
   const h = input.height ?? 600;
-  const tone = CATEGORY_TONE[input.category];
-  const [deep, mid, bright] = TONE_RAMP[tone]!;
+  const [deep, mid, bright] = toneRamp(input.category);
 
   const seed = hash(input.title);
   // Light source drifts per event so a grid of fallbacks doesn't look tiled.
@@ -80,8 +109,8 @@ export function fallbackCardSvg(input: FallbackCardInput): string {
       <stop offset="1" stop-color="${deep}"/>
     </linearGradient>
     <radialGradient id="g${id}" cx="${gx}%" cy="${gy}%" r="62%">
-      <stop offset="0" stop-color="${bright}" stop-opacity="0.85"/>
-      <stop offset="0.55" stop-color="${bright}" stop-opacity="0.22"/>
+      <stop offset="0" stop-color="${bright}" stop-opacity="0.62"/>
+      <stop offset="0.55" stop-color="${bright}" stop-opacity="0.16"/>
       <stop offset="1" stop-color="${bright}" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="a${id}" x1="0" y1="0" x2="0" y2="1">
