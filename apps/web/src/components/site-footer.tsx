@@ -12,33 +12,44 @@ import {
 } from './ui/icons';
 
 /**
- * The four spots always show, on request — a placeholder that leads
- * nowhere yet (rendered as a disabled button, not a link) beats hiding the
- * row entirely while these are being set up. Each one goes live the moment
- * its env var is set, with no further code change: real socials wire
- * through `NEXT_PUBLIC_*_URL`, and the app store links will do the same
- * once DesiHub's apps actually ship.
+ * These two always show, on request — a placeholder that leads nowhere yet
+ * (a disabled button, not a link) beats hiding the row entirely while
+ * they're being set up. Each goes live the moment its env var is set, with
+ * no further code change.
  */
 const SOCIALS = [
   { href: process.env.NEXT_PUBLIC_FACEBOOK_URL, label: 'Facebook', Icon: IconFacebook },
   { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, label: 'Instagram', Icon: IconInstagram },
+];
+
+/** Env-gated the old way — hidden until configured, unlike the two above. */
+const EXTRA_SOCIALS = [
+  { href: process.env.NEXT_PUBLIC_YOUTUBE_URL, label: 'YouTube', Icon: IconYoutube },
+  { href: process.env.NEXT_PUBLIC_TIKTOK_URL, label: 'TikTok', Icon: IconTiktok },
+].filter((s): s is { href: string; label: string; Icon: typeof IconYoutube } => Boolean(s.href));
+
+/**
+ * Store badges, not bare icons — an "App Store" icon alone doesn't read as
+ * a download link the way the familiar two-line badge shape does. Same
+ * "disabled until the env var is set" treatment as the socials above; the
+ * apps themselves haven't shipped yet, so these stay inert placeholders.
+ */
+const APP_BADGES = [
   {
     href: process.env.NEXT_PUBLIC_APP_STORE_URL,
     label: 'Download on the App Store',
     Icon: IconAppStore,
+    eyebrow: 'Download on the',
+    name: 'App Store',
   },
   {
     href: process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL,
     label: 'Get it on Google Play',
     Icon: IconGooglePlay,
+    eyebrow: 'GET IT ON',
+    name: 'Google Play',
   },
 ];
-
-/** Env-gated the old way — hidden until configured, unlike the four above. */
-const EXTRA_SOCIALS = [
-  { href: process.env.NEXT_PUBLIC_YOUTUBE_URL, label: 'YouTube', Icon: IconYoutube },
-  { href: process.env.NEXT_PUBLIC_TIKTOK_URL, label: 'TikTok', Icon: IconTiktok },
-].filter((s): s is { href: string; label: string; Icon: typeof IconYoutube } => Boolean(s.href));
 
 /**
  * One flat row, not three headed columns — the header nav was removed in
@@ -102,6 +113,44 @@ export function SiteFooter() {
               )}
             </ul>
           </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <p className="text-fg-subtle text-xs font-semibold tracking-wide uppercase">
+            Get the app
+          </p>
+          {APP_BADGES.map(({ href, label, Icon, eyebrow, name }) =>
+            href ? (
+              <a
+                key={name}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="bg-fg flex items-center gap-2 rounded-lg px-3 py-1.5 text-white transition-opacity hover:opacity-90"
+              >
+                <Icon width={20} height={20} />
+                <span className="leading-tight">
+                  <span className="block text-[9px]">{eyebrow}</span>
+                  <span className="block text-sm font-semibold">{name}</span>
+                </span>
+              </a>
+            ) : (
+              <button
+                key={name}
+                type="button"
+                disabled
+                aria-label={`${label} — coming soon`}
+                className="bg-fg-subtle flex cursor-not-allowed items-center gap-2 rounded-lg px-3 py-1.5 text-white opacity-50"
+              >
+                <Icon width={20} height={20} />
+                <span className="leading-tight">
+                  <span className="block text-[9px]">{eyebrow}</span>
+                  <span className="block text-sm font-semibold">{name}</span>
+                </span>
+              </button>
+            ),
+          )}
         </div>
 
         <nav aria-label="Footer" className="border-border mt-6 border-t pt-6">
