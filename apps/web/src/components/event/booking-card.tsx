@@ -35,7 +35,7 @@ export function BookingCard({
             option.available ? 'text-fg' : 'text-fg-muted',
             // A range ("€15.00 – €25.00") is twice the width of a single
             // price and must not wrap — a broken price line reads as a bug.
-            option.priceLine.length > 14 ? 'text-[1.6rem]' : 'text-3xl',
+            option.priceLine.length > 14 ? 'text-xl' : 'text-2xl',
           )}
         >
           {option.priceLine}

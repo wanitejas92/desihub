@@ -166,7 +166,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         {/* Right — title, date, venue, booking, about                       */}
         {/* ---------------------------------------------------------------- */}
         <div className="space-y-6">
-          <h1 className="font-display text-fg text-3xl leading-[1.15] font-bold tracking-tight text-balance sm:text-4xl">
+          <h1 className="font-display text-fg text-2xl leading-[1.15] font-bold tracking-tight text-balance sm:text-3xl">
             {event.title}
           </h1>
 
