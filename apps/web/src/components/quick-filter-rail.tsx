@@ -70,7 +70,7 @@ export function QuickFilterRail({
   const activeFilter = FILTERS.find((f) => f.id === active)!;
 
   return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
+    <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
       <nav aria-label="Quick filters" className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
         <ul role="list" className="flex flex-nowrap gap-2 sm:gap-3">
           {FILTERS.map(({ id, label, Icon }) => {

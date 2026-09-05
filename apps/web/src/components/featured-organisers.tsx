@@ -3,25 +3,25 @@ import { getRepository } from '@/lib/data';
 import { monogramAvatar } from '@/lib/artist-avatar';
 
 /**
- * Featured organizers — the people actually listing events on DesiHub.
- * Shows the 6 organizers with the most published events.
+ * Featured organisers — the people actually listing events on DesiHub.
+ * Shows the 6 organisers with the most published events.
  *
  * Populated dynamically as events are listed and published; no fake data.
  */
-export async function FeaturedArtists() {
+export async function FeaturedOrganisers() {
   const repo = await getRepository();
-  const organizers = await repo.listFeaturedOrganizers(6);
+  const organisers = await repo.listFeaturedOrganizers(6);
 
-  if (!organizers || organizers.length === 0) return null;
+  if (!organisers || organisers.length === 0) return null;
 
   return (
-    <section id="artists" className="max-w-content mx-auto px-4 py-8 sm:px-6">
+    <section id="organisers" className="max-w-content mx-auto scroll-mt-20 px-4 py-8 sm:px-6">
       <h2 className="font-display text-fg mb-5 text-lg font-semibold sm:text-xl">
-        Featured organizers
+        Featured organisers
       </h2>
 
       <ul role="list" className="grid grid-cols-3 gap-5 sm:grid-cols-6">
-        {organizers.map((org) => (
+        {organisers.map((org) => (
           <li key={org.id}>
             <Link
               href={`/o/${org.slug}`}
@@ -29,7 +29,7 @@ export async function FeaturedArtists() {
             >
               <span className="ring-border group-hover:ring-accent relative block h-20 w-20 overflow-hidden rounded-full ring-1 transition-all duration-200 group-hover:ring-2 sm:h-24 sm:w-24">
                 {org.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- organizer-provided logo
+                  // eslint-disable-next-line @next/next/no-img-element -- organiser-provided logo
                   <img
                     src={org.logo_url}
                     alt={org.name}

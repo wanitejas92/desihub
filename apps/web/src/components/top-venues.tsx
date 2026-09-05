@@ -7,7 +7,7 @@ export function TopVenues({ venues }: { venues: VenueCount[] }) {
   if (venues.length === 0) return null;
 
   return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
+    <section id="venues" className="max-w-content mx-auto scroll-mt-20 px-4 py-8 sm:px-6">
       <h2 className="font-display text-lg font-semibold sm:text-xl">Top venues</h2>
       <ul role="list" className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {venues.map((venue, i) => {

@@ -7,7 +7,7 @@ const BULLETS = ['Easy Listing', 'Great Reach', 'Secure Payouts', 'Dedicated Sup
 /** Mid-page CTA — the brand gradient at full strength, but as one deliberate banner, not a page-wide habit. */
 export function OrganiserCtaBanner() {
   return (
-    <section className="max-w-content mx-auto px-4 py-6 sm:px-6">
+    <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
       <div className="shadow-elevation-lg relative overflow-hidden rounded-2xl">
         <CtaBannerIllustration className="absolute inset-0" />
 

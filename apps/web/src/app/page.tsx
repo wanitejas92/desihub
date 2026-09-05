@@ -1,13 +1,10 @@
 import Link from 'next/link';
-import { EventRail } from '@/components/event-rail';
 import { EventGrid } from '@/components/event-grid';
 import { Hero, HeroTrustBadges } from '@/components/hero';
 import { CategoryQuickNav } from '@/components/category-quick-nav';
 import { PromoCarousel } from '@/components/promo-carousel';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
-import { CategoryTiles } from '@/components/browse-tiles';
-import { FeaturedArtists } from '@/components/featured-artists';
-import { CelebrateCulture } from '@/components/celebrate-culture';
+import { FeaturedOrganisers } from '@/components/featured-organisers';
 import { PopularCities } from '@/components/popular-cities';
 import { TopVenues } from '@/components/top-venues';
 import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
@@ -23,14 +20,13 @@ export const revalidate = 3600;
 export default async function HomePage() {
   const [repo, bannerRepo] = await Promise.all([getRepository(), getBannerRepository()]);
   const banners = await bannerRepo.listActive();
-  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, upcoming, cities, venuePool] =
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities, venuePool] =
     await Promise.all([
       repo.listEvents({ limit: 12 }),
       repo.thisWeek(12),
       repo.thisWeekend(12),
       repo.listEvents({ price: 'free', limit: 12 }),
       repo.featured(8),
-      repo.nearYou(undefined, 8),
       repo.popularCities(6),
       repo.listEvents({ limit: 60 }),
     ]);
@@ -100,19 +96,8 @@ export default async function HomePage() {
         )}
       </section>
 
-      <CategoryTiles />
-
-      <EventRail
-        title="This weekend"
-        events={thisWeekend.length > 0 ? thisWeekend : upcoming}
-        seeAllHref="/browse?when=weekend"
-        emptyTitle="Nothing listed for this weekend yet"
-        emptyDescription="Be the first to add one for your city."
-      />
-
       <PopularCities cities={cities} />
-      <FeaturedArtists />
-      <CelebrateCulture />
+      <FeaturedOrganisers />
       <TopVenues venues={topVenues(venuePool.items)} />
       <OrganiserCtaBanner />
     </>

@@ -1,33 +1,27 @@
 import Link from 'next/link';
-import { EVENT_CATEGORY_LABELS } from '@desihub/shared';
+import { EVENT_CATEGORIES, EVENT_CATEGORY_LABELS } from '@desihub/shared';
 import { CATEGORY_ICON } from '@/lib/category-icons';
 import { CATEGORY_TONE, TONE_ACCENT, TONE_SOFT } from '@/lib/category-tone';
 
-/** Categories worth a one-tap jump from the homepage — not the full list. */
-const QUICK_CATEGORIES = [
-  'concert',
-  'party',
-  'garba_dandiya',
-  'cultural',
-  'comedy',
-  'food',
-  'family',
-  'workshop',
-] as const;
-
 /**
- * Icon-over-label quick nav, right below the header. The fastest way into a
- * specific kind of night without a search or a scroll — one tap from the
- * homepage into that category's browse results.
+ * Icon-over-label quick nav, right below the header — the site's *only*
+ * category-browsing entry point (a "Categories" tile grid and a "Celebrate
+ * culture" festival-tile section used to duplicate this same job further
+ * down the page; both were folded into this one row instead). Shows every
+ * category, not a curated subset, since nothing else covers the rest.
  */
 export function CategoryQuickNav() {
   return (
-    <nav aria-label="Browse by category" className="max-w-content mx-auto px-4 sm:px-6">
+    <nav
+      id="categories"
+      aria-label="Browse by category"
+      className="max-w-content mx-auto scroll-mt-20 px-4 sm:px-6"
+    >
       <ul
         role="list"
         className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:mx-0 sm:gap-5 sm:px-0"
       >
-        {QUICK_CATEGORIES.map((category) => {
+        {EVENT_CATEGORIES.map((category) => {
           const Icon = CATEGORY_ICON[category];
           const tone = CATEGORY_TONE[category];
           return (
