@@ -15,11 +15,11 @@ interface EventCardProps {
 }
 
 /**
- * Poster image on top, a plain content block below it — date, title,
- * venue, price. Text used to sit on the image itself under a dark scrim;
- * moved off the artwork so the poster reads clean and the copy gets full
- * contrast against the page background instead of fighting whatever's
- * behind it in the photo.
+ * One bordered panel, not two separate pieces: the border/shadow used to sit
+ * only on the image, so the date/title/location/price beneath it had no
+ * visible edge of its own and read as loose text sitting on the page rather
+ * than part of the card. Now the whole card — poster and info block both —
+ * shares one border, radius and shadow.
  */
 export function EventCard({ event, priority, className, trending }: EventCardProps) {
   const price = formatPriceRange(
@@ -33,8 +33,14 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
   const unavailable = soldOut || cancelled;
 
   return (
-    <Link href={`/e/${event.slug}`} className={cn('group flex flex-col', className)}>
-      <div className="shadow-elevation group-hover:shadow-elevation-lg relative isolate aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-300 ease-out">
+    <Link
+      href={`/e/${event.slug}`}
+      className={cn(
+        'group border-border bg-surface shadow-elevation hover:shadow-elevation-lg block overflow-hidden rounded-xl border transition-shadow duration-300 ease-out',
+        className,
+      )}
+    >
+      <div className="relative isolate aspect-[4/5]">
         <EventImage
           imageUrl={event.image_url}
           title={event.title}
@@ -62,7 +68,7 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
         )}
       </div>
 
-      <div className="pt-3">
+      <div className="p-3">
         <p className="text-fg-muted flex items-center gap-1.5 text-xs font-semibold">
           <IconCalendar width={13} height={13} className="shrink-0" />
           {formatEventDateCompact(event.starts_at)} · {formatEventTime(event.starts_at)}
