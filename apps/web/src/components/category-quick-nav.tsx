@@ -33,11 +33,23 @@ export function CategoryQuickNav() {
     <nav
       id="categories"
       aria-label="Browse by category"
-      className="bg-bg border-border sticky top-[65px] z-30 scroll-mt-20 border-b"
+      // Sticks directly under the header, which is two rows tall on mobile
+      // (64px bar + 49px search row) and one row from `lg` up.
+      className="bg-bg border-border relative sticky top-[113px] z-30 scroll-mt-20 border-b lg:top-[65px]"
     >
+      {/* Fades the last chip out at the right edge instead of guillotining
+          it, which is the cheapest honest "there is more this way" signal. */}
+      <span
+        aria-hidden
+        className="from-bg pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l to-transparent lg:hidden"
+      />
       <ul
         role="list"
-        className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:gap-5 sm:px-6 lg:snap-none lg:justify-center lg:gap-10 lg:overflow-visible lg:py-4"
+        // `pr-10` on the scroller, plus the fade below: the row was ending
+        // flush with the viewport edge, so the last category was sliced
+        // clean in half with nothing to say it could be scrolled — it just
+        // looked like a clipped layout.
+        className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 pr-10 sm:gap-5 sm:px-6 lg:snap-none lg:justify-center lg:gap-10 lg:overflow-visible lg:py-4 lg:pr-6"
       >
         {QUICK_CATEGORIES.map(({ category, label }) => {
           const Icon = CATEGORY_ICON[category];

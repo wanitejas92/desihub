@@ -4,14 +4,20 @@ import { HeaderCitySelect } from './header-city-select';
 import { HeaderSearch } from './header-search';
 import { HeaderAccount } from './header-account';
 import { Logo } from './logo';
-import { IconSearch } from './ui/icons';
 
 /**
- * Logo, city, search, account — one line. Search used to live only in a
- * large box inside the homepage hero, reachable from nowhere else; it's
- * here now (an inline box from `lg` up, a plain icon into /browse below
- * that — a compact box has no room next to the city pill on a phone
- * screen) so it's one tap away on every page, not just the homepage.
+ * Logo, city, search, account.
+ *
+ * The layout splits by breakpoint because the two sizes want different
+ * things. From `lg` up everything sits on one line with search inline
+ * between the city pill and the account corner.
+ *
+ * Below that the header is two rows, matching the reference: brand on the
+ * left, the city pill, the account avatar hard right — then search as its
+ * own full-width row underneath. Search used to be an icon here that simply
+ * linked to /browse, so "search" cost a page load before you could type a
+ * single character. It is a real input now: you type where you tapped, and
+ * Enter takes you to the results.
  *
  * Full site navigation (Events, Categories, Organisers, About, Contact,
  * Support) lives in the footer, which every page carries; category
@@ -31,15 +37,15 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
         <HeaderSearch className="hidden max-w-sm flex-1 lg:flex" />
 
         <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-          <Link
-            href="/browse"
-            aria-label="Search events"
-            className="text-fg-muted hover:text-accent hover:bg-bg-subtle flex h-9 w-9 items-center justify-center rounded-full transition-colors lg:hidden"
-          >
-            <IconSearch width={18} height={18} />
-          </Link>
           <HeaderAccount user={user} />
         </div>
+      </div>
+
+      {/* Mobile search row. Full width because it is the only thing on its
+          line — a compact box squeezed next to the city pill is what forced
+          the old icon-link compromise in the first place. */}
+      <div className="border-border/70 border-t px-4 py-2.5 sm:px-6 lg:hidden">
+        <HeaderSearch className="flex w-full" />
       </div>
     </header>
   );

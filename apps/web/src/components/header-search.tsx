@@ -6,11 +6,16 @@ import { IconSearch, IconX } from './ui/icons';
 import { cn } from '@/lib/cn';
 
 /**
- * The header's inline search box (desktop) — a real shortcut into /browse,
- * submitted on Enter. Search used to live only in a large box inside the
- * homepage hero, which meant it wasn't reachable at all from /browse, an
- * event page, or anywhere else; the header is the one place that's on
- * every page.
+ * The header's search box — a real input on every breakpoint, submitted on
+ * Enter.
+ *
+ * On mobile this used to be an icon that linked to /browse, so tapping
+ * "search" cost a full page load before you could type anything. Now the
+ * field is where the tap lands.
+ *
+ * `type="search"` rather than `type="text"`: iOS then labels the on-screen
+ * keyboard's action key "Search" instead of "Go", which is the difference
+ * between the control explaining itself and not.
  */
 export function HeaderSearch({ className }: { className?: string }) {
   const router = useRouter();
@@ -38,9 +43,14 @@ export function HeaderSearch({ className }: { className?: string }) {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search events"
+        placeholder="Search events, artists, venues"
         aria-label="Search events"
-        className="text-fg placeholder:text-fg-subtle rounded-pill h-9 w-full bg-transparent py-0 pr-8 pl-9 text-sm outline-none"
+        // 44px on a phone, 36px once it is sharing a line with everything
+        // else on desktop — a header row cannot afford 44 there.
+        // `appearance-none` plus the WebKit pseudo-element: `type="search"`
+        // draws its own clear button, which sat next to ours and gave the
+        // field two × buttons side by side.
+        className="text-fg placeholder:text-fg-subtle rounded-pill h-11 w-full appearance-none bg-transparent py-0 pr-8 pl-9 text-sm outline-none lg:h-9 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
       />
       {q && (
         <button

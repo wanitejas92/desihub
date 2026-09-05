@@ -53,22 +53,29 @@ export default async function HomePage() {
       <CategoryQuickNav />
       <CreateEventStrip />
 
-      {/* A real <h1>. The page had none at all — the hero had been reduced
-          to a one-line text link during an earlier pass, which left the
-          homepage with no top-level heading for search engines or screen
-          readers, and nothing on the page set at display size. */}
-      <section className="max-w-content mx-auto px-4 pt-10 pb-6 sm:px-6 lg:pt-16 lg:pb-10">
-        <h1 className="font-display text-fg max-w-[16ch] text-3xl font-bold lg:max-w-[20ch] lg:text-4xl">
+      {/* The page still needs exactly one <h1> — it had none at all before,
+          which is a real SEO and screen-reader gap — but on a phone the
+          headline was pushing the banners below the fold, and the banners
+          are the thing worth leading with. So: the copy shows from `lg` up,
+          and on mobile the same heading stays in the accessibility tree
+          while the artwork takes the space. */}
+      <section className="max-w-content mx-auto px-4 sm:px-6 lg:pt-16 lg:pb-10">
+        {/* One <h1>, not two. `sr-only` keeps it in the accessibility tree
+            and in the markup on a phone while taking no vertical space, and
+            `lg:not-sr-only` gives it back its box on desktop. Two elements
+            toggled with `hidden` would have put a second <h1> in the HTML
+            for crawlers even though only one is ever rendered. */}
+        <h1 className="font-display text-fg sr-only lg:not-sr-only lg:max-w-[20ch] lg:text-4xl lg:font-bold">
           Every Desi night out in the Netherlands.
         </h1>
-        <p className="text-fg-muted mt-5 max-w-prose text-base sm:text-lg">
+        <p className="text-fg-muted mt-5 hidden max-w-prose text-lg lg:block">
           Concerts, Garba, Diwali, comedy and community nights — found, saved and booked in one
           place.
         </p>
       </section>
 
       {banners.length > 0 && (
-        <div className="max-w-content mx-auto px-4 pb-4 sm:px-6">
+        <div className="max-w-content mx-auto px-4 pt-4 pb-4 sm:px-6 lg:pt-0">
           <PromoCarousel banners={banners} />
         </div>
       )}

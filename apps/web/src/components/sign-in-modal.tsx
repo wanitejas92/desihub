@@ -47,7 +47,11 @@ export function SignInModal() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Sign in"
-        className="text-fg-muted hover:bg-bg-subtle hover:text-fg inline-flex h-10 shrink-0 items-center justify-center rounded-md px-2 text-sm font-semibold transition-colors sm:px-3"
+        // A filled circle on a phone, per the reference — a bare outline glyph
+        // floating at the edge of the bar reads as an icon nobody styled.
+        // From `sm` up it becomes a labelled "Sign in" button, where there is
+        // room for the word and the word is clearer than any avatar.
+        className="bg-bg-subtle text-fg-muted hover:bg-surface-hover hover:text-fg border-border inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-semibold transition-colors sm:w-auto sm:rounded-md sm:border-0 sm:bg-transparent sm:px-3"
       >
         <IconUsers width={18} height={18} className="sm:hidden" />
         <span className="hidden sm:inline">Sign in</span>
