@@ -19,7 +19,7 @@ import { EventOrganiserCard } from '@/components/event/event-organiser-card';
 import { VenueMap } from '@/components/event/venue-map';
 import { EventRail } from '@/components/event-rail';
 import { TicketSelector } from '@/components/ticket-selector';
-import { BookingCard, BookingCta } from '@/components/event/booking-card';
+import { StickyBookingBar } from '@/components/event/sticky-booking-bar';
 import { EventDescription } from '@/components/event/event-description';
 import {
   EventGallery,
@@ -208,13 +208,18 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             </div>
           )}
 
-          <BookingCard option={booking} calendarEvent={calendarEvent}>
-            {nativeTickets && (
-              <div id="tickets" className="border-border/70 mt-5 scroll-mt-24 border-t pt-5">
-                <TicketSelector event={event} />
-              </div>
-            )}
-          </BookingCard>
+          {/*
+            Price and the primary CTA live only in the sticky bottom bar now
+            — this used to repeat both in a full card here too, which just
+            showed the same price and button twice on screen at once. The
+            ticket selector is real, necessary UI (not decorative), so it
+            still gets its own spot when native tickets are in play.
+          */}
+          {nativeTickets && (
+            <div id="tickets" className="scroll-mt-24">
+              <TicketSelector event={event} />
+            </div>
+          )}
 
           {event.description && (
             <section>
@@ -238,28 +243,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </div>
       )}
 
-      {/*
-        Persistent price/booking bar, visible on every screen size — the
-        primary call to action lives here, matching how the reference design
-        keeps price and "Book now" pinned regardless of scroll position. The
-        brand gradient (same as the primary Button and the organiser CTA
-        banner) makes this read as *the* confident action, not a quiet echo
-        of the booking card above it.
-      */}
-      <div
-        className="shadow-elevation-lg fixed inset-x-0 bottom-0 z-30 flex items-center justify-between gap-4 px-4 py-3 sm:px-6"
-        style={{ backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0446F, #7B35D6)' }}
-      >
-        <div className="min-w-0">
-          <p className="text-xs text-white/80">{booking.label}</p>
-          <p className="font-display truncate text-lg font-semibold text-white">
-            {booking.priceLine || booking.compactLabel}
-          </p>
-        </div>
-        <div className="shrink-0">
-          <BookingCta option={booking} calendarEvent={calendarEvent} compact />
-        </div>
-      </div>
+      <StickyBookingBar booking={booking} calendarEvent={calendarEvent} />
     </article>
   );
 }
