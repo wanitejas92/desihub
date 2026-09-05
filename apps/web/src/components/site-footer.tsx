@@ -24,7 +24,7 @@ const SOCIALS = [
  */
 const LINKS = [
   { href: '/browse', label: 'Events' },
-  { href: '/#categories', label: 'Categories' },
+  { href: '/browse', label: 'Categories' },
   { href: '/#organisers', label: 'Organisers' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
