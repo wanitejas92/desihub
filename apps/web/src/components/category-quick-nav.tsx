@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import type { EventCategory } from '@desihub/shared';
 import { CATEGORY_ICON } from '@/lib/category-icons';
-import { IconChevronRight } from './ui/icons';
+import type { ComponentType, SVGProps } from 'react';
+import { IconChevronRight, IconSparkle } from './ui/icons';
+import { cn } from '@/lib/cn';
 
 /**
  * High-level categories only — the full 12-category taxonomy (still filterable
@@ -51,41 +53,76 @@ export function CategoryQuickNav() {
         // looked like a clipped layout.
         className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 pr-10 sm:gap-5 sm:px-6 lg:snap-none lg:justify-center lg:gap-10 lg:overflow-visible lg:py-4 lg:pr-6"
       >
-        {QUICK_CATEGORIES.map(({ category, label }) => {
-          const Icon = CATEGORY_ICON[category];
-          return (
-            <li key={category} className="shrink-0 snap-start">
-              <Link
-                href={`/browse?category=${category}`}
-                className="group flex w-16 flex-col items-center gap-1.5 text-center lg:w-20"
-              >
-                <span
-                  aria-hidden
-                  className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110 lg:h-8 lg:w-8"
-                >
-                  <Icon width={26} height={26} />
-                </span>
-                <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold lg:text-xs">
-                  {label}
-                </span>
-              </Link>
-            </li>
-          );
-        })}
+        {/* "For You" is the homepage itself, and this nav only renders on
+            the homepage — so it is always the active entry here and needs no
+            client-side route matching. When the row appears on another page,
+            that page passes the active category in rather than this
+            component reaching for `useSearchParams`, which would force the
+            homepage out of static rendering for one highlight. */}
         <li className="shrink-0 snap-start">
-          <Link
-            href="/browse"
-            className="group flex w-16 flex-col items-center gap-1.5 text-center lg:w-20"
-          >
-            <span className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110 lg:h-8 lg:w-8">
-              <IconChevronRight width={22} height={22} />
-            </span>
-            <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold lg:text-xs">
-              More
-            </span>
-          </Link>
+          <NavItem href="/" label="For You" Icon={IconSparkle} active />
+        </li>
+
+        {QUICK_CATEGORIES.map(({ category, label }) => (
+          <li key={category} className="shrink-0 snap-start">
+            <NavItem
+              href={`/browse?category=${category}`}
+              label={label}
+              Icon={CATEGORY_ICON[category]}
+            />
+          </li>
+        ))}
+        <li className="shrink-0 snap-start">
+          <NavItem href="/browse" label="More" Icon={IconChevronRight} />
         </li>
       </ul>
     </nav>
+  );
+}
+
+/**
+ * One entry. The active state is a tinted rounded container rather than a
+ * colour change alone — at 11px a label that is merely a different colour is
+ * not a state anyone notices on a phone, and the whole point of the row is
+ * knowing where you are in it.
+ */
+function NavItem({
+  href,
+  label,
+  Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  Icon: ComponentType<SVGProps<SVGSVGElement>>;
+  active?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      className={cn(
+        'group flex w-[4.5rem] flex-col items-center gap-1.5 rounded-md px-1 py-2 text-center transition-colors lg:w-20',
+        active ? 'bg-accent-subtle' : 'hover:bg-bg-subtle',
+      )}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          'flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110 lg:h-8 lg:w-8',
+          active ? 'text-accent' : 'text-fg-muted group-hover:text-accent',
+        )}
+      >
+        <Icon width={24} height={24} />
+      </span>
+      <span
+        className={cn(
+          'text-[11px] leading-tight lg:text-xs',
+          active ? 'text-accent font-bold' : 'text-fg-muted group-hover:text-fg font-semibold',
+        )}
+      >
+        {label}
+      </span>
+    </Link>
   );
 }
