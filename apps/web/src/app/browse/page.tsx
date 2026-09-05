@@ -59,6 +59,21 @@ export default async function BrowsePage({
   const categoryLabel = category ? EVENT_CATEGORY_LABELS[category] : undefined;
   const CategoryIcon = category ? CATEGORY_ICON[category] : null;
   const tone = category ? CATEGORY_TONE[category] : undefined;
+  const city = filters.city;
+
+  // The heading is the one place a visitor checks "did my filter actually
+  // apply?" — it has to name the city and category picked, not sit on a
+  // generic "All events" while the grid below quietly filters underneath it.
+  const heading =
+    categoryLabel && city ? `${categoryLabel} in ${city}` : (categoryLabel ?? city ?? 'All events');
+  const subheading =
+    category && city
+      ? `Every upcoming ${categoryLabel} event in ${city}.`
+      : category
+        ? `Every upcoming ${categoryLabel} event, in one place.`
+        : city
+          ? `Every upcoming event in ${city}.`
+          : 'Filter by city, category, language, price and more.';
 
   return (
     <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
@@ -75,15 +90,11 @@ export default async function BrowsePage({
         <div>
           <p className="text-accent text-xs font-bold tracking-widest uppercase">Browse</p>
           <h1 className="font-display text-2xl leading-tight font-semibold sm:text-3xl">
-            {categoryLabel ?? 'All events'}
+            {heading}
           </h1>
         </div>
       </div>
-      <p className="text-fg-muted mt-2">
-        {category
-          ? `Every upcoming ${categoryLabel} event, in one place.`
-          : 'Filter by city, category, language, price and more.'}
-      </p>
+      <p className="text-fg-muted mt-2">{subheading}</p>
 
       <div className="mt-6">
         <Suspense fallback={<div className="h-24" />}>
