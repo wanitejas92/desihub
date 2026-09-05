@@ -1,19 +1,44 @@
 import Link from 'next/link';
 import { Logo } from './logo';
 import { EmailCapture } from './email-capture';
-import { IconInstagram, IconFacebook, IconYoutube, IconTiktok, IconArrowRight } from './ui/icons';
+import {
+  IconInstagram,
+  IconFacebook,
+  IconYoutube,
+  IconTiktok,
+  IconAppStore,
+  IconGooglePlay,
+  IconArrowRight,
+} from './ui/icons';
 
 /**
- * Social handles are read from env rather than hard-coded: an icon that
- * links nowhere is worse than no icon, so each one renders only when its
- * URL is actually configured.
+ * The four spots always show, on request — a placeholder that leads
+ * nowhere yet (rendered as a disabled button, not a link) beats hiding the
+ * row entirely while these are being set up. Each one goes live the moment
+ * its env var is set, with no further code change: real socials wire
+ * through `NEXT_PUBLIC_*_URL`, and the app store links will do the same
+ * once DesiHub's apps actually ship.
  */
 const SOCIALS = [
-  { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, label: 'Instagram', Icon: IconInstagram },
   { href: process.env.NEXT_PUBLIC_FACEBOOK_URL, label: 'Facebook', Icon: IconFacebook },
+  { href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, label: 'Instagram', Icon: IconInstagram },
+  {
+    href: process.env.NEXT_PUBLIC_APP_STORE_URL,
+    label: 'Download on the App Store',
+    Icon: IconAppStore,
+  },
+  {
+    href: process.env.NEXT_PUBLIC_GOOGLE_PLAY_URL,
+    label: 'Get it on Google Play',
+    Icon: IconGooglePlay,
+  },
+];
+
+/** Env-gated the old way — hidden until configured, unlike the four above. */
+const EXTRA_SOCIALS = [
   { href: process.env.NEXT_PUBLIC_YOUTUBE_URL, label: 'YouTube', Icon: IconYoutube },
   { href: process.env.NEXT_PUBLIC_TIKTOK_URL, label: 'TikTok', Icon: IconTiktok },
-].filter((s): s is { href: string; label: string; Icon: typeof IconInstagram } => Boolean(s.href));
+].filter((s): s is { href: string; label: string; Icon: typeof IconYoutube } => Boolean(s.href));
 
 /**
  * One flat row, not three headed columns — the header nav was removed in
@@ -48,9 +73,9 @@ export function SiteFooter() {
               <IconArrowRight width={14} height={14} />
             </Link>
 
-            {SOCIALS.length > 0 && (
-              <ul role="list" className="flex items-center gap-2">
-                {SOCIALS.map(({ href, label, Icon }) => (
+            <ul role="list" className="flex items-center gap-2">
+              {[...SOCIALS, ...EXTRA_SOCIALS].map(({ href, label, Icon }) =>
+                href ? (
                   <li key={label}>
                     <a
                       href={href}
@@ -62,9 +87,20 @@ export function SiteFooter() {
                       <Icon width={16} height={16} />
                     </a>
                   </li>
-                ))}
-              </ul>
-            )}
+                ) : (
+                  <li key={label}>
+                    <button
+                      type="button"
+                      disabled
+                      aria-label={`${label} — coming soon`}
+                      className="border-border text-fg-subtle flex h-9 w-9 cursor-not-allowed items-center justify-center rounded-full border opacity-60"
+                    >
+                      <Icon width={16} height={16} />
+                    </button>
+                  </li>
+                ),
+              )}
+            </ul>
           </div>
         </div>
 

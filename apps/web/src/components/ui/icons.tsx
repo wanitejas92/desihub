@@ -369,3 +369,21 @@ export function IconTiktok(props: IconProps) {
     </svg>
   );
 }
+
+export function IconAppStore(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M13.2 6.4c-.9-.1-1.7.5-2.2.5s-1.2-.5-2-.5c-1 0-2 .6-2.5 1.5-1 1.9-.3 4.6.8 6.1.5.7 1.1 1.5 1.9 1.5s1-.5 2-.5 1.2.5 2 .5 1.4-.7 1.9-1.5c.4-.6.6-1 .8-1.6-2.1-.8-2.4-3.6-.4-4.7-.6-.8-1.5-1.2-2.3-1.3z" />
+      <path d="M11.4 5.2c.4-.5.7-1.2.6-1.9-.6.1-1.3.5-1.7 1-.4.4-.7 1.1-.6 1.8.7 0 1.3-.4 1.7-.9z" />
+    </svg>
+  );
+}
+
+export function IconGooglePlay(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5.5 3.2 13 10l-7.5 6.8a1 1 0 0 1-.5-.9V4.1a1 1 0 0 1 .5-.9z" />
+      <path d="M13 10l2.6-1.5c.9-.5.9-1.5 0-2L13 5l-3.3 3zM13 10l2.6 1.5c.9.5.9 1.5 0 2L13 15l-3.3-3z" />
+    </svg>
+  );
+}

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { EventGrid } from '@/components/event-grid';
 import { Hero } from '@/components/hero';
 import { CategoryQuickNav } from '@/components/category-quick-nav';
+import { CreateEventStrip } from '@/components/create-event-strip';
 import { PromoCarousel } from '@/components/promo-carousel';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { FeaturedOrganisers } from '@/components/featured-organisers';
@@ -42,6 +43,7 @@ export default async function HomePage() {
   return (
     <>
       <CategoryQuickNav />
+      <CreateEventStrip />
 
       {banners.length > 0 && (
         <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
