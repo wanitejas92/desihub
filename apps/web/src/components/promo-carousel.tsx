@@ -58,21 +58,7 @@ export function PromoCarousel({ banners }: { banners: Banner[] }) {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      {/*
-        Tied to *actual* viewport height (100vh), not fixed per-breakpoint
-        pixels: a static lg/xl/2xl height only ever matches the exact window
-        heights it was tuned against, and overflows on anything shorter —
-        browser chrome, OS taskbars, or a plain non-maximized window all eat
-        into real viewport height in ways a width breakpoint can't see. The
-        `calc(100vh-315px)` term reserves the header + search/buttons +
-        trust badges below it (295px) plus a small safety margin; clamp()
-        keeps it from vanishing on a very short window (140px floor) or
-        growing past a sensible size on a tall one (300px ceiling) — the
-        homepage's `lg:min-h` wrapper (see page.tsx) then absorbs whatever
-        the 300px cap leaves open on tall screens, so Quick Filters still
-        never peeks.
-      */}
-      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9] lg:aspect-auto lg:h-[clamp(140px,calc(100vh_-_315px),300px)]">
+      <div className="bg-bg-subtle relative aspect-[16/9] overflow-hidden rounded-2xl sm:aspect-[21/9]">
         {banners.map((b, i) => (
           <Slide key={b.id} banner={b} active={i === index} position={i + 1} total={count} />
         ))}

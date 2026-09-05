@@ -29,31 +29,15 @@ export default async function HomePage() {
 
   return (
     <>
-      {/*
-        Above-the-fold group: banner, search, buttons. Quick Filters sits
-        immediately after with no gap of its own, so on a taller screen any
-        leftover space has to come from *this* wrapper, not from the banner
-        growing unboundedly or from luck. `lg:min-h` (desktop only — mobile
-        scrolls naturally) floors this block at one viewport tall minus the
-        header (h-16 + 1px border = 65px); it is NOT flexed or centered, so
-        the box stacks top-down as normal and any slack lands as plain space
-        *after* the search bar, pushing Quick Filters below the fold on any
-        desktop height, not just the four this was tuned against
-        (1366×768, 1440×900, 1536×864, 1920×1080). The banner itself
-        (see PromoCarousel) still has a real, bounded size per breakpoint —
-        this wrapper only closes the gap that size leaves open.
-      */}
-      <div className="lg:min-h-[calc(100vh-65px)]">
-        <CategoryQuickNav />
+      <CategoryQuickNav />
 
-        {banners.length > 0 && (
-          <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
-            <PromoCarousel banners={banners} />
-          </div>
-        )}
+      {banners.length > 0 && (
+        <div className="max-w-content mx-auto px-4 py-2 sm:px-6 lg:py-2">
+          <PromoCarousel banners={banners} />
+        </div>
+      )}
 
-        <Hero />
-      </div>
+      <Hero />
 
       <QuickFilterRail
         eventsByFilter={{

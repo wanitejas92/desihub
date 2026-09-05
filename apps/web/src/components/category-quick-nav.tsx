@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import type { EventCategory } from '@desihub/shared';
 import { CATEGORY_ICON } from '@/lib/category-icons';
-import { CATEGORY_TONE, TONE_ACCENT, TONE_SOFT } from '@/lib/category-tone';
 import { IconChevronRight } from './ui/icons';
 
 /**
@@ -39,7 +38,6 @@ export function CategoryQuickNav() {
       >
         {QUICK_CATEGORIES.map(({ category, label }) => {
           const Icon = CATEGORY_ICON[category];
-          const tone = CATEGORY_TONE[category];
           return (
             <li key={category} className="shrink-0 snap-start">
               <Link
@@ -48,10 +46,9 @@ export function CategoryQuickNav() {
               >
                 <span
                   aria-hidden
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform duration-150 ease-out group-hover:scale-105"
-                  style={{ backgroundColor: TONE_SOFT[tone], color: TONE_ACCENT[tone] }}
+                  className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110"
                 >
-                  <Icon width={19} height={19} />
+                  <Icon width={26} height={26} />
                 </span>
                 <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold">
                   {label}
@@ -65,8 +62,8 @@ export function CategoryQuickNav() {
             href="/browse"
             className="group flex w-16 flex-col items-center gap-1.5 text-center"
           >
-            <span className="bg-bg-subtle text-fg-muted group-hover:text-accent flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-transform duration-150 ease-out group-hover:scale-105">
-              <IconChevronRight width={18} height={18} />
+            <span className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110">
+              <IconChevronRight width={22} height={22} />
             </span>
             <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold">
               More

@@ -4,6 +4,7 @@ import type { EventWithRelations } from '@/lib/data';
 import { EventImage } from './event-image';
 import { FavouriteButton } from './favourite-button';
 import { ShareButton } from './share-button';
+import { IconCalendar, IconMapPin } from './ui/icons';
 import { cn } from '@/lib/cn';
 
 interface EventCardProps {
@@ -14,12 +15,11 @@ interface EventCardProps {
 }
 
 /**
- * Photography-first card: the image is the card, the type sits on it under a
- * scrim. Deliberately spare — date, title, venue, price, and a save control.
- * Every extra floating badge (category, trending, verified tick, a date chip
- * *and* a date line) competed with the artwork and made a grid of these read
- * as cluttered rather than premium, so they're gone; category and trending
- * are already the context the rail or filter above provides.
+ * Poster image on top, a plain content block below it — date, title,
+ * venue, price. Text used to sit on the image itself under a dark scrim;
+ * moved off the artwork so the poster reads clean and the copy gets full
+ * contrast against the page background instead of fighting whatever's
+ * behind it in the photo.
  */
 export function EventCard({ event, priority, className, trending }: EventCardProps) {
   const price = formatPriceRange(
@@ -33,15 +33,8 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
   const unavailable = soldOut || cancelled;
 
   return (
-    <Link
-      href={`/e/${event.slug}`}
-      className={cn(
-        'group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl',
-        'shadow-elevation hover:shadow-elevation-lg transition-shadow duration-300 ease-out',
-        className,
-      )}
-    >
-      <div className="absolute inset-0 -z-10">
+    <Link href={`/e/${event.slug}`} className={cn('group flex flex-col', className)}>
+      <div className="shadow-elevation group-hover:shadow-elevation-lg relative isolate aspect-[4/5] overflow-hidden rounded-xl transition-shadow duration-300 ease-out">
         <EventImage
           imageUrl={event.image_url}
           title={event.title}
@@ -52,39 +45,39 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
           fallbackWidth={800}
           fallbackHeight={1000}
           className={cn(
-            'transition-transform duration-500 ease-out group-hover:scale-[1.04]',
+            'h-full w-full transition-transform duration-500 ease-out group-hover:scale-[1.04]',
             unavailable && 'grayscale-[35%]',
           )}
         />
-        {/* Scrim: dark enough at the foot for white type, clear at the top so
-            the artwork still reads. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5"
-        />
+
+        <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
+          <FavouriteButton eventId={event.id} />
+          <ShareButton title={event.title} path={`/e/${event.slug}`} variant="overlay" />
+        </div>
+
+        {trending && (
+          <span className="bg-accent absolute top-3 left-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-white uppercase">
+            Trending
+          </span>
+        )}
       </div>
 
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-        <FavouriteButton eventId={event.id} />
-        <ShareButton title={event.title} path={`/e/${event.slug}`} variant="overlay" />
-      </div>
-
-      {trending && (
-        <span className="absolute top-3 left-3 z-10 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-white uppercase backdrop-blur-sm">
-          Trending
-        </span>
-      )}
-
-      <div className="relative p-4">
-        <p className="text-[11px] font-semibold tracking-[0.12em] text-white/70 uppercase">
+      <div className="pt-3">
+        <p className="text-fg-muted flex items-center gap-1.5 text-xs font-semibold">
+          <IconCalendar width={13} height={13} className="shrink-0" />
           {formatEventDateCompact(event.starts_at)} · {formatEventTime(event.starts_at)}
         </p>
-        <h3 className="font-display mt-1.5 line-clamp-2 text-[1.0625rem] leading-snug font-bold text-white">
+        <h3 className="font-display text-fg mt-1 line-clamp-2 text-[1.0625rem] leading-snug font-bold">
           {event.title}
         </h3>
-        <div className="mt-2.5 flex items-baseline justify-between gap-3">
-          <p className="truncate text-sm text-white/70">{event.venue?.city ?? 'Netherlands'}</p>
-          <p className="shrink-0 text-sm font-semibold text-white">
+        <div className="mt-1.5 flex items-center justify-between gap-3">
+          <p className="text-fg-muted flex min-w-0 items-center gap-1 text-sm">
+            <IconMapPin width={13} height={13} className="shrink-0" />
+            <span className="truncate">{event.venue?.city ?? 'Netherlands'}</span>
+          </p>
+          <p
+            className={cn('shrink-0 text-sm font-bold', unavailable ? 'text-fg-subtle' : 'text-fg')}
+          >
             {unavailable ? (soldOut ? 'Sold out' : 'Cancelled') : price}
           </p>
         </div>

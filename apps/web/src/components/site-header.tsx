@@ -3,22 +3,14 @@ import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderAccount } from './header-account';
 import { Logo } from './logo';
-import { Button } from './ui/button';
-import { IconSearch } from './ui/icons';
 
 /**
- * Every nav item points somewhere real: the three discovery links are
- * homepage sections, so they scroll rather than 404. Nothing here is a
- * placeholder link.
+ * Logo, city, account — nothing else. Full site navigation (Events,
+ * Categories, Organisers, About, Contact, Support) lives in the footer,
+ * which every page carries; category browsing itself happens through the
+ * homepage's category row and the /browse page's own filters, not a header
+ * nav bar.
  */
-const NAV = [
-  { href: '/browse', label: 'Events' },
-  { href: '/#categories', label: 'Categories' },
-  { href: '/#organisers', label: 'Organisers' },
-  { href: '/about', label: 'About' },
-  { href: '/contact', label: 'Contact' },
-] as const;
-
 export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
     <header className="border-border border-b">
@@ -30,34 +22,7 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
 
           <HeaderCitySelect />
 
-          <nav
-            className="hidden flex-1 items-center justify-center gap-1 lg:flex"
-            aria-label="Primary"
-          >
-            {NAV.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-fg-muted hover:bg-bg-subtle hover:text-fg rounded-md px-3 py-2 text-sm font-semibold transition-colors"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2 lg:ml-0">
-            <Link
-              href="/browse"
-              aria-label="Search events"
-              className="text-fg-muted hover:bg-bg-subtle hover:text-fg hidden h-10 w-10 items-center justify-center rounded-full transition-colors sm:inline-flex"
-            >
-              <IconSearch />
-            </Link>
-            <span className="hidden sm:inline-flex">
-              <Button href="/submit" size="sm">
-                List Your Event
-              </Button>
-            </span>
+          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
             <HeaderAccount user={user} />
           </div>
         </div>
