@@ -89,26 +89,21 @@ export function BookingCta({
 
     case 'internal':
       return (
-        <Button
-          href={cta.href}
-          // Compact lives on the gradient sticky bar — the default gradient
-          // button would disappear into it, so it switches to the white
-          // "secondary" treatment the calendar CTA already uses there.
-          variant={compact ? 'secondary' : 'primary'}
-          className={compact ? 'h-11' : 'w-full'}
-        >
+        <Button href={cta.href} variant="primary" className={compact ? 'h-11' : 'w-full'}>
           {cta.label}
         </Button>
       );
 
     case 'calendar':
-      return <AddToCalendar event={calendarEvent} label={cta.label} full={!compact} />;
+      return (
+        <AddToCalendar event={calendarEvent} label={cta.label} full={!compact} compact={compact} />
+      );
 
     case 'disabled':
       return (
         <div
           className={cn(
-            'bg-bg-subtle text-fg-muted flex items-center justify-center rounded-md text-center font-semibold',
+            'bg-bg-subtle border-border text-fg-muted flex items-center justify-center rounded-md border text-center font-semibold',
             compact ? 'h-11 px-5 text-sm whitespace-nowrap' : 'h-12 w-full',
           )}
         >

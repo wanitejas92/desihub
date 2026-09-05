@@ -13,10 +13,13 @@ export function AddToCalendar({
   label = 'Add to calendar',
   /** Full-width primary treatment, for when this *is* the booking CTA. */
   full,
+  /** Same primary colour as `full`, but sized for the sticky pill, not stretched. */
+  compact,
 }: {
   event: CalendarEventInput;
   label?: string;
   full?: boolean;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -40,7 +43,7 @@ export function AddToCalendar({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        variant={full ? 'primary' : 'secondary'}
+        variant={full || compact ? 'primary' : 'secondary'}
         pill={!full}
         className={full ? 'w-full' : undefined}
       >
