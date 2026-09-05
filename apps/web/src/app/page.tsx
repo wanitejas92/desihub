@@ -8,7 +8,7 @@ import { FeaturedOrganisers } from '@/components/featured-organisers';
 import { PopularCities } from '@/components/popular-cities';
 import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
 import { EmptyState } from '@/components/empty-state';
-import { IconFlame, IconChevronRight } from '@/components/ui/icons';
+import { IconFlame, IconCalendar, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
 import { getBannerRepository } from '@/lib/banners';
 import { getCityImageRepository } from '@/lib/city-images';
@@ -23,7 +23,11 @@ export default async function HomePage() {
     getCityImageRepository(),
   ]);
   const banners = await bannerRepo.listActive();
-  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities, cityImages] =
+  // `dateTo` = today, `includePast` on (which also flips the sort to
+  // newest-first) — the same two filters /browse's own "past events" view
+  // uses, just capped to a homepage-sized rail here.
+  const today = new Date().toISOString().slice(0, 10);
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities, cityImages, past] =
     await Promise.all([
       repo.listEvents({ limit: 12 }),
       repo.thisWeek(12),
@@ -32,6 +36,7 @@ export default async function HomePage() {
       repo.featured(8),
       repo.popularCities(6),
       cityImageRepo.listAll(),
+      repo.listEvents({ includePast: true, dateTo: today, limit: 8 }),
     ]);
 
   return (
@@ -84,6 +89,26 @@ export default async function HomePage() {
 
       <PopularCities cities={cities} cityImages={cityImages} />
       <FeaturedOrganisers />
+
+      {past.items.length > 0 && (
+        <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
+          <div className="mb-5 flex items-baseline justify-between gap-4">
+            <h2 className="font-display text-fg flex items-center gap-1.5 text-lg font-semibold sm:text-xl">
+              <IconCalendar className="text-fg-muted" width={18} height={18} />
+              Past events
+            </h2>
+            <Link
+              href={`/browse?past=1&to=${today}`}
+              className="text-accent inline-flex shrink-0 items-center gap-0.5 text-sm font-semibold hover:underline"
+            >
+              See all
+              <IconChevronRight width={14} height={14} />
+            </Link>
+          </div>
+          <EventGrid events={past.items} />
+        </section>
+      )}
+
       <OrganiserCtaBanner />
     </>
   );

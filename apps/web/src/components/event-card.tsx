@@ -30,7 +30,12 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
   );
   const soldOut = event.status === 'sold_out';
   const cancelled = event.status === 'cancelled';
-  const unavailable = soldOut || cancelled;
+  // Computed from the event's own date, not the caller's query — a card is
+  // "past" because it already happened, regardless of which filter or rail
+  // fetched it, so price/CTA framing never misleadingly implies it's still
+  // bookable.
+  const past = new Date(event.ends_at ?? event.starts_at).getTime() < Date.now();
+  const unavailable = soldOut || cancelled || past;
 
   return (
     <Link
@@ -66,6 +71,11 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
             Trending
           </span>
         )}
+        {past && (
+          <span className="bg-fg/80 absolute top-3 left-3 z-10 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-white uppercase">
+            Past
+          </span>
+        )}
       </div>
 
       <div className="p-3">
@@ -84,7 +94,7 @@ export function EventCard({ event, priority, className, trending }: EventCardPro
           <p
             className={cn('shrink-0 text-sm font-bold', unavailable ? 'text-fg-subtle' : 'text-fg')}
           >
-            {unavailable ? (soldOut ? 'Sold out' : 'Cancelled') : price}
+            {soldOut ? 'Sold out' : cancelled ? 'Cancelled' : past ? 'Ended' : price}
           </p>
         </div>
       </div>

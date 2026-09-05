@@ -235,9 +235,15 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             </section>
           )}
 
+          {/*
+            The facts a visitor actually decides on — date, time, venue,
+            language, age policy — right after the description, before the
+            more decorative sections below it. Burying them under Highlights
+            and the gallery meant scrolling past photos to find them.
+          */}
+          <EventInfoGrid rows={infoRows} />
           <EventHighlights highlights={event.highlights} />
           <EventLineup lineup={event.lineup} />
-          <EventInfoGrid rows={infoRows} />
           <EventGallery images={event.gallery} title={event.title} />
           <EventTerms terms={event.terms} />
         </div>
