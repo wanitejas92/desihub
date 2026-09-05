@@ -4,30 +4,26 @@ import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 import { CITIES } from '@desihub/shared';
 import { Button } from './ui/button';
-import { IconSearch, IconMapPin, IconCalendar, IconChevronDown } from './ui/icons';
-
-const WHEN_OPTIONS = [
-  { value: 'week', label: 'This Week' },
-  { value: 'weekend', label: 'This Weekend' },
-] as const;
+import { IconSearch, IconMapPin, IconChevronDown } from './ui/icons';
 
 /**
  * The hero's search bar — a full-width card sitting across the seam between
  * the hero copy and the artwork. A real shortcut into /browse, not a
  * decoration: every field maps to a filter the browse page already reads.
+ * Date used to be a third field here ("Any time") duplicating the This
+ * week/This weekend pills directly below in the quick-filter rail — dropped
+ * so there's one place to filter by date, not two.
  */
 export function HeroSearchBar() {
   const router = useRouter();
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
-  const [when, setWhen] = useState('');
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (city) params.set('city', city);
-    if (when) params.set('when', when);
     const qs = params.toString();
     router.push((qs ? `/browse?${qs}` : '/browse') as never);
   }
@@ -59,14 +55,6 @@ export function HeroSearchBar() {
         onChange={setCity}
         placeholder="All Netherlands"
         options={CITIES.map((c) => ({ value: c, label: c }))}
-      />
-
-      <FieldSelect
-        icon={IconCalendar}
-        value={when}
-        onChange={setWhen}
-        placeholder="Any time"
-        options={WHEN_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
       />
 
       <Button

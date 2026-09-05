@@ -77,6 +77,16 @@
   .font-display {
     font-family: var(--font-display);
   }
+  /* Horizontally-scrolling chip/card rows: the swipe affordance is the
+     content itself, a visible native scrollbar under it reads as leftover
+     browser chrome, not part of the design. */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
   /* Subtle Indian texture: a faint warm grain, never clip-art. */
   .paper-texture {
     background-image: radial-gradient(

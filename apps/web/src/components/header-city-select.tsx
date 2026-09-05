@@ -9,7 +9,7 @@ export function HeaderCitySelect() {
   const router = useRouter();
 
   return (
-    <label className="rounded-pill border-border bg-surface text-fg hover:border-accent focus-within:border-accent hidden h-9 items-center gap-1.5 border pr-2 pl-3 text-sm font-medium sm:inline-flex">
+    <label className="rounded-pill border-border bg-surface text-fg hover:border-accent focus-within:border-accent inline-flex h-9 shrink-0 items-center gap-1.5 border pr-2 pl-3 text-sm font-medium">
       <IconMapPin className="text-fg-muted shrink-0" width={16} height={16} />
       <span className="sr-only">City</span>
       <select
@@ -17,7 +17,7 @@ export function HeaderCitySelect() {
         onChange={(e) =>
           router.push((e.target.value ? `/browse?city=${e.target.value}` : '/browse') as never)
         }
-        className="h-full max-w-[9rem] truncate bg-transparent outline-none"
+        className="h-full max-w-[6rem] truncate bg-transparent outline-none sm:max-w-[9rem]"
         aria-label="Filter by city"
       >
         <option value="">All Cities</option>

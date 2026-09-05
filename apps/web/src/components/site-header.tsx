@@ -2,7 +2,6 @@ import Link from 'next/link';
 import type { AccountUser } from '@desihub/shared';
 import { HeaderCitySelect } from './header-city-select';
 import { HeaderAccount } from './header-account';
-import { MobileNav } from './mobile-nav';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { IconSearch } from './ui/icons';
@@ -15,7 +14,6 @@ import { IconSearch } from './ui/icons';
 const NAV = [
   { href: '/browse', label: 'Events' },
   { href: '/#categories', label: 'Categories' },
-  { href: '/#venues', label: 'Venues' },
   { href: '/#organisers', label: 'Organisers' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
@@ -55,11 +53,12 @@ export function SiteHeader({ user }: { user: AccountUser | null }) {
             >
               <IconSearch />
             </Link>
-            <Button href="/submit" size="sm">
-              List Your Event
-            </Button>
+            <span className="hidden sm:inline-flex">
+              <Button href="/submit" size="sm">
+                List Your Event
+              </Button>
+            </span>
             <HeaderAccount user={user} />
-            <MobileNav navItems={NAV} />
           </div>
         </div>
       </div>

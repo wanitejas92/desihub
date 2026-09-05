@@ -21,7 +21,6 @@ const COLUMNS = [
     links: [
       { href: '/browse', label: 'Events' },
       { href: '/#categories', label: 'Categories' },
-      { href: '/#venues', label: 'Venues' },
       { href: '/#organisers', label: 'Organisers' },
     ],
   },

@@ -45,7 +45,7 @@ export function EventRail({
         />
       ) : (
         <ul
-          className="-mx-4 flex snap-x snap-mandatory [scrollbar-width:thin] gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
+          className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
           role="list"
         >
           {events.map((event, i) => (

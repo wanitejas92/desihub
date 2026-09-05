@@ -1,18 +1,16 @@
 import Link from 'next/link';
 import { EventGrid } from '@/components/event-grid';
-import { Hero, HeroTrustBadges } from '@/components/hero';
+import { Hero } from '@/components/hero';
 import { CategoryQuickNav } from '@/components/category-quick-nav';
 import { PromoCarousel } from '@/components/promo-carousel';
 import { QuickFilterRail } from '@/components/quick-filter-rail';
 import { FeaturedOrganisers } from '@/components/featured-organisers';
 import { PopularCities } from '@/components/popular-cities';
-import { TopVenues } from '@/components/top-venues';
 import { OrganiserCtaBanner } from '@/components/organiser-cta-banner';
 import { EmptyState } from '@/components/empty-state';
 import { IconFlame, IconChevronRight } from '@/components/ui/icons';
 import { getRepository } from '@/lib/data';
 import { getBannerRepository } from '@/lib/banners';
-import { topVenues } from '@/lib/top-venues';
 
 // Revalidate hourly — the season strip and quick filters are time-sensitive.
 export const revalidate = 3600;
@@ -20,29 +18,27 @@ export const revalidate = 3600;
 export default async function HomePage() {
   const [repo, bannerRepo] = await Promise.all([getRepository(), getBannerRepository()]);
   const banners = await bannerRepo.listActive();
-  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities, venuePool] =
-    await Promise.all([
-      repo.listEvents({ limit: 12 }),
-      repo.thisWeek(12),
-      repo.thisWeekend(12),
-      repo.listEvents({ price: 'free', limit: 12 }),
-      repo.featured(8),
-      repo.popularCities(6),
-      repo.listEvents({ limit: 60 }),
-    ]);
+  const [allUpcoming, thisWeek, thisWeekend, freeEvents, featured, cities] = await Promise.all([
+    repo.listEvents({ limit: 12 }),
+    repo.thisWeek(12),
+    repo.thisWeekend(12),
+    repo.listEvents({ price: 'free', limit: 12 }),
+    repo.featured(8),
+    repo.popularCities(6),
+  ]);
 
   return (
     <>
       {/*
-        Above-the-fold group: banner, search, buttons, trust badges. Quick
-        Filters sits immediately after with no gap of its own, so on a
-        taller screen any leftover space has to come from *this* wrapper, not
-        from the banner growing unboundedly or from luck. `lg:min-h` (desktop
-        only — mobile scrolls naturally) floors this block at one viewport
-        tall minus the header (h-16 + 1px border = 65px); it is NOT flexed or
-        centered, so the box stacks top-down as normal and any slack lands
-        as plain space *after* the badges, pushing Quick Filters below the
-        fold on any desktop height, not just the four this was tuned against
+        Above-the-fold group: banner, search, buttons. Quick Filters sits
+        immediately after with no gap of its own, so on a taller screen any
+        leftover space has to come from *this* wrapper, not from the banner
+        growing unboundedly or from luck. `lg:min-h` (desktop only — mobile
+        scrolls naturally) floors this block at one viewport tall minus the
+        header (h-16 + 1px border = 65px); it is NOT flexed or centered, so
+        the box stacks top-down as normal and any slack lands as plain space
+        *after* the search bar, pushing Quick Filters below the fold on any
+        desktop height, not just the four this was tuned against
         (1366×768, 1440×900, 1536×864, 1920×1080). The banner itself
         (see PromoCarousel) still has a real, bounded size per breakpoint —
         this wrapper only closes the gap that size leaves open.
@@ -57,7 +53,6 @@ export default async function HomePage() {
         )}
 
         <Hero />
-        <HeroTrustBadges />
       </div>
 
       <QuickFilterRail
@@ -98,7 +93,6 @@ export default async function HomePage() {
 
       <PopularCities cities={cities} />
       <FeaturedOrganisers />
-      <TopVenues venues={topVenues(venuePool.items)} />
       <OrganiserCtaBanner />
     </>
   );

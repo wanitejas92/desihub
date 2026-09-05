@@ -71,7 +71,10 @@ export function QuickFilterRail({
 
   return (
     <section className="max-w-content mx-auto px-4 py-8 sm:px-6">
-      <nav aria-label="Quick filters" className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+      <nav
+        aria-label="Quick filters"
+        className="scrollbar-hide -mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+      >
         <ul role="list" className="flex flex-nowrap gap-2 sm:gap-3">
           {FILTERS.map(({ id, label, Icon }) => {
             const isActive = id === active;
@@ -130,7 +133,7 @@ export function QuickFilterRail({
           <ul
             ref={listRef}
             onScroll={updateScrollState}
-            className="-mx-4 flex snap-x snap-mandatory [scrollbar-width:thin] gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
+            className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
             role="list"
           >
             {filtered.map((event, i) => (
