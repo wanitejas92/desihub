@@ -2,42 +2,65 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/browser';
+import { IconAlertCircle } from './ui/icons';
 
 /**
  * Redirect-based OAuth: clicking this sends the browser to Google, which
  * sends it back to /auth/callback with a `code` that route already knows
- * how to exchange (the same PKCE flow the magic-link email uses). The
- * button itself is complete — what it needs to actually work is a Google
- * provider configured in the Supabase dashboard (Authentication →
- * Providers → Google) with real OAuth client credentials, which is
- * necessarily done outside this codebase.
+ * how to exchange (the same PKCE flow the magic-link email uses).
+ *
+ * Gated behind NEXT_PUBLIC_GOOGLE_AUTH_ENABLED rather than just "Supabase is
+ * configured": a Supabase project with no Google provider set up rejects
+ * this with a 400 (`Unsupported provider: provider is not enabled`), and a
+ * button that reliably errors is worse than no button. Flip the env var on
+ * once a Google provider with real OAuth client credentials is configured
+ * in the Supabase dashboard (Authentication → Providers → Google) — that
+ * step happens outside this codebase.
  */
 export function GoogleSignInButton({ next }: { next: string }) {
   const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const supabase = createClient();
+  const enabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
 
-  if (!supabase) return null;
+  if (!supabase || !enabled) return null;
 
   async function handleClick() {
+    setError(null);
     setPending(true);
-    await supabase!.auth.signInWithOAuth({
+    const { error: authError } = await supabase!.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
     });
+    // A redirect on success replaces this page, so only the failure path
+    // ever reaches here — leaving the button stuck on "Redirecting…" with
+    // no feedback on error would look broken rather than say what happened.
+    if (authError) {
+      setError(authError.message);
+      setPending(false);
+    }
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleClick}
-      disabled={pending}
-      className="border-border bg-surface text-fg hover:bg-bg-subtle inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      <GoogleMark />
-      {pending ? 'Redirecting…' : 'Sign in with Google'}
-    </button>
+    <div>
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={pending}
+        className="border-border bg-surface text-fg hover:bg-bg-subtle inline-flex h-12 w-full items-center justify-center gap-3 rounded-lg border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <GoogleMark />
+        {pending ? 'Redirecting…' : 'Sign in with Google'}
+      </button>
+      {error && (
+        <p role="alert" className="text-error mt-1.5 flex items-center gap-1 text-xs">
+          <IconAlertCircle width={13} height={13} className="shrink-0" />
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

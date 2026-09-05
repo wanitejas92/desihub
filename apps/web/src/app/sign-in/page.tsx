@@ -31,6 +31,8 @@ export default async function SignInPage({
   const target = next && next.startsWith('/') && !next.startsWith('//') ? next : '/';
   if (user) redirect(target);
 
+  const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
+
   return (
     <div className="max-w-content mx-auto grid gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:items-start">
       <div>
@@ -63,10 +65,12 @@ export default async function SignInPage({
             That sign-in link didn’t work — it may have expired. Request a new one below.
           </p>
         )}
-        <div className="mb-4">
-          <GoogleSignInButton next={target} />
-        </div>
-        {hasSupabase() && (
+        {googleAuthEnabled && (
+          <div className="mb-4">
+            <GoogleSignInButton next={target} />
+          </div>
+        )}
+        {hasSupabase() && googleAuthEnabled && (
           <div className="mb-4 flex items-center gap-3">
             <div className="border-border flex-1 border-t" />
             <span className="text-fg-subtle text-xs font-semibold uppercase">or</span>

@@ -20,6 +20,8 @@ export function SignInModal() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const demoMode = !createClient();
+  const googleAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
+  const showDivider = !demoMode && googleAuthEnabled;
 
   useEffect(() => {
     setOpen(false);
@@ -84,11 +86,13 @@ export function SignInModal() {
                 followed organisers in sync across devices.
               </p>
 
-              <div className="mt-5">
-                <GoogleSignInButton next={pathname} />
-              </div>
+              {googleAuthEnabled && (
+                <div className="mt-5">
+                  <GoogleSignInButton next={pathname} />
+                </div>
+              )}
 
-              {!demoMode && (
+              {showDivider && (
                 <div className="my-5 flex items-center gap-3">
                   <div className="border-border flex-1 border-t" />
                   <span className="text-fg-subtle text-xs font-semibold uppercase">or</span>
@@ -96,7 +100,7 @@ export function SignInModal() {
                 </div>
               )}
 
-              <div className={demoMode ? 'mt-5' : ''}>
+              <div className={!showDivider ? 'mt-5' : ''}>
                 <SignInForm demoMode={demoMode} next={pathname} onSuccess={() => setOpen(false)} />
               </div>
             </div>
