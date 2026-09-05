@@ -23,18 +23,21 @@ const QUICK_CATEGORIES: { category: EventCategory; label: string }[] = [
  * Icon-over-label quick nav, right below the header — the site's *only*
  * category-browsing entry point (a "Categories" tile grid and a "Celebrate
  * culture" festival-tile section used to duplicate this same job further
- * down the page; both were folded into this one row instead).
+ * down the page; both were folded into this one row instead). Sticky
+ * beneath the header (top-[65px] = header's h-16 + its 1px bottom border)
+ * so category switching stays one tap away while scrolling, not just at
+ * the very top of the page.
  */
 export function CategoryQuickNav() {
   return (
     <nav
       id="categories"
       aria-label="Browse by category"
-      className="max-w-content mx-auto scroll-mt-20 px-4 sm:px-6"
+      className="bg-bg border-border sticky top-[65px] z-30 scroll-mt-20 border-b"
     >
       <ul
         role="list"
-        className="scrollbar-hide -mx-4 flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:mx-0 sm:gap-5 sm:px-0"
+        className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:gap-5 sm:px-6"
       >
         {QUICK_CATEGORIES.map(({ category, label }) => {
           const Icon = CATEGORY_ICON[category];

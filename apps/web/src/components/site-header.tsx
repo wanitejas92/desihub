@@ -13,18 +13,16 @@ import { Logo } from './logo';
  */
 export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
-    <header className="border-border border-b">
-      <div className="bg-bg/90 sticky top-0 z-40 backdrop-blur">
-        <div className="max-w-content mx-auto flex h-16 items-center gap-3 px-4 sm:px-6">
-          <Link href="/" className="shrink-0" aria-label="DesiHub home">
-            <Logo />
-          </Link>
+    <header className="bg-bg/90 border-border sticky top-0 z-40 border-b backdrop-blur">
+      <div className="max-w-content mx-auto flex h-16 items-center gap-3 px-4 sm:px-6">
+        <Link href="/" className="shrink-0" aria-label="DesiHub home">
+          <Logo />
+        </Link>
 
-          <HeaderCitySelect />
+        <HeaderCitySelect />
 
-          <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
-            <HeaderAccount user={user} />
-          </div>
+        <div className="ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
+          <HeaderAccount user={user} />
         </div>
       </div>
     </header>
