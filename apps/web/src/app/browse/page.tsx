@@ -96,16 +96,26 @@ export default async function BrowsePage({
       </div>
       <p className="text-fg-muted mt-2">{subheading}</p>
 
-      <div className="mt-6">
-        <Suspense fallback={<div className="h-24" />}>
-          <FilterBar />
-        </Suspense>
-      </div>
+      {/*
+        Below `lg` this stays the original single column — filters in a
+        horizontal bar, results underneath. At `lg` and up it becomes a
+        sidebar layout (filters left, results right, like every real
+        ticketing site) purely by reflowing the same two children into a
+        grid; neither `FilterBar` nor `Results` changes below the `lg:`
+        prefix, so mobile is byte-for-byte what it was.
+      */}
+      <div className="mt-6 lg:mt-8 lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:gap-10">
+        <div className="lg:sticky lg:top-24">
+          <Suspense fallback={<div className="h-24" />}>
+            <FilterBar />
+          </Suspense>
+        </div>
 
-      <div className="mt-8">
-        <Suspense key={JSON.stringify(filters)} fallback={<ResultsSkeleton />}>
-          <Results filters={filters} />
-        </Suspense>
+        <div className="mt-8 lg:mt-0">
+          <Suspense key={JSON.stringify(filters)} fallback={<ResultsSkeleton />}>
+            <Results filters={filters} />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
@@ -130,14 +140,14 @@ async function Results({ filters }: { filters: EventFilters }) {
       <p className="text-fg-muted mb-4 text-sm" aria-live="polite">
         {total} {total === 1 ? 'event' : 'events'}
       </p>
-      <EventGrid events={items} />
+      <EventGrid events={items} sidebar />
     </>
   );
 }
 
 function ResultsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" aria-hidden>
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-3" aria-hidden>
       {Array.from({ length: 8 }).map((_, i) => (
         <div key={i} className="animate-pulse">
           <div className="bg-bg-sunken aspect-[4/3] rounded-lg" />

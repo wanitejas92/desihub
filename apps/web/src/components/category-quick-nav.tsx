@@ -37,7 +37,7 @@ export function CategoryQuickNav() {
     >
       <ul
         role="list"
-        className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:gap-5 sm:px-6"
+        className="scrollbar-hide max-w-content mx-auto flex snap-x gap-4 overflow-x-auto px-4 py-3 sm:gap-5 sm:px-6 lg:snap-none lg:justify-center lg:gap-10 lg:overflow-visible lg:py-4"
       >
         {QUICK_CATEGORIES.map(({ category, label }) => {
           const Icon = CATEGORY_ICON[category];
@@ -45,15 +45,15 @@ export function CategoryQuickNav() {
             <li key={category} className="shrink-0 snap-start">
               <Link
                 href={`/browse?category=${category}`}
-                className="group flex w-16 flex-col items-center gap-1.5 text-center"
+                className="group flex w-16 flex-col items-center gap-1.5 text-center lg:w-20"
               >
                 <span
                   aria-hidden
-                  className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110"
+                  className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110 lg:h-8 lg:w-8"
                 >
                   <Icon width={26} height={26} />
                 </span>
-                <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold">
+                <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold lg:text-xs">
                   {label}
                 </span>
               </Link>
@@ -63,12 +63,12 @@ export function CategoryQuickNav() {
         <li className="shrink-0 snap-start">
           <Link
             href="/browse"
-            className="group flex w-16 flex-col items-center gap-1.5 text-center"
+            className="group flex w-16 flex-col items-center gap-1.5 text-center lg:w-20"
           >
-            <span className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110">
+            <span className="text-fg-muted group-hover:text-accent flex h-7 w-7 shrink-0 items-center justify-center transition-transform duration-150 ease-out group-hover:scale-110 lg:h-8 lg:w-8">
               <IconChevronRight width={22} height={22} />
             </span>
-            <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold">
+            <span className="text-fg-muted group-hover:text-fg text-[11px] leading-tight font-semibold lg:text-xs">
               More
             </span>
           </Link>

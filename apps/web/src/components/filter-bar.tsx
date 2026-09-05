@@ -30,7 +30,7 @@ export function FilterBar() {
   );
 
   return (
-    <div className="space-y-3" role="search" aria-label="Filter events">
+    <div className="space-y-3 lg:space-y-5" role="search" aria-label="Filter events">
       <div className="relative">
         <IconSearch className="text-fg-subtle pointer-events-none absolute top-1/2 left-4 -translate-y-1/2" />
         <input
@@ -42,7 +42,12 @@ export function FilterBar() {
           aria-label="Search"
         />
       </div>
-      <div className="flex flex-wrap gap-2">
+      {/*
+        A horizontal wrap of pills below `lg` (unchanged); a vertical stack of
+        full-width controls at `lg` and up, once there's a sidebar column
+        narrow enough that pills would wrap awkwardly one per line anyway.
+      */}
+      <div className="flex flex-wrap gap-2 lg:flex-col lg:flex-nowrap lg:items-stretch lg:gap-3">
         <Select
           label="City"
           value={current('city')}
@@ -70,7 +75,7 @@ export function FilterBar() {
             { value: 'paid', label: 'Paid' },
           ]}
         />
-        <label className="border-border bg-surface text-fg has-[:checked]:border-accent has-[:checked]:bg-accent-subtle inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium">
+        <label className="border-border bg-surface text-fg has-[:checked]:border-accent has-[:checked]:bg-accent-subtle inline-flex h-11 cursor-pointer items-center gap-2 rounded-md border px-4 text-sm font-medium lg:h-auto lg:w-full lg:py-2.5">
           <input
             type="checkbox"
             checked={current('family') === '1'}
@@ -82,7 +87,7 @@ export function FilterBar() {
           <button
             type="button"
             onClick={() => router.replace(pathname as never, { scroll: false })}
-            className="text-accent inline-flex h-11 items-center rounded-md px-4 text-sm font-semibold hover:underline"
+            className="text-accent inline-flex h-11 items-center rounded-md px-4 text-sm font-semibold hover:underline lg:h-auto lg:justify-start lg:px-1 lg:py-1"
           >
             Clear all
           </button>
@@ -104,12 +109,12 @@ function Select({
   options: { value: string; label: string }[];
 }) {
   return (
-    <label className="border-border bg-surface focus-within:border-accent relative inline-flex h-11 items-center rounded-md border text-sm">
+    <label className="border-border bg-surface focus-within:border-accent relative inline-flex h-11 items-center rounded-md border text-sm lg:w-full">
       <span className="sr-only">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value || null)}
-        className="text-fg h-full appearance-none rounded-md bg-transparent py-0 pr-9 pl-3 outline-none"
+        className="text-fg h-full appearance-none rounded-md bg-transparent py-0 pr-9 pl-3 outline-none lg:w-full"
         aria-label={label}
       >
         <option value="">{label}: any</option>
