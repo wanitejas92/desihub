@@ -26,5 +26,17 @@ export default defineConfig({
     url: `http://localhost:${PORT}`,
     timeout: 180_000,
     reuseExistingServer: !process.env.CI,
+    env: {
+      // Force the in-memory repository, whatever `.env.local` says.
+      //
+      // Without this the suite inherits a developer's real Supabase
+      // credentials, which means the tests either fail at build time (that
+      // host is unreachable from CI and from sandboxes) or, worse, succeed —
+      // and every run then writes test events into the production catalogue.
+      // `hasSupabase()` treats an empty string as absent.
+      NEXT_PUBLIC_SUPABASE_URL: '',
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: '',
+      SUPABASE_SERVICE_ROLE_KEY: '',
+    },
   },
 });

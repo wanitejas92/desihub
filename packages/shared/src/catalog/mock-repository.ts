@@ -11,6 +11,7 @@ import type {
 import { MOCK_EVENTS, MOCK_ORGANISERS } from './mock-data';
 import { applyFilters, paginate, cityCounts } from './filter';
 import { mockExtraSold } from './mock-inventory';
+import { mockRecordSubmission } from './mock-submissions';
 
 /**
  * In-memory repository. Reads from the mock catalogue; writes (submit/subscribe)
@@ -177,9 +178,24 @@ export class MockEventRepository implements EventRepository {
       }));
   }
 
+  /**
+   * Mirrors `submit_public_event`: a submission becomes a draft, and a draft
+   * is not public. The slug carries a random suffix for the same reason the
+   * RPC adds one — `events.slug` is unique, so two "Diwali Night"s must not
+   * collide.
+   */
   async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
-    // No persistence in the mock; return the slug the draft would receive.
-    return { ok: true, slug: draftSlug(input.title) };
+    const slug = `${draftSlug(input.title)}-${Math.random().toString(36).slice(2, 8)}`;
+    mockRecordSubmission({
+      slug,
+      title: input.title,
+      starts_at: input.starts_at,
+      city: input.city,
+      organiser_name: input.organiser_name,
+      venue_name: input.venue_name,
+      category: input.category,
+    });
+    return { ok: true, slug };
   }
 
   async subscribe(_input: SubscribeInput): Promise<SubscribeResult> {

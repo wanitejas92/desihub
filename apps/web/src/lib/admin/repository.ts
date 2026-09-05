@@ -163,15 +163,31 @@ export class AdminRepository {
       organiserId = created.id as string;
     }
 
+    // Matched before inserting. This used to insert unconditionally, so
+    // running the quick-add twice for the same hall left two "Ziggo Dome"
+    // rows — and the venue filter on /browse then listed the same place
+    // twice, each with a slice of its events.
     let venueId: string | null = null;
     if (input.venue_name) {
-      const { data: venue, error: venueErr } = await this.db
+      const { data: existingVenue } = await this.db
         .from('venues')
-        .insert({ name: input.venue_name, city: input.city })
         .select('id')
-        .single();
-      if (venueErr) throw venueErr;
-      venueId = venue.id as string;
+        .ilike('name', input.venue_name)
+        .ilike('city', input.city)
+        .limit(1)
+        .maybeSingle();
+
+      if (existingVenue) {
+        venueId = existingVenue.id as string;
+      } else {
+        const { data: venue, error: venueErr } = await this.db
+          .from('venues')
+          .insert({ name: input.venue_name, city: input.city })
+          .select('id')
+          .single();
+        if (venueErr) throw venueErr;
+        venueId = venue.id as string;
+      }
     }
 
     // Slug collisions are possible across organisers ("diwali-night" twice),
@@ -193,6 +209,9 @@ export class AdminRepository {
         starts_at: input.starts_at,
         ends_at: input.ends_at,
         is_free: input.is_free,
+        // Both ends of the range come from the form's single `price` field:
+        // the quick-add captures one fixed price, so min and max are equal by
+        // definition. Not a typo — a range needs the full event form.
         min_price_cents: input.min_price_cents,
         max_price_cents: input.min_price_cents,
         external_ticket_url: input.booking_url,

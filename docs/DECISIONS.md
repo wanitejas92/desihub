@@ -6,6 +6,142 @@ section.
 
 ---
 
+## Fix — Event creation was impossible from `/submit`, and fragile from `/admin`
+
+Submitting an event failed. The form said "Something went wrong. Please try
+again." and nothing was created. This is what was actually happening, and what
+changed.
+
+### Three independent causes
+
+**1. RLS refused every anonymous submission.** `/submit` advertises "free, no
+account needed", but two policies from `0003_rls.sql` require a session:
+
+```sql
+event_sources_write : for all using (auth.uid() is not null)
+events_insert       : for insert with check (owns_organiser(...) or is_admin())
+```
+
+`SupabaseEventRepository.submitEvent()` ran four statements as the caller, and
+wrote `event_sources` **first**, so a logged-out visitor never got past
+statement one:
+
+```
+ERROR: new row violates row-level security policy for table "event_sources"
+```
+
+Past that it would still have failed: `events.organiser_id` is `NOT NULL` and
+`events_insert` demands an organiser the caller owns — which an anonymous
+submitter, by definition, has none of. The code's own comment claimed it would
+"fall back to the `event_sources` record alone", but the throw made that
+fallback unreachable. **The public form could never have worked.**
+
+**2. `category` defaulted to a value the enum does not contain.** The
+repository sent `input.category ?? 'community'`; `event_category` has no
+`community` member. Any submission that left the category blank died on
+`invalid input value for enum event_category: "community"` — this one hit the
+admin path too, and was found by the regression suite rather than by reading.
+
+**3. Schema drift broke the admin path.** `createPublishedEvent()` writes
+`poster_image_url` (0010), `reviewed_at`/`reviewed_by` (0009) and the public
+path writes `highlights`/`terms` (0013). `0010` and `0013` use bare
+`add column`, which errors on a re-run, so a part-migrated database is easy to
+end up with and awkward to repair — and any missing column fails the whole
+insert:
+
+```
+ERROR: column "poster_image_url" of relation "events" does not exist
+```
+
+And masking all three: `catch { return 'Something went wrong. Please try
+again.' }`. Postgres named the failing policy every single time; the action
+discarded it before anyone could read it.
+
+### Decisions
+
+- **One SECURITY DEFINER function, not looser RLS.** `submit_public_event()`
+  (0014) is the only route a public submission takes. The alternative —
+  granting `anon` insert on `events` — would let anyone write arbitrary rows
+  including `status = 'published'`. The function is therefore the security
+  boundary: `search_path` is pinned, `status` is hard-coded to `'draft'` and
+  never a parameter, ownership and `verified` are decided inside, and inputs
+  are length-checked. RLS stays deny-by-default everywhere else, which the
+  suite asserts.
+- **`draft`, not a new `pending_review` status.** It already means "submitted,
+  not yet public": the review queue reads it, the stats tile counts it, and
+  `events_public_read` hides it. A new value would have been a rename with the
+  queue, the stats and `returnToQueue()` all needing edits for no behavioural
+  gain.
+- **Submission is atomic.** Provenance is written last and linked to the event
+  it produced, rather than first and unlinked. There is no longer a
+  half-submitted state where `event_sources` has a row and no event exists.
+- **An anonymous submitter never reuses a verified organiser.** Submitting as
+  "Big Promoter" would otherwise attach the event to the real, verified Big
+  Promoter — and because an anonymous caller's `uid` and an unowned
+  organiser's `owner_id` are both NULL, `is distinct from` compared equal and
+  let it through. Verified + anonymous now always forks to a fresh unverified
+  organiser and lets review sort out the identity.
+- **`slugify()` now exists in SQL**, mirroring `packages/shared/src/slug.ts`.
+  It had been TypeScript-only, so nothing in the database could build a slug.
+- **0014 heals drift.** It re-states the 0009/0010/0013 columns with
+  `if not exists`, so applying it brings a part-migrated database to the shape
+  the app expects. Every line is a no-op on a fully-migrated one.
+- **Errors name the cause and the fix.** `describeDbError()` maps the codes
+  that actually occur — `42501` (RLS), `42703`/`PGRST204` (missing column,
+  named), `42883`/`PGRST202` (RPC not installed), `23505`, `23502`, `22P02`,
+  and the `raise exception` messages from the function itself. Anything
+  unrecognised keeps the database's own message rather than being flattened.
+  **No bare `catch` on a write path.**
+- **Venues are matched before insert**, on both paths. The admin quick-add
+  inserted unconditionally, so one hall accumulated a row per event held
+  there, and the venue filter then listed it twice with a slice of its events
+  each.
+- **E2E is pinned to the mock repository.** `playwright.config.ts` now blanks
+  the Supabase env for the test server. It was inheriting `.env.local`, which
+  meant the suite either failed at build time or — worse — passed, writing
+  test events into the production catalogue.
+- **The mock records submissions.** It previously returned a slug and dropped
+  the input, which made it agree with the broken database a little too well:
+  both said "submitted!" and neither had an event afterwards.
+
+### Verification
+
+`supabase/tests/run.sh` builds a throwaway Postgres 16 cluster, applies the
+shim and every migration in order, and runs the `.test.sql` suites; the exit
+code is the result. **34 assertions across both paths pass.** Checked that the
+suite genuinely fails without the fix: removing `0014` from the migrations
+directory turns it red (exit 1), restoring it turns it green (exit 0).
+
+Also green: `typecheck`, `lint`, 103 unit tests (13 of them new, covering
+every branch of `describeDbError`), and 10 Playwright tests across mobile and
+desktop covering the anonymous submit flow.
+
+### Environment constraints (honest limits, not skipped work)
+
+- **The live Supabase project was not reachable from this container** — the
+  egress proxy denies `*.supabase.co` (403 policy denial) and the Supabase MCP
+  server needs an OAuth flow this session cannot run. Everything above was
+  therefore proven against a real Postgres 16 running the project's own
+  migrations and policies, not against the production database. **Applying
+  `0014` to the live project, and one manual submission through the deployed
+  form, are still yours to do** — see the migration's header for what it does.
+- **The admin quick-add UI has no offline E2E**, because `getAdminRepository()`
+  is deliberately Supabase-only (there is no mock: moderation is about writes
+  against real rows). Its data path is covered at the SQL layer instead, in
+  `admin_create_event.test.sql`.
+
+### Open
+
+- **30 pre-existing E2E failures, unrelated to this fix and not introduced by
+  it** (verified by stashing these changes and re-running: they fail either
+  way). They come from the earlier design pass in this session: the homepage
+  no longer renders an `<h1>`, and the header now opens a sign-in *modal*
+  instead of linking to `/sign-in`, which strands every test that starts with
+  `page.goto('/sign-in')` or looks for a "Sign in" link. The missing `<h1>` is
+  a real accessibility and SEO regression, not just a stale selector.
+
+---
+
 ## Phase 4 — The homepage's artwork moves into a rotating strip you upload to
 
 The hero was ~700px before a visitor saw a single event: a large headline

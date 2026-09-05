@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { CITIES, EVENT_CATEGORIES, PROFILE_ROLES, type City } from '@desihub/shared';
 import { requireAdmin } from '@/lib/account/guards';
+import { describeDbError, logDbError } from '@/lib/data/errors';
 import { getAdminRepository } from './index';
 
 export interface AdminActionState {
@@ -142,10 +143,11 @@ export async function createEventAction(
     revalidatePublicSurfaces();
     return { status: 'success', message: 'Event is live.', slug };
   } catch (err) {
-    return {
-      status: 'error',
-      message: err instanceof Error ? err.message : 'Could not create the event.',
-    };
+    // `err.message` alone surfaced raw Postgres text — 'column
+    // "poster_image_url" of relation "events" does not exist' told an admin
+    // nothing about what to do next. describeDbError names the migration.
+    logDbError('createEventAction', err);
+    return { status: 'error', message: describeDbError(err, 'event') };
   }
 }
 
@@ -241,16 +243,14 @@ export async function setCityImageAction(
   try {
     const { createClient } = await import('@/lib/supabase/server');
     const db = await createClient();
-    const { error } = await db
-      .from('city_images')
-      .upsert(
-        {
-          city: parsed.data.city,
-          image_url: parsed.data.image_url,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'city' },
-      );
+    const { error } = await db.from('city_images').upsert(
+      {
+        city: parsed.data.city,
+        image_url: parsed.data.image_url,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'city' },
+    );
     if (error) throw error;
     revalidatePath('/');
     revalidatePath('/admin/cities');

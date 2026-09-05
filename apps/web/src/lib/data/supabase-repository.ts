@@ -1,13 +1,12 @@
 import {
-  draftSlug,
   isThisWeek,
   isThisWeekend,
-  slugify,
   cityCounts,
   type SubmitEventInput,
   type SubscribeInput,
 } from '@desihub/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { describeDbError, logDbError, SubmitEventError } from './errors';
 import type {
   EventRepository,
   SubmitResult,
@@ -250,93 +249,58 @@ export class SupabaseEventRepository implements EventRepository {
     return sorted.map(({ eventCount: _eventCount, ...r }) => r);
   }
 
-  async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
-    const slug = `${draftSlug(input.title)}-${slugify(crypto.randomUUID().slice(0, 6))}`;
-
-    // Provenance first, and unconditionally: it is the one record that
-    // survives even if the draft insert below is refused by RLS (an
-    // anonymous submitter owns no organiser), so a submission is never
-    // silently lost.
-    const { error: srcErr } = await this.db.from('event_sources').insert({
-      kind: 'manual',
-      url: input.booking_url || input.ticket_url || null,
-      raw_text: JSON.stringify(input),
-    });
-    if (srcErr) throw srcErr;
-
-    // Then the real draft row, which is what puts the submission in the
-    // admin review queue. Without this the queue would only ever show events
-    // an admin created, and public submissions would sit unread in a table
-    // nobody looks at.
-    await this.insertDraftEvent(input, slug);
-    return { ok: true, slug };
-  }
-
   /**
-   * Best-effort: a signed-in organiser gets a draft they own; an anonymous
-   * submitter is blocked by `events_insert` RLS and falls back to the
-   * `event_sources` record alone, which an admin can still import. Either
-   * way the submitter sees the same "we'll review it" confirmation, because
-   * from their side both outcomes are the same.
+   * One RPC, because a public submission cannot be done from the client side
+   * at all.
+   *
+   * What was here before ran four statements as the caller: insert
+   * `event_sources`, find-or-create the organiser, create the venue, insert
+   * the event. For the visitors this form is actually for — logged out, no
+   * account, exactly as the page advertises — every one of those is refused
+   * by RLS, and the first one threw:
+   *
+   *   new row violates row-level security policy for table "event_sources"
+   *
+   * `submit_public_event` (0014) does the whole thing inside the database as
+   * one SECURITY DEFINER transaction, so a submission is atomic: either the
+   * event, its organiser, its venue and its provenance row all exist, or none
+   * of them do. There is no longer a half-submitted state where provenance
+   * was written but the event was not.
    */
-  private async insertDraftEvent(input: SubmitEventInput, slug: string): Promise<void> {
-    const { data: auth } = await this.db.auth.getUser();
-    if (!auth.user) return;
-
-    const organiserName = input.organiser_name?.trim() || 'Unnamed organiser';
-    const organiserSlug = slugify(organiserName);
-
-    const { data: existing } = await this.db
-      .from('organisers')
-      .select('id')
-      .eq('slug', organiserSlug)
-      .maybeSingle();
-
-    let organiserId = existing?.id as string | undefined;
-    if (!organiserId) {
-      const { data: created, error } = await this.db
-        .from('organisers')
-        .insert({
-          name: organiserName,
-          slug: organiserSlug,
-          city: input.city,
-          contact_email: input.contact_email || null,
-          owner_id: auth.user.id,
-        })
-        .select('id')
-        .maybeSingle();
-      if (error || !created) return;
-      organiserId = created.id as string;
-    }
-
-    let venueId: string | null = null;
-    if (input.venue_name) {
-      const { data: venue } = await this.db
-        .from('venues')
-        .insert({ name: input.venue_name, city: input.city })
-        .select('id')
-        .maybeSingle();
-      venueId = (venue?.id as string) ?? null;
-    }
-
-    await this.db.from('events').insert({
-      organiser_id: organiserId,
-      venue_id: venueId,
-      title: input.title,
-      slug,
-      description: input.description ?? null,
-      highlights: input.highlights ?? null,
-      terms: input.terms ?? null,
-      category: input.category ?? 'community',
-      image_url: input.image_url || null,
-      starts_at: input.starts_at,
-      is_free: input.is_free ?? false,
-      min_price_cents: input.min_price_cents ?? null,
-      max_price_cents: input.max_price_cents ?? null,
-      external_ticket_url: input.booking_url || input.ticket_url || null,
-      // Always a draft, never published — the review queue is the only way in.
-      status: 'draft',
+  async submitEvent(input: SubmitEventInput): Promise<SubmitResult> {
+    const { data, error } = await this.db.rpc('submit_public_event', {
+      p_title: input.title,
+      p_starts_at: input.starts_at,
+      p_city: input.city,
+      p_organiser_name: input.organiser_name,
+      p_description: input.description ?? null,
+      p_highlights: input.highlights ?? null,
+      p_terms: input.terms ?? null,
+      // No `?? 'community'` here: that is not a member of event_category, so
+      // it failed every submission that left the category blank. The
+      // function's own default ('cultural') applies when this is null.
+      p_category: input.category ?? null,
+      p_venue_name: input.venue_name ?? null,
+      p_contact_email: input.contact_email || null,
+      p_image_url: input.image_url || null,
+      p_entry_type: input.entry_type ?? 'free',
+      p_min_price_cents: input.min_price_cents ?? null,
+      p_max_price_cents: input.max_price_cents ?? null,
+      p_booking_url: input.booking_url || input.ticket_url || null,
     });
+
+    if (error) {
+      logDbError('submitEvent', error);
+      throw new SubmitEventError(describeDbError(error, 'event'), error);
+    }
+    if (typeof data !== 'string' || data.length === 0) {
+      throw new SubmitEventError(
+        'The database accepted the submission but returned no event link. Please check the review queue before resubmitting.',
+        null,
+      );
+    }
+
+    return { ok: true, slug: data };
   }
 
   async subscribe(input: SubscribeInput): Promise<SubscribeResult> {

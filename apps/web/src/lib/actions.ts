@@ -2,6 +2,7 @@
 
 import { submitEventSchema, subscribeSchema } from '@desihub/shared';
 import { getRepository } from '@/lib/data';
+import { describeDbError, logDbError } from '@/lib/data/errors';
 
 export interface ActionState {
   status: 'idle' | 'success' | 'error';
@@ -61,8 +62,12 @@ export async function submitEventAction(
       message: 'Thank you! Your event has been submitted for review.',
       slug: result.slug,
     };
-  } catch {
-    return { status: 'error', message: 'Something went wrong. Please try again.' };
+  } catch (err) {
+    // Never `catch {}` here. The old bare catch is why a form that could not
+    // work for *any* logged-out visitor looked like an intermittent glitch:
+    // Postgres was naming the failing policy every time and we discarded it.
+    logDbError('submitEventAction', err);
+    return { status: 'error', message: describeDbError(err, 'event') };
   }
 }
 
@@ -85,8 +90,9 @@ export async function subscribeAction(
     const repo = await getRepository();
     await repo.subscribe(parsed.data);
     return { status: 'success', message: "You're in! We'll send events you'll love." };
-  } catch {
-    return { status: 'error', message: 'Something went wrong. Please try again.' };
+  } catch (err) {
+    logDbError('subscribeAction', err);
+    return { status: 'error', message: describeDbError(err, 'subscription') };
   }
 }
 
