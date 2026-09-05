@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { Logo } from './logo';
 import { EmailCapture } from './email-capture';
@@ -68,12 +69,32 @@ const LINKS = [
   { href: '/account/tickets', label: 'My tickets' },
 ] as const;
 
+/**
+ * Dark, on request — everywhere else on DesiHub is deliberately light-only
+ * (see the ui-tokens preset comment), so rather than touch that sitewide
+ * decision this scopes a dark palette to just the footer by overriding the
+ * same CSS variables every `bg-*`/`text-*`/`border-*` utility already reads
+ * from. Every child (including `EmailCapture`, built with zero knowledge of
+ * this) repaints correctly with no changes of its own.
+ */
+const DARK_FOOTER_VARS = {
+  '--color-bg': '#12142A',
+  '--color-bg-subtle': '#1B1E3D',
+  '--color-surface': '#20234A',
+  '--color-border': 'rgba(255,255,255,0.16)',
+  '--color-border-strong': 'rgba(255,255,255,0.28)',
+  '--color-fg': '#FFFFFF',
+  '--color-fg-muted': '#A6A9C4',
+  '--color-fg-subtle': '#7D80A0',
+  '--color-accent-subtle': 'rgba(255,138,0,0.22)',
+} as CSSProperties;
+
 export function SiteFooter() {
   return (
-    <footer className="border-border bg-bg-subtle mt-16 border-t">
+    <footer className="bg-bg text-fg mt-16" style={DARK_FOOTER_VARS}>
       <div className="max-w-content mx-auto px-4 py-8 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <Logo />
+          <Logo inverted />
 
           <div className="flex items-center gap-4">
             <Link
@@ -127,7 +148,10 @@ export function SiteFooter() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="bg-fg flex items-center gap-2 rounded-lg px-3 py-1.5 text-white transition-opacity hover:opacity-90"
+                // Fixed black, not the theme's `fg` token: a store badge
+                // looks like a store badge on any background, dark footer
+                // included, so it stays decoupled from the surrounding scope.
+                className="flex items-center gap-2 rounded-lg border border-white/15 bg-black px-3 py-1.5 text-white transition-opacity hover:opacity-90"
               >
                 <Icon width={20} height={20} />
                 <span className="leading-tight">
@@ -141,7 +165,7 @@ export function SiteFooter() {
                 type="button"
                 disabled
                 aria-label={`${label} — coming soon`}
-                className="bg-fg-subtle flex cursor-not-allowed items-center gap-2 rounded-lg px-3 py-1.5 text-white opacity-50"
+                className="flex cursor-not-allowed items-center gap-2 rounded-lg border border-white/15 bg-black px-3 py-1.5 text-white opacity-40"
               >
                 <Icon width={20} height={20} />
                 <span className="leading-tight">

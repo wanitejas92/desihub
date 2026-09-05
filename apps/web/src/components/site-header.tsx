@@ -21,7 +21,7 @@ import { IconSearch } from './ui/icons';
 export function SiteHeader({ user }: { user: AccountUser | null }) {
   return (
     <header className="bg-bg/90 border-border sticky top-0 z-40 border-b backdrop-blur">
-      <div className="max-w-content mx-auto flex h-16 items-center gap-3 px-4 sm:px-6">
+      <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-10">
         <Link href="/" className="shrink-0" aria-label="DesiHub home">
           <Logo />
         </Link>

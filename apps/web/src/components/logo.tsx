@@ -66,12 +66,19 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
   );
 }
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  inverted,
+}: {
+  className?: string;
+  /** White "Desi" instead of navy — for the one place the logo sits on a dark ground. */
+  inverted?: boolean;
+}) {
   return (
     <span className={`flex items-center gap-2 ${className ?? ''}`}>
       <LogoMark size={28} />
       <span className="font-display text-lg leading-none font-semibold tracking-tight">
-        <span className="text-fg">Desi</span>
+        <span className={inverted ? 'text-white' : 'text-fg'}>Desi</span>
         <span
           style={{
             backgroundImage: 'linear-gradient(90deg, #FF8A00, #F0146F, #8B1FE0)',

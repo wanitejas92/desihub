@@ -52,7 +52,7 @@ export const tokenPreset = {
         touch: '44px',
       },
       maxWidth: {
-        content: '1200px',
+        content: '1440px',
       },
     },
   },
